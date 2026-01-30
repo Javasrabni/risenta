@@ -4,10 +4,23 @@ import { cn } from '@/lib/utils'
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler'
 import { DotPattern } from '@/components/ui/dot-pattern'
 import { AnimatedShinyText } from '@/components/ui/animated-shiny-text'
+import { LightRays } from '@/components/ui/light-rays'
+
 import Navbar from '../navbar/navbar'
+import Team from '../team/team'
+import { Highlighter } from '@/components/ui/highlighter'
+import RippleBtn from '../Button/rippleBtn/rippleBtn'
+
 const Body = () => {
   return (
     <div className='flex flex-col items-center justify-center '>
+
+      {/* NAVBAR */}
+      <div className='fixed bottom-8 z-100 left-0 right-0 flex items-center justify-center'>
+        <Navbar />
+      </div>
+
+      {/* LANDING PAGE */}
       <div className='h-[90vh] flex items-center justify-center'>
         <div className="relative z-10 flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
           <span className="text-[8px] md:text-xs font-semibold tracking-[0.35em] text-slate-800/60  font-[inter] uppercase dark:text-slate-200/60">
@@ -21,16 +34,27 @@ const Body = () => {
               Risenta
             </span>
           </AnimatedShinyText>
-          <p className="max-w-md text-xs md:text-sm text-slate-800/80 md:text-base dark:text-slate-200/80 font-[inter]">
-            Drop this component into any container and it will fill the space with
-            softly animated light rays shining from above.
+          <p className="max-w-md text-xs md:text-sm text-slate-800/80 md:text-base dark:text-slate-200/80 font-[inter] text-center">
+            Mentransformasi riset mandiri menjadi narasi pengetahuan publik sekaligus menghadirkan ruang diskusi bagi{' '}<Highlighter action="underline" color="#87CEFA">intelektualitas</Highlighter>{" "}pemuda Indonesia.
           </p>
+
+          <div className='pt-8'>
+            <RippleBtn text="✨ Eksplor Publikasi Kami" />
+          </div>
         </div>
+        {/* <LightRays /> */}
       </div>
 
-      <div className='fixed bottom-8 z-100 left-0 right-0 flex items-center justify-center'>
-        <Navbar />
-      </div>
+      {/* TEAM SECTION */}
+      {/* <div className='w-full flex h-screen items-center justify-center'>
+        <Team />
+      </div> */}
+
+
+
+
+
+
       <DotPattern
         width={20}
         height={20}
