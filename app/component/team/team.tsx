@@ -39,7 +39,7 @@ export default function Team() {
 
     return (
         <div
-            className="relative flex flex-col md:flex-row h-full w-full items-start gap-16 md:justify-between md:items-start overflow-hidden p-10 "
+            className="relative flex flex-col md:flex-row h-full w-full items-start gap-8 md:justify-between md:items-center overflow-hidden p-10 "
             ref={containerRef}
         >
             <div className="flex h-full flex-col justify-center gap-4">
@@ -52,6 +52,10 @@ export default function Team() {
                     Representasi dari berbagai disiplin ilmu yang berkomitmen pada keterbukaan informasi dan pengembangan wawasan ilmiah. Membuka ruang diskusi bagi pemuda Indonesia untuk mengeksplorasi ide-ide inovatif.
                 </p>
 
+                <div className="relative hidden dark:flex md:w-64 md:h-25 translate-x-[-58px]">
+                    <Image src={'/Assets/logo/logo.jpeg'} alt="Risenta Logo" fill className="object-cover" />
+                </div>
+
                 {/* <div className="mt-4"> */}
                 {/* <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs md:text-sm">Areas of Expertise:</p> */}
                 {/* <MorphingTexts /> */}
@@ -59,39 +63,67 @@ export default function Team() {
                 {/* </div> */}
             </div>
 
-            <div className="flex size-full max-h-[200px] max-w-lg flex-col items-stretch justify-between gap-10">
-                <div className="flex flex-col gap-4 items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Circle ref={div1Ref}>
-                            <Icons.googleDrive />
-                        </Circle>
-                        <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">Javas Anggaraksa Rabbani</p>
+            <div className="flex size-full max-h-[600px] h-full max-w-lg flex-col items-stretch justify-between gap-10 md:gap-12 ">
+                <div className="flex flex-col gap-2 justify-between w-full">
+                    <div className="flex items-center gap-2">
+                        <div ref={div1Ref} className="w-12 h-12 md:w-20 md:h-20 relative rounded-full overflow-hidden z-20">
+                            <Image src={'/Assets/team/javas.jpeg'} alt="" className="object-cover scale-180 translate-y-[18px]" fill />
+                        </div>
+                        <span className="flex flex-col">
+                            <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">Javas Anggaraksa Rabbani</p>
+                            <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Co-Founder, Program Initiatior</p>
+                        </span>
                     </div>
-                    <div className="flex flex-row-reverse items-center gap-4">
-                        <Circle ref={div5Ref}>
-                            <Icons.googleDocs />
+                    <div className="flex flex-row-reverse items-center gap-2">
+                        <Circle ref={div2Ref}>
+                            {/* <Icons.googleDocs /> */}
                         </Circle>
-                        <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">Javas Anggaraksa Rabbani</p>
+                        <span className="flex flex-col text-right">
+                            <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">Rasyid Ali Nurhakim</p>
+                            <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Co-Founder, Program Initiatior</p>
+                        </span>
                     </div>
                 </div>
-                <div className="flex flex-row items-center justify-between">
-                    <Circle ref={div2Ref}>
-                        <Icons.notion />
-                    </Circle>
-                    <div ref={div4Ref} className="w-14 h-14 relative rounded-full overflow-hidden z-20 outline-2 outline-blue-50 dark:outline-blue-700">
+                <div className="flex flex-col justify-between items-center gap-2">
+                    <div className="flex self-start flex-row items-center gap-2">
+                        <Circle ref={div3Ref}>
+                            {/* <Icons.googleDocs /> */}
+                        </Circle>
+                        <span className="flex flex-col">
+                            <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">Saskia Hanina Sadiyah</p>
+                            <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Program Initiatior, Researcher</p>
+                        </span>
+                    </div>
+                    <div ref={div4Ref} className="w-14 h-14 relative rounded-full overflow-hidden self-center z-20 outline-2 outline-blue-50 dark:outline-neutral-800">
                         <Image src={'/Assets/logo/logo.jpeg'} alt="" className="" fill />
                     </div>
-                    <Circle ref={div6Ref}>
-                        <Icons.zapier />
-                    </Circle>
+                    <div className="flex flex-row-reverse self-end items-center gap-2">
+                        <Circle ref={div5Ref}>
+                            {/* <Icons.googleDocs /> */}
+                        </Circle>
+                        <span className="flex flex-col text-right">
+                            <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">Daffa Adnan Asyarof</p>
+                            <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Program Initiatior</p>
+                        </span>
+                    </div>
                 </div>
                 <div className="flex flex-row items-center justify-between">
-                    <Circle ref={div3Ref}>
-                        <Icons.whatsapp />
-                    </Circle>
-                    <Circle ref={div7Ref}>
-                        <Icons.messenger />
-                    </Circle>
+                    <div className="flex flex-row items-center gap-2">
+                        <Circle ref={div6Ref}>
+                            {/* <Icons.googleDocs /> */}
+                        </Circle>
+                        <span className="flex flex-col">
+                            <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">M. Albar Hakim</p>
+                            <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Program Initiatior</p>
+                        </span>
+                    </div>
+
+                    {/* <div className="flex flex-row items-center gap-2">
+                        <Circle ref={div7Ref}>
+                            <Icons.googleDocs />
+                        </Circle>
+                        <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">?</p>
+                    </div> */}
                 </div>
             </div>
 
@@ -128,14 +160,14 @@ export default function Team() {
                 toRef={div4Ref}
                 reverse
             />
-            <AnimatedBeam
+            {/* <AnimatedBeam
                 containerRef={containerRef}
                 fromRef={div7Ref}
                 toRef={div4Ref}
                 curvature={75}
                 endYOffset={10}
                 reverse
-            />
+            /> */}
         </div>
     )
 }

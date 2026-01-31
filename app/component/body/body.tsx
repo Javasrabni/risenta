@@ -40,7 +40,7 @@ const Body = () => {
             </span>
           </AnimatedShinyText>
           <p className="max-w-md text-sm text-slate-800/80 md:text-base dark:text-slate-200/80 font-[inter] text-center">
-            Mentransformasi riset mandiri menjadi narasi pengetahuan publik sekaligus menghadirkan ruang diskusi bagi{' '}<Highlighter action="underline" color="#87CEFA">intelektual</Highlighter>{" "}pemuda Indonesia.
+            Mentransformasi riset mandiri menjadi narasi pengetahuan publik sekaligus menghadirkan ruang diskusi bagi{' '}<Highlighter action="underline" color='#1447E6' >intelektual</Highlighter>{" "}pemuda Indonesia.
           </p>
 
           <div className='pt-4'>
@@ -51,7 +51,7 @@ const Body = () => {
       </div>
 
       {/* TEAM SECTION */}
-      <div className='w-full max-w-[72rem] flex h-[90vh] items-center justify-center pb-12'>
+      <div className='w-full max-w-[72rem] flex h-fit items-center justify-center pb-12'>
         <Team />
       </div>
 
