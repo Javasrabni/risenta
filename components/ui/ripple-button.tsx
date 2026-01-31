@@ -13,7 +13,7 @@ export const RippleButton = React.forwardRef<HTMLButtonElement, RippleButtonProp
     {
       className,
       children,
-      rippleColor = "rgba(173, 216, 230, 0.5)",
+      rippleColor = "rgba(11, 177, 233, 0.91)",
       duration = "600ms",
       onClick,
       ...props
@@ -54,7 +54,7 @@ export const RippleButton = React.forwardRef<HTMLButtonElement, RippleButtonProp
         ref={ref}
         onClick={handleClick}
         className={cn(
-          "relative cursor-pointer   flex items-center justify-center overflow-hidden rounded-md border-1 dark:border-2 px-6 py-3 ",
+          "relative cursor-pointer bg-neutral-100 dark:bg-neutral-900  flex items-center justify-center overflow-hidden rounded-md border-1 px-6 py-3 ",
           className
         )}
         {...props}

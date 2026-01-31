@@ -1,4 +1,4 @@
-"use client"
+
 import React from 'react'
 import { cn } from '@/lib/utils'
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler'
@@ -11,6 +11,7 @@ import Team from '../team/team'
 import { Highlighter } from '@/components/ui/highlighter'
 import RippleBtn from '../Button/rippleBtn/rippleBtn'
 import NewInfoLanding from '../announcement/newInfo'
+import { AuroraText } from '@/components/ui/aurora-text'
 
 const Body = () => {
   return (
@@ -28,7 +29,7 @@ const Body = () => {
         </div>
         <div className="relative z-10 flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
           <span className="text-[10px] md:text-xs font-semibold tracking-[0.35em] text-slate-800/60  font-[inter] uppercase dark:text-slate-200/60">
-            Independent Research
+            Independent <AuroraText>Research</AuroraText>
           </span>
           {/* <h1 className="text-foreground font-[inter] text-4xl font-bold md:text-5xl">
             Risenta
@@ -38,8 +39,8 @@ const Body = () => {
               Risenta
             </span>
           </AnimatedShinyText>
-          <p className="max-w-md text-sm md:text-sm text-slate-800/80 md:text-base dark:text-slate-200/80 font-[inter] text-center">
-            Mentransformasi riset mandiri menjadi narasi pengetahuan publik sekaligus menghadirkan ruang diskusi bagi{' '}<Highlighter action="underline" color="#87CEFA">intelektualitas</Highlighter>{" "}pemuda Indonesia.
+          <p className="max-w-md text-sm text-slate-800/80 md:text-base dark:text-slate-200/80 font-[inter] text-center">
+            Mentransformasi riset mandiri menjadi narasi pengetahuan publik sekaligus menghadirkan ruang diskusi bagi{' '}<Highlighter action="underline" color="#87CEFA">intelektual</Highlighter>{" "}pemuda Indonesia.
           </p>
 
           <div className='pt-4'>
@@ -50,9 +51,9 @@ const Body = () => {
       </div>
 
       {/* TEAM SECTION */}
-      {/* <div className='w-full flex h-screen items-center justify-center'>
+      <div className='w-full max-w-[72rem] flex h-[90vh] items-center justify-center pb-12'>
         <Team />
-      </div> */}
+      </div>
 
 
 
