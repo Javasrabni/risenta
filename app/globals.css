@@ -3,13 +3,21 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html {
+  height: auto;
+  scrollbar-width: none;
+}
 html.dark {
   --background: #000000;
   --foreground: #ededed;
 }
 
 body {
+  overflow-x: hidden;
   background-color: var(--background);
+}
+::-webkit-scrollbar{
+  display: none;
 }
 
 @theme inline {

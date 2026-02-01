@@ -16,6 +16,7 @@ import {
 import { Dock, DockIcon } from "@/components/ui/dock"
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler"
 import { div } from "framer-motion/client"
+import Login from "../auth/login"
 
 export type IconProps = React.HTMLAttributes<SVGElement>
 
@@ -102,8 +103,19 @@ const DATA = {
 }
 
 export default function Navbar() {
+  const [admLogin, setAdmmLogin] = React.useState(false);
   return (
     <div className="flex flex-row gap-8 items-center justify-center">
+
+      {/* Admin login */}
+      {admLogin && (
+        <>
+          <div className={`fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50 w-fit p-8`}>
+            <Login />
+          </div>
+          <div className="fixed top-0 z-20 left-0 w-full h-full bg-[#00000080]" onClick={()=> setAdmmLogin(prev => !prev)} />
+        </>
+      )}
       <TooltipProvider>
         <Dock direction="middle">
           {DATA.navbar.map((item) => (
@@ -113,6 +125,7 @@ export default function Navbar() {
                   <Link
                     href={item.href}
                     aria-label={item.label}
+                    onClick={() => item.label === "Blog" && setAdmmLogin(prev => !prev)}
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "icon" }),
                       "size-12 rounded-full"

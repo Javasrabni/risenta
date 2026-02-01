@@ -12,10 +12,13 @@ import { Highlighter } from '@/components/ui/highlighter'
 import RippleBtn from '../Button/rippleBtn/rippleBtn'
 import NewInfoLanding from '../announcement/newInfo'
 import { AuroraText } from '@/components/ui/aurora-text'
+// import Login from '../auth/login'
 
 const Body = () => {
   return (
     <div className='flex flex-col items-center justify-center '>
+
+      
 
       {/* NAVBAR */}
       <div className='fixed bottom-8 z-100 left-0 right-0 flex items-center justify-center'>
@@ -23,7 +26,7 @@ const Body = () => {
       </div>
 
       {/* LANDING PAGE */}
-      <div className='relative h-[90vh] flex items-center justify-center'>
+      <div className='relative h-[100vh] flex items-center justify-center'>
         <div className='absolute z-20 top-12 w-full flex items-center justify-center px-6'>
           <NewInfoLanding />
         </div>

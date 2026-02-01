@@ -45,9 +45,9 @@ export default function Team() {
                     setActiveBeams({ b1: false, b2: false, b3: false, b5: false, b6: false });
                 }
             },
-            { 
+            {
                 threshold: 0.05, // Sangat sensitif, 5% terlihat langsung nyala, <5% langsung mati
-                rootMargin: "0px" 
+                rootMargin: "0px"
             }
         );
 
@@ -83,7 +83,7 @@ export default function Team() {
                 </BlurFadeDiv>
                 <BlurFadeDiv delay={0.5}>
                     <p className="text-slate-800/80 dark:text-slate-200/80 max-w-md text-sm md:text-base font-[inter]">
-                        Representasi dari berbagai disiplin ilmu yang berkomitmen pada keterbukaan informasi dan pengembangan wawasan ilmiah. Membuka ruang diskusi bagi pemuda Indonesia untuk mengeksplorasi ide-ide inovatif.
+                        Representasi dari berbagai disiplin ilmu yang berkomitmen pada keterbukaan informasi dan pengembangan wawasan ilmiah. Membuka ruang diskusi bagi pemuda Indonesia untuk mengeksplorasi ide inovatif.
                     </p>
                 </BlurFadeDiv>
 
@@ -103,12 +103,12 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div1Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/javas.jpeg'} alt="" fill className="object-cover" />
+                                    <Image src={'/Assets/team/javas.jpeg'} alt="" fill className="object-cover pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col">
-                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">Javas Anggaraksa Rabbani</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Role Risenta</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Javas Anggaraksa Rabbani</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Legal/Law</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
@@ -118,12 +118,12 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div2Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/rasit.jpeg'} alt="" fill className="object-cover" />
+                                    <Image src={'/Assets/team/rasit.jpeg'} alt="" fill className="object-cover pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col text-right">
-                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">Rasyid Ali Nurhakim</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Role Risenta</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Rasyid Ali Nurhakim</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Public Health</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
@@ -136,12 +136,12 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div3Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/saskia.jpeg'} alt="" fill className="object-cover scale-140 translate-y-[4px]" />
+                                    <Image src={'/Assets/team/saskia.jpeg'} alt="" fill className="object-cover scale-140 translate-y-[4px] pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col">
-                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">Saskia Hanina Sadiyah</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Role Risenta</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Saskia Hanina Sadiyah</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Communication Science</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
@@ -156,15 +156,15 @@ export default function Team() {
 
                     <BlurFadeDiv direction="right" delay={1.3} onAnimationComplete={() => setActiveBeams(p => ({ ...p, b5: true }))}>
                         <div className="flex flex-row-reverse self-end items-center gap-2">
-                            <Circle ref={div5Ref} className="p-1 bg-white border-white/10 overflow-hidden">
-                                <div className="relative w-full h-full rounded-full overflow-hidden">
-                                    <div className="absolute inset-0 m-auto size-1 pointer-events-none" />
-                                    <Image src={'/Assets/team/daffa.jpeg'} alt="" fill className="object-cover" />
+                            <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
+                                <div ref={div5Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
+                                <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
+                                    <Image src={'/Assets/team/dapa.jpeg'} alt="" fill className="object-cover scale-100 translate-x-[-0px] object-top pointer-events-none select-none" draggable='false' />
                                 </div>
-                            </Circle>
+                            </div>
                             <span className="flex flex-col text-right">
-                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">Daffa Adnan Asyarof</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Role Risenta</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Daffa Adnan Asyarof</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">History</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
@@ -177,20 +177,20 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div6Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/albar2.png'} alt="" fill className="object-cover object-top" />
+                                    <Image src={'/Assets/team/albar.jpeg'} alt="" fill className="object-cover object-top pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col">
-                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-sm md:text-base">M. Albar Hakim</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Role Risenta</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">M. Albar Hakim</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Industrial Engineering</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
                 </div>
             </div>
 
-            <div 
-                key={`beam-container-${isVisible}`} 
+            <div
+                key={`beam-container-${isVisible}`}
                 className={cn(
                     "absolute inset-0 pointer-events-none z-0",
                     !isVisible && "hidden" // Sembunyikan total jika tidak di viewport
