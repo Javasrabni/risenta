@@ -1,5 +1,5 @@
-import Body from "./component/body/body";
-import Navbar from "./component/navbar/navbar";
+import Body from "../component/body/body";
+import Navbar from "../component/navbar/navbar";
 
 export default function Home() {
   return (

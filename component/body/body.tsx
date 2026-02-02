@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler'
 import { DotPattern } from '@/components/ui/dot-pattern'
 import { AnimatedShinyText } from '@/components/ui/animated-shiny-text'
-import { LightRays } from '@/components/ui/light-rays'
+// import { LightRays } from '@/components/ui/light-rays'
 
 import Navbar from '../navbar/navbar'
 import Team from '../team/team'
@@ -17,13 +17,6 @@ import { AuroraText } from '@/components/ui/aurora-text'
 const Body = () => {
   return (
     <div className='flex flex-col items-center justify-center '>
-
-      
-
-      {/* NAVBAR */}
-      <div className='fixed bottom-8 z-100 left-0 right-0 flex items-center justify-center'>
-        <Navbar />
-      </div>
 
       {/* LANDING PAGE */}
       <div className='relative h-[100vh] flex items-center justify-center'>
@@ -47,7 +40,7 @@ const Body = () => {
           </p>
 
           <div className='pt-4'>
-            <RippleBtn text="✨ Eksplor Publikasi Kami" />
+            <RippleBtn href='/publikasi/riset-1' text="✨ Eksplor Publikasi Kami" />
           </div>
         </div>
         {/* <LightRays /> */}

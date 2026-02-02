@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
-import SmoothScrollProvider from "./component/smoothScroll/SmoothScroll";
+import SmoothScrollProvider from "../component/smoothScroll/SmoothScroll";
+import Navbar from "../component/navbar/navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,10 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="theme">
           <SmoothScrollProvider>
+            {/* NAVBAR */}
+            <div className='fixed bottom-8 z-100 left-0 right-0 flex items-center justify-center'>
+              <Navbar />
+            </div>
             {children}
           </SmoothScrollProvider>
         </ThemeProvider>
