@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import SmoothScrollProvider from "../component/smoothScroll/SmoothScroll";
 import Navbar from "../component/navbar/navbar";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* GSC */}
+        <meta name="google-site-verification" content="kpF9HB07hQqKfnwyF1hMfW-7Sssy0GSFH7eSAL9XKrE" />
+        
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-4WC0BNRMNV"
+          strategy="afterInteractive"
+        />
+        <Script id="ga-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-4WC0BNRMNV');
+          `}
+        </Script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
       >
