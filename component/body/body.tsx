@@ -12,6 +12,7 @@ import { Highlighter } from '@/components/ui/highlighter'
 import RippleBtn from '../Button/rippleBtn/rippleBtn'
 import NewInfoLanding from '../announcement/newInfo'
 import { AuroraText } from '@/components/ui/aurora-text'
+import WhatWeDo from '../whatWeDo(bodySection)/whatwedo'
 // import Login from '../auth/login'
 
 const Body = () => {
@@ -50,6 +51,13 @@ const Body = () => {
       <div className='w-full max-w-[72rem] flex h-fit items-center justify-center pb-12'>
         <Team />
       </div>
+
+      {/* WHAT WE DO SECTION */}
+      <div className='w-full max-w-[72rem] h-screen pb-12'>
+        <WhatWeDo />
+      </div>
+
+      {/* WHAT WE DO SECTION */}
 
 
 
