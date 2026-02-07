@@ -53,7 +53,7 @@ const Body = () => {
       </div>
 
       {/* WHAT WE DO SECTION */}
-      <div className='w-full max-w-[72rem] h-screen pb-12'>
+      <div className='relative w-full max-w-[72rem] h-screen pb-12'>
         <WhatWeDo />
       </div>
 

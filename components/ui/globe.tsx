@@ -6,33 +6,38 @@ import { useMotionValue, useSpring } from "motion/react"
 
 import { cn } from "@/lib/utils"
 
-const MOVEMENT_DAMPING = 1400
+const MOVEMENT_DAMPING = 1000
 
 const GLOBE_CONFIG: COBEOptions = {
   width: 800,
   height: 800,
   onRender: () => {},
   devicePixelRatio: 2,
-  phi: 0,
-  theta: 0.3,
+  // Koordinat agar Indonesia (Sumatra-Jawa) berada di tengah tampilan awal
+  phi: 1.85, 
+  theta: 0.15, 
   dark: 0,
   diffuse: 0.4,
   mapSamples: 16000,
   mapBrightness: 1.2,
   baseColor: [1, 1, 1],
-  markerColor: [251 / 255, 100 / 255, 21 / 255],
+  markerColor: [239 / 255, 68 / 255, 68 / 255], 
   glowColor: [1, 1, 1],
   markers: [
-    { location: [14.5995, 120.9842], size: 0.03 },
-    { location: [19.076, 72.8777], size: 0.1 },
-    { location: [23.8103, 90.4125], size: 0.05 },
-    { location: [30.0444, 31.2357], size: 0.07 },
-    { location: [39.9042, 116.4074], size: 0.08 },
-    { location: [-23.5505, -46.6333], size: 0.1 },
-    { location: [19.4326, -99.1332], size: 0.1 },
-    { location: [40.7128, -74.006], size: 0.1 },
-    { location: [34.6937, 135.5022], size: 0.05 },
-    { location: [41.0082, 28.9784], size: 0.06 },
+    // --- SUMATRA ---
+    { location: [5.5483, 95.3238], size: 0.05 },   // Banda Aceh
+    { location: [3.5952, 98.6722], size: 0.07 },   // Medan
+    { location: [-0.9471, 100.4172], size: 0.05 }, // Padang
+    { location: [-2.9761, 104.7754], size: 0.06 }, // Palembang
+    { location: [-5.3971, 105.2668], size: 0.05 }, // Bandar Lampung
+
+    // --- JAWA ---
+    { location: [-6.2088, 106.8456], size: 0.1 },  // Jakarta (Pusat - dibuat agak besar)
+    { location: [-6.9175, 107.6191], size: 0.07 }, // Bandung
+    { location: [-7.0051, 110.4381], size: 0.06 }, // Semarang
+    { location: [-7.7956, 110.3695], size: 0.08 }, // Yogyakarta
+    { location: [-7.2575, 112.7521], size: 0.08 }, // Surabaya
+    { location: [-8.1331, 114.3742], size: 0.05 }, // Banyuwangi (Ujung Jawa)
   ],
 }
 
@@ -86,7 +91,7 @@ export function Globe({
       width: width * 2,
       height: width * 2,
       onRender: (state) => {
-        if (!pointerInteracting.current) phi += 0.005
+        if (!pointerInteracting.current) phi += 0.01
         state.phi = phi + rs.get()
         state.width = width * 2
         state.height = width * 2

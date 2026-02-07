@@ -2,14 +2,18 @@ import { cn } from "@/lib/utils"
 import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern"
 import BlurFadeDiv from "../animation/blurFadeComp"
 import { AuroraText } from "@/components/ui/aurora-text"
-// import { Globe } from "@/components/ui/globe"
+import OrbitingCircle from "./orbitingCircle"
 
 export default function WhatWeDo() {
     return (
-        <div className="relative flex flex-col md:flex-row h-full w-full items-start gap-8 md:justify-between md:items-center overflow-hidden p-10">
+        <div className="relative flex flex-col md:flex-row min-h-screen md:h-full w-full items-center md:items-center justify-between md:justify-between overflow-hidden p-10 sm:gap-16">
             
+            {/* Container Orbit: Di mobile dibuat absolute agar teks bisa overlap di atasnya */}
+            <div className="absolute md:relative w-full h-[550px] md:h-full z-0 md:z-10 opacity-70 md:opacity-100 top-0 md:top-auto">
+                <OrbitingCircle />
+            </div>
 
-            <div className="flex h-full flex-col justify-center gap-4 z-20 text-left shrink-0">
+            <div className="flex h-full flex-col justify-center gap-4 z-20 text-center md:text-left shrink-0 mt-[320px] md:mt-0">
                 <BlurFadeDiv delay={0.1}>
                     <span className="text-[10px] md:text-xs font-semibold tracking-[0.35em] text-slate-800/60 font-[inter] uppercase dark:text-slate-200/60">
                         Risenta's <AuroraText>Mission</AuroraText>
@@ -25,18 +29,17 @@ export default function WhatWeDo() {
                         Membangun ekosistem diseminasi ilmu pengetahuan berbasis integritas data dan kreativitas digital. Kami berkomitmen mengakselerasi dampak intelektual pemuda yang dapat dipertanggungjawabkan.
                     </p>
                 </BlurFadeDiv>
-
             </div>
 
             <div className="bg-background absolute top-0 left-0 flex h-full w-full items-center justify-center overflow-hidden rounded-lg p-20 pointer-events-none -z-10">
                 <AnimatedGridPattern
                     numSquares={80}
                     maxOpacity={0.1}
-                    duration={2}
+                    duration={1}
                     repeatDelay={1}
                     className={cn(
-                        "mask-[radial-gradient(500px_circle_at_center,white,transparent)]",
-                        "inset-x-0 inset-y-[-30%] h-[200%] skew-y-12", "will-change-transform"
+                        "mask-[radial-gradient(400px_circle_at_left,white,transparent)] sm:mask-[radial-gradient(400px_circle_at_62%_center,white,transparent)]",
+                        "inset-x-0 inset-y-[-25%] sm:inset-x-0 inset-y-[-50%] h-[200%] skew-y-12", "will-change-transform"
                     )}
                 />
             </div>
