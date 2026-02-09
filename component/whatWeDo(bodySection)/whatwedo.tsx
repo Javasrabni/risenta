@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern"
 import BlurFadeDiv from "../animation/blurFadeComp"
 import { AuroraText } from "@/components/ui/aurora-text"

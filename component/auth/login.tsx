@@ -1,10 +1,12 @@
 "use client";
 
+import { BorderBeam } from "@/components/ui/border-beam";
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState({ code: "+1", name: "USA" });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Menutup dropdown saat klik di luar area
@@ -18,27 +20,61 @@ export default function Login() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const countries = [
-    { id: "us", name: "United States", code: "+1" },
-    { id: "au", name: "Australia", code: "+61" },
-    { id: "uk", name: "United Kingdom", code: "+44" },
-    { id: "fr", name: "France", code: "+33" },
-    { id: "ca", name: "Canada", code: "+1" },
-  ];
+
+  // SEND DATA
+  const [risentaID, setRisentaID] = useState<String>('')
+  const [token, setToken] = useState<String>('')
+  const [errorResp, setErrorResp] = useState<String>('')
+
+
+  async function LoginReq(e: React.FormEvent) {
+    try {
+
+
+      e.preventDefault(); // Mencegah refresh halaman 
+      setErrorResp(""); // Reset error sebelumnya
+
+      // if (!risentaID || !token) {
+      //   setErrorResp("Masukkan ID atau Token terlebih dahulu.")
+      //   return
+      // }
+
+      const res = await fetch('/api/auth/login', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ risentaID, token })
+      })
+
+      const data = await res.json()
+      console.log(data)
+
+      if (!res.ok) {
+        setErrorResp(data.message)
+        console.log(data.message);
+        return
+      }
+      router.push('/adm')
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setErrorResp("Gagal terhubung ke server.");
+    }
+  }
+
 
   return (
-    <form className="min-w-sm max-w-sm w-full mx-auto p-6 bg-white dark:bg-neutral-900 rounded-xl font-[inter]">
+    <div className=" max-w-sm min-w-70 mx-auto p-6 mx-8 bg-white dark:bg-neutral-950 outline-1 outline-neutral-800 rounded-xl font-[inter] overflow-hidden relative">
       <div className="flex items-center -space-x-px rounded-lg relative" ref={dropdownRef}>
-        
+
         {/* Phone Input */}
         <div className="relative w-full">
           <input
             type="tel"
             id="phone-input"
-            className="w-full z-20 bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-3 py-2.5 dark:bg-slate-700 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white"
+            className="w-full z-20 bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:outline-none block px-3 py-2.5 dark:bg-neutral-900 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white :outline-none"
             placeholder="Risenta Id"
             required
             maxLength={20}
+            onChange={(e) => setRisentaID(e.target.value)}
           />
         </div>
       </div>
@@ -52,32 +88,35 @@ export default function Login() {
           type="password"
           id="password"
           placeholder="Token"
-          className="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+          className="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:outline-none block w-full px-3 py-2.5 dark:bg-neutral-900 dark:border-slate-600 dark:text-white"
           required
           maxLength={20}
+          onChange={(e) => setToken(e.target.value)}
         />
       </div>
 
       {/* Terms & Conditions */}
-      {/* <div className="flex items-center mt-4 mb-4">
-        <input
-          id="terms"
-          type="checkbox"
-          className="w-4 h-4 border border-slate-300 rounded bg-slate-50 focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600"
-          required
-        />
-        <label htmlFor="terms" className="ms-2 text-sm text-slate-600 dark:text-slate-400">
-          I accept the <a className="font-medium text-blue-600 hover:underline dark:text-blue-500" href="#">Terms and Conditions</a>
-        </label>
-      </div> */}
+      {errorResp != "" && (
+
+        <div className="flex items-center mt-4">
+          <label htmlFor="terms" className="ms-2 text-xs sm:text-sm text-red-600 dark:text-red-400">
+            {errorResp}
+          </label>
+        </div>
+      )}
 
       {/* Submit Button */}
       <button
-        type="submit"
         className="mt-8 cursor-pointer w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        onClick={LoginReq}
       >
         Sign In
       </button>
-    </form>
+      <BorderBeam
+        duration={4}
+        size={200}
+        className="from-transparent via-blue-500 to-transparent"
+      />
+    </div>
   );
 }

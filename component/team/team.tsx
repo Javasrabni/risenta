@@ -2,7 +2,7 @@
 
 import React, { forwardRef, useRef, useState, useEffect } from "react"
 import { useInView } from "framer-motion"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 import { AnimatedBeam } from "@/components/ui/animated-beam"
 import Image from "next/image"
 import { AuroraText } from "@/components/ui/aurora-text"

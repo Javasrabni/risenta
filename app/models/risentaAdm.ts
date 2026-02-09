@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 
 const risentaAdmSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  risentaID: { type: String, required: true, unique: true },
+  adm_usn: {type: String, required: true, unique: true},
+  token: { type: String, required: true },
   role: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
-const RisentaAdm = mongoose.models?.RisentaAdm || mongoose.model("RisentaAdm", risentaAdmSchema);
+const RisentaAdm = mongoose.models?.risenta_admin || mongoose.model("risenta_admin", risentaAdmSchema, 'risenta_admin');
 
 export default RisentaAdm;

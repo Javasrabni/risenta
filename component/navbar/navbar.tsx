@@ -1,10 +1,10 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { CalendarIcon, HomeIcon, Instagram, MailIcon, PencilIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -17,6 +17,8 @@ import { Dock, DockIcon } from "@/components/ui/dock"
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler"
 import { div } from "framer-motion/client"
 import Login from "../auth/login"
+import { useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 
 export type IconProps = React.HTMLAttributes<SVGElement>
 
@@ -69,7 +71,7 @@ const Icons = {
 const DATA = {
   navbar: [
     { href: "/", icon: HomeIcon, label: "Home" },
-    { href: "#", icon: PencilIcon, label: "Blog" },
+    { href: "#", icon: PencilIcon, label: "Admin" },
   ],
   contact: {
     social: {
@@ -102,18 +104,49 @@ const DATA = {
   },
 }
 
+
 export default function Navbar() {
-  const [admLogin, setAdmmLogin] = React.useState(false);
+  const router = useRouter()
+  const [openAdminPage, setOpenAdminPage] = useState(false)
+  const [admLogin, setAdmLogin] = React.useState(false);
+
+  const pathname = usePathname();
+  useEffect(() => {
+    setOpenAdminPage(false);
+  }, [pathname]);
+  // GET COOKIE
+  async function handleAdminClick() {
+
+    try {
+      const res = await fetch("/api/auth/me", {
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!data.loggedIn) {
+        setOpenAdminPage(true)
+        setAdmLogin(false)
+        return
+      }
+
+      setOpenAdminPage(false)
+      setAdmLogin(true);
+      router.push('/adm')
+    } catch (error) {
+      console.error(error)
+    }
+  }
   return (
     <div className="flex flex-row gap-8 items-center justify-center">
 
       {/* Admin login */}
-      {admLogin && (
+      {openAdminPage && (
         <>
-          <div className={`fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50 w-fit p-8`}>
+          <div className={`fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50 mx-auto`}>
             <Login />
           </div>
-          <div className="fixed top-0 z-20 left-0 w-full h-full bg-[#00000080]" onClick={()=> setAdmmLogin(prev => !prev)} />
+          <div className="fixed top-0 z-20 left-0 w-full h-full bg-[#00000080]" onClick={() => setOpenAdminPage(prev => !prev)} />
         </>
       )}
       <TooltipProvider>
@@ -125,7 +158,12 @@ export default function Navbar() {
                   <Link
                     href={item.href}
                     aria-label={item.label}
-                    onClick={() => item.label === "Blog" && setAdmmLogin(prev => !prev)}
+                    onClick={(e) => {
+                      if (item.label === "Admin") {
+                        e.preventDefault();
+                        handleAdminClick();
+                      }
+                    }}
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "icon" }),
                       "size-12 rounded-full"
