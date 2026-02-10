@@ -88,7 +88,7 @@ export function LightRays({
   className,
   style,
   count = 7,
-  color = "rgba(0, 26, 255, 0.14)",
+  color = "rgba(0, 26, 255, 0.18)",
   blur = 36,
   speed = 14,
   length = "70vh",

@@ -88,8 +88,8 @@ export default function Team() {
                 </BlurFadeDiv>
 
                 {/* Logo Risenta Bawah Teks */}
-                <div className="relative hidden dark:flex md:w-64 md:h-25 translate-x-[-58px]">
-                    <Image src={'/Assets/logo/logo.jpeg'} alt="Risenta Logo" fill className="object-cover" />
+                <div className="relative w-40 h-25 md:w-64 md:h-25 translate-x-[-36px] sm:translate-x-[-58px]">
+                    <Image src={'/Assets/logo/logo.jpeg'} alt="Risenta Logo" fill className="invert dark:invert-0 object-cover" />
                 </div>
             </div>
 

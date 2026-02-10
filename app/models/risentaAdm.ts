@@ -7,6 +7,7 @@ const risentaAdmSchema = new mongoose.Schema(
     token: { type: String, required: true },
     role: { type: String, required: true },
     photoProfile: { type: String },
+    notes: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }

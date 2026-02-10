@@ -27,8 +27,8 @@ const avatars = [
 export function AdminAvatarCircles() {
     return (
         <div className='w-full h-fit py-8 flex flex-col items-center justify-center'>
-            <AvatarCircles numPeople={5} avatarUrls={avatars} />
-            <p className='text-xs text-center mt-4 max-w-sm text-slate-600 dark:text-slate-400'>
+            <AvatarCircles numPeople={5} avatarUrls={avatars}  />
+            <p className='text-xs sm:text-sm text-center mt-4 max-w-sm text-slate-600 dark:text-white'>
                 Kita semua{" "}
                 <Highlighter action="underline" color="#1447E6">
                     bergerak dan bekerja bersama
