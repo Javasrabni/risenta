@@ -68,7 +68,7 @@ export default function Login() {
         {/* Phone Input */}
         <div className="relative w-full">
           <input
-            type="tel"
+            type="text"
             id="phone-input"
             className="w-full z-20 bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:outline-none block px-3 py-2.5 dark:bg-neutral-900 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white :outline-none"
             placeholder="Risenta Id"
