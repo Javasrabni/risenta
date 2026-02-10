@@ -103,7 +103,7 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div1Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/javas.jpeg'} alt="" fill className="object-cover pointer-events-none select-none" draggable='false' />
+                                    <Image src={'/Assets/team/JavasAnggaraksaRabbani.jpeg'} alt="" fill className="object-cover pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col">
@@ -118,7 +118,7 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div2Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/rasit.jpeg'} alt="" fill className="object-cover pointer-events-none select-none" draggable='false' />
+                                    <Image src={'/Assets/team/RasyidAliNurhakim.jpeg'} alt="" fill className="object-cover pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col text-right">
@@ -136,7 +136,7 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div3Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/saskia.jpeg'} alt="" fill className="object-cover scale-140 translate-y-[4px] pointer-events-none select-none" draggable='false' />
+                                    <Image src={'/Assets/team/SaskiaHaninaSadiyah.jpeg'} alt="" fill className="object-cover scale-140 translate-y-[4px] pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col">
@@ -159,7 +159,7 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div5Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/dapa.jpeg'} alt="" fill className="object-cover scale-100 translate-x-[-0px] object-top pointer-events-none select-none" draggable='false' />
+                                    <Image src={'/Assets/team/DaffaAdnanAsyarof.jpeg'} alt="" fill className="object-cover scale-100 translate-x-[-0px] object-top pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col text-right">
@@ -177,7 +177,7 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div6Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/albar.jpeg'} alt="" fill className="object-cover object-top pointer-events-none select-none" draggable='false' />
+                                    <Image src={'/Assets/team/M.AlbarHakim.jpeg'} alt="" fill className="object-cover object-top pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col">
