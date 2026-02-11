@@ -1,5 +1,5 @@
 import RisentaAdm from "@/app/models/risentaAdm";
-import connectDB from "@/utils/mongodb";
+import connectDB from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 

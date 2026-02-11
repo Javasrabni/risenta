@@ -11,7 +11,7 @@ import {
 } from "motion/react"
 import type { MotionProps } from "motion/react"
 
-import { cn } from "@/utils/utils"
+import { cn } from "@/lib/utils"
 
 export interface DockProps extends VariantProps<typeof dockVariants> {
   className?: string

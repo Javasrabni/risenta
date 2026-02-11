@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "@/utils/utils"
+import { cn } from "@/lib/utils"
 import Image from "next/image"
 
 interface Avatar {

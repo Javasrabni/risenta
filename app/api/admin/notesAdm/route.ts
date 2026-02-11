@@ -1,6 +1,6 @@
 "use server";
 
-import connectDB from "@/utils/mongodb";
+import connectDB from "@/lib/mongodb";
 import RisentaAdm from "@/app/models/risentaAdm";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";

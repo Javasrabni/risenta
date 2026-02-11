@@ -1,5 +1,3 @@
-
-
 import { redirect } from 'next/navigation'
 import { GetAdminData } from './lib/getAdminData'
 import Navbar from './components/navbar/navbar'

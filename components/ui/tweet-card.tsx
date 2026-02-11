@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { enrichTweet, type EnrichedTweet, type TweetProps } from "react-tweet"
 import { getTweet, type Tweet } from "react-tweet/api"
 
-import { cn } from "@/utils/utils"
+import { cn } from "@/lib/utils"
 
 interface TwitterIconProps {
   className?: string

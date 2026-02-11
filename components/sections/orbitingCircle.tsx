@@ -1,5 +1,5 @@
 import { OrbitingCircles } from '@/components/ui/orbiting-circles'
-import { cn } from '@/utils/utils';
+import { cn } from '@/lib/utils';
 import { 
     Gavel,          
     Activity,       

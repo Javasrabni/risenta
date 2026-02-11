@@ -3,8 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
-import SmoothScrollProvider from "../component/smoothScroll/SmoothScroll";
-import Navbar from "../component/navbar/navbar";
+import SmoothScrollProvider from "@/components/layout/smoothScroll/SmoothScroll";
+import Navbar from "@/components/layout/navbar";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -37,7 +37,7 @@ export default function RootLayout({
       <head>
         {/* GSC */}
         <meta name="google-site-verification" content="kpF9HB07hQqKfnwyF1hMfW-7Sssy0GSFH7eSAL9XKrE" />
-        
+
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-4WC0BNRMNV"

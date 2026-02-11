@@ -1,13 +1,13 @@
-import { cn } from "@/utils/utils"
+import { cn } from "@/lib/utils"
 import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern"
-import BlurFadeDiv from "../animation/blurFadeComp"
+import BlurFadeDiv from "@/components/ui/custom-blurAnimation/blurFadeDiv"
 import { AuroraText } from "@/components/ui/aurora-text"
 import OrbitingCircle from "./orbitingCircle"
 
 export default function WhatWeDo() {
     return (
         <div className="relative flex flex-col md:flex-row min-h-screen md:h-full w-full items-center md:items-center justify-between md:justify-between overflow-hidden p-10 sm:gap-16">
-            
+
             {/* Container Orbit: Di mobile dibuat absolute agar teks bisa overlap di atasnya */}
             <div className="absolute md:relative w-full h-[550px] md:h-full z-0 md:z-10 opacity-70 md:opacity-100 top-0 md:top-auto">
                 <OrbitingCircle />
@@ -36,7 +36,7 @@ export default function WhatWeDo() {
                     numSquares={80}
                     maxOpacity={0.1}
                     duration={1}
-                    repeatDelay={1}
+                    repeatDelay={2}
                     className={cn(
                         "mask-[radial-gradient(400px_circle_at_left,white,transparent)] sm:mask-[radial-gradient(400px_circle_at_62%_center,white,transparent)]",
                         "inset-x-0 inset-y-[-25%] sm:inset-x-0 inset-y-[-50%] h-[200%] skew-y-12", "will-change-transform"

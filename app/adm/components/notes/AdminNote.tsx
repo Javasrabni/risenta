@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { cn } from "@/utils/utils"
+import { cn } from "@/lib/utils"
 import { Marquee } from "@/components/ui/marquee"
 import Image from "next/image"
 import { AddedPageMessage } from "next/dist/server/dev/hot-reloader-types"

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { CalendarIcon, HomeIcon, Instagram, LogInIcon, MailIcon, PencilIcon } from "lucide-react"
 
-import { cn } from "@/utils/utils"
+import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -16,7 +16,7 @@ import {
 import { Dock, DockIcon } from "@/components/ui/dock"
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler"
 // import { div } from "framer-motion/client"
-import Login from "../auth/login"
+import Login from "../features/login"
 import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
 

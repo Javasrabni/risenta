@@ -25,7 +25,7 @@ const PatchNote = () => {
         }
     }
     return (
-        <div className='w-full h-fit flex items-center justify-center'>
+        <div className='w-full h-fit flex sm:hidden items-center justify-center'>
             <div className='px-4 py-2 border border-neutral-300 dark:border-neutral-900 rounded-md hover:bg-neutral-100/50 dark:hover:bg-neutral-900 transition-colors flex items-center gap-2'>
                 <MessageSquareQuoteIcon size={14} className="text-neutral-500 dark:text-neutral-400 mt-[-1px]" />
                 <input type="text" value={note} onChange={(e) => setNote(e.target.value)} maxLength={100} className="bg-transparent outline-none outline-none focus:outline-none text-xs" placeholder="Ubah Notes" />

@@ -1,4 +1,4 @@
-import connectDB from '@/utils/mongodb'
+import connectDB from '@/lib/mongodb'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import RisentaAdm from '../../models/risentaAdm'

@@ -1,18 +1,19 @@
 
 import React from 'react'
-import { cn } from '@/utils/utils'
+import { cn } from '@/lib/utils'
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler'
+import Link from 'next/link'
 import { DotPattern } from '@/components/ui/dot-pattern'
 import { AnimatedShinyText } from '@/components/ui/animated-shiny-text'
 // import { LightRays } from '@/components/ui/light-rays'
 
-import Navbar from '../navbar/navbar'
-import Team from '../team/team'
+import Navbar from '../layout/navbar'
+import Team from '../sections/team/team'
 import { Highlighter } from '@/components/ui/highlighter'
-import RippleBtn from '../Button/rippleBtn/rippleBtn'
-import NewInfoLanding from '../announcement/newInfo'
+import RippleBtn from '@/components/ui/rippleBtn/rippleBtn'
+import NewInfoLanding from './announcement/newInfo'
 import { AuroraText } from '@/components/ui/aurora-text'
-import WhatWeDo from '../whatWeDo(bodySection)/whatwedo'
+import WhatWeDo from './whatwedo'
 // import Login from '../auth/login'
 
 const Body = () => {
@@ -40,8 +41,11 @@ const Body = () => {
             Mentransformasi riset mandiri menjadi narasi pengetahuan publik sekaligus menghadirkan ruang diskusi bagi{' '}<Highlighter action="underline" color='#1447E6' >intelektual</Highlighter>{" "}pemuda Indonesia.
           </p>
 
-          <div className='pt-4'>
-            <RippleBtn href='/publikasi/riset-1' text="✨ Eksplor Publikasi Kami" />
+          <div className='pt-4 flex flex-col gap-4 items-center justify-center gap-2'>
+            <RippleBtn href='/risenta-ai' text="Learn Writing with Airisenta" />
+            <Link href='/publikasi/riset-1'>
+              <p className="text-xs underline text-slate-800/80 dark:text-slate-200/80 font-[inter]">✨ Eksplor Publikasi Kami</p></
+            Link>
           </div>
         </div>
         {/* <LightRays /> */}

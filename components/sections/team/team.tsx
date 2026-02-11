@@ -2,11 +2,11 @@
 
 import React, { forwardRef, useRef, useState, useEffect } from "react"
 import { useInView } from "framer-motion"
-import { cn } from "@/utils/utils"
+import { cn } from "@/lib/utils"
 import { AnimatedBeam } from "@/components/ui/animated-beam"
 import Image from "next/image"
 import { AuroraText } from "@/components/ui/aurora-text"
-import BlurFadeDiv from "../animation/blurFadeComp"
+import BlurFadeDiv from "@/components/ui/custom-blurAnimation/blurFadeDiv"
 
 const Circle = forwardRef<
     HTMLDivElement,
@@ -108,7 +108,7 @@ export default function Team() {
                             </div>
                             <span className="flex flex-col">
                                 <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Javas Anggaraksa Rabbani</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Legal/Law</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Law & Software Engineer</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
