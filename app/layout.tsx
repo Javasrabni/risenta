@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Risenta",
+  title: "Risentta - Independent Research & Writing Platform",
   description: "Mentransformasi riset mandiri menjadi narasi pengetahuan publik sekaligus membuka ruang diskusi bagi pemuda Indonesia untuk mengeksplorasi ide inovatif.",
 };
 
