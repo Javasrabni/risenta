@@ -8,6 +8,12 @@ import Image from "next/image"
 import { AuroraText } from "@/components/ui/aurora-text"
 import BlurFadeDiv from "@/components/ui/custom-blurAnimation/blurFadeDiv"
 
+interface TeamMember {
+    name: string;
+    imageUrl: string;
+    role: string;
+}
+
 const Circle = forwardRef<
     HTMLDivElement,
     { className?: string; children?: React.ReactNode }
@@ -29,9 +35,29 @@ Circle.displayName = "Circle"
 export default function Team() {
     const containerRef = useRef<HTMLDivElement>(null);
     const [activeBeams, setActiveBeams] = useState({
-        b1: false, b2: false, b3: false, b5: false, b6: false
+        b1: false, b2: false, b3: false, b5: false, b6: false, b7: false
     });
     const [isVisible, setIsVisible] = useState(false);
+    const [teamData, setTeamData] = useState<TeamMember[]>([]);
+
+    // Fetch team data from API
+    useEffect(() => {
+        const fetchTeam = async () => {
+            try {
+                const res = await fetch('/api/team');
+                const data = await res.json();
+                if (data.team) {
+                    setTeamData(data.team);
+                }
+            } catch (error) {
+                console.error('Failed to fetch team data:', error);
+            }
+        };
+        fetchTeam();
+    }, []);
+
+    // Get team member by index
+    const getMember = (index: number) => teamData[index] || null;
 
     // Gunakan Native Intersection Observer agar lebih galak deteksinya
     useEffect(() => {
@@ -42,7 +68,7 @@ export default function Team() {
                 } else {
                     // FORCE RESET seketika saat keluar layar 1 pixel pun
                     setIsVisible(false);
-                    setActiveBeams({ b1: false, b2: false, b3: false, b5: false, b6: false });
+                    setActiveBeams({ b1: false, b2: false, b3: false, b5: false, b6: false, b7: false });
                 }
             },
             {
@@ -62,6 +88,7 @@ export default function Team() {
     const div4Ref = useRef<HTMLDivElement>(null)
     const div5Ref = useRef<HTMLDivElement>(null)
     const div6Ref = useRef<HTMLDivElement>(null)
+    const div7Ref = useRef<HTMLDivElement>(null)
 
 
     return (
@@ -103,12 +130,12 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div1Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/JavasAnggaraksaRabbani.jpeg'} alt="" fill className="object-cover pointer-events-none select-none" draggable='false' />
+                                    <Image src={getMember(0)?.imageUrl || '/Assets/team/JavasAnggaraksaRabbani.jpeg'} alt={getMember(0)?.name || ''} fill className="object-cover pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col">
                                 <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Javas Anggaraksa Rabbani</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Law & Software Engineer</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">{getMember(0)?.role || 'Law & Software Engineer'}</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
@@ -118,12 +145,12 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div2Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/RasyidAliNurhakim.jpeg'} alt="" fill className="object-cover pointer-events-none select-none" draggable='false' />
+                                    <Image src={getMember(1)?.imageUrl || '/Assets/team/RasyidAliNurhakim.jpeg'} alt={getMember(1)?.name || ''} fill className="object-cover pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col text-right">
                                 <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Rasyid Ali Nurhakim</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Public Health</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">{getMember(1)?.role || 'Public Health'}</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
@@ -136,12 +163,12 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div3Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/SaskiaHaninaSadiyah.jpeg'} alt="" fill className="object-cover scale-140 translate-y-[4px] pointer-events-none select-none" draggable='false' />
+                                    <Image src={getMember(3)?.imageUrl || '/Assets/team/SaskiaHaninaSadiyah.jpeg'} alt={getMember(3)?.name || ''} fill className="object-cover scale-140 translate-y-[4px] pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col">
                                 <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Saskia Hanina Sadiyah</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Communication Science</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">{getMember(3)?.role || 'Communication Science'}</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
@@ -159,30 +186,44 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div5Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/DaffaAdnanAsyarof.jpeg'} alt="" fill className="object-cover scale-100 translate-x-[-0px] object-top pointer-events-none select-none" draggable='false' />
+                                    <Image src={getMember(2)?.imageUrl || '/Assets/team/FiskaAndiniPutri.jpeg'} alt={getMember(2)?.name || ''} fill className="object-cover scale-100 translate-x-[-0px] object-top pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col text-right">
-                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Daffa Adnan Asyarof</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">History</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Fiska Andini Putri</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">{getMember(2)?.role || 'Accounting/Finance'}</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
                 </div>
 
                 {/* Baris 3 */}
-                <div className="flex flex-row items-center justify-between">
-                    <BlurFadeDiv direction="left" delay={1.5} onAnimationComplete={() => setActiveBeams(p => ({ ...p, b6: true }))}>
+                <div className="flex flex-col gap-2 justify-between w-full">
+                    <BlurFadeDiv direction="left" delay={1.3} onAnimationComplete={() => setActiveBeams(p => ({ ...p, b6: true }))}>
                         <div className="flex flex-row items-center gap-2">
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div6Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={'/Assets/team/M.AlbarHakim.jpeg'} alt="" fill className="object-cover object-top pointer-events-none select-none" draggable='false' />
+                                    <Image src={getMember(4)?.imageUrl || '/Assets/team/DaffaAdnanAsyarof.jpeg'} alt={getMember(4)?.name || ''} fill className="object-cover scale-100 translate-x-[-0px] object-top pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
-                            <span className="flex flex-col">
+                            <span className="flex flex-col text-left">
+                                <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">Daffa Adnan Asyarof</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">{getMember(4)?.role || 'History'}</p>
+                            </span>
+                        </div>
+                    </BlurFadeDiv>
+                    <BlurFadeDiv direction="left" delay={1.5} onAnimationComplete={() => setActiveBeams(p => ({ ...p, b7: true }))}>
+                        <div className="flex flex-row-reverse self-end items-center gap-2">
+                            <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
+                                <div ref={div7Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
+                                <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
+                                    <Image src={getMember(5)?.imageUrl || '/Assets/team/M.AlbarHakim.jpeg'} alt={getMember(5)?.name || ''} fill className="object-cover object-top pointer-events-none select-none" draggable='false' />
+                                </div>
+                            </div>
+                            <span className="flex flex-col text-right">
                                 <p className="text-slate-800/80 dark:text-slate-200/80 font-[inter] text-xs font-medium md:text-base">M. Albar Hakim</p>
-                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">Industrial Engineering</p>
+                                <p className="text-slate-800/80 dark:text-slate-200/50 font-[inter] text-xs md:text-sm">{getMember(5)?.role || 'Industrial Engineering'}</p>
                             </span>
                         </div>
                     </BlurFadeDiv>
@@ -201,8 +242,9 @@ export default function Team() {
                         {activeBeams.b1 && <AnimatedBeam containerRef={containerRef} fromRef={div1Ref} toRef={div4Ref} curvature={-75} duration={1.5} />}
                         {activeBeams.b2 && <AnimatedBeam containerRef={containerRef} fromRef={div2Ref} toRef={div4Ref} curvature={-30} duration={1.5} />}
                         {activeBeams.b3 && <AnimatedBeam containerRef={containerRef} fromRef={div3Ref} toRef={div4Ref} curvature={75} duration={1.5} />}
-                        {activeBeams.b5 && <AnimatedBeam containerRef={containerRef} fromRef={div5Ref} toRef={div4Ref} curvature={-75} duration={1.5} reverse />}
-                        {activeBeams.b6 && <AnimatedBeam containerRef={containerRef} fromRef={div6Ref} toRef={div4Ref} duration={1.5} reverse />}
+                        {activeBeams.b5 && <AnimatedBeam containerRef={containerRef} fromRef={div5Ref} toRef={div4Ref} curvature={75} duration={1.5} />}
+                        {activeBeams.b6 && <AnimatedBeam containerRef={containerRef} fromRef={div6Ref} toRef={div4Ref} curvature={-75} duration={1.5} reverse />}
+                        {activeBeams.b7 && <AnimatedBeam containerRef={containerRef} fromRef={div7Ref} toRef={div4Ref} duration={1.5} reverse />}
                     </>
                 )}
             </div>

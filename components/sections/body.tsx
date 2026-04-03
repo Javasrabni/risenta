@@ -14,7 +14,6 @@ import RippleBtn from '@/components/ui/rippleBtn/rippleBtn'
 import NewInfoLanding from './announcement/newInfo'
 import { AuroraText } from '@/components/ui/aurora-text'
 import WhatWeDo from './whatwedo'
-// import Login from '../auth/login'
 
 const Body = () => {
   return (
@@ -63,11 +62,6 @@ const Body = () => {
 
       {/* WHAT WE DO SECTION */}
 
-
-
-
-
-
       <DotPattern
         width={20}
         height={20}
@@ -78,7 +72,7 @@ const Body = () => {
           "[mask-image:linear-gradient(to_bottom_right,white,transparent,transparent)]"
         )}
       />
-    </div >
+    </div>
   )
 }
 

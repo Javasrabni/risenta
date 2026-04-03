@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { CalendarIcon, HomeIcon, Instagram, LogInIcon, MailIcon, PencilIcon } from "lucide-react"
+import { CalendarIcon, HomeIcon, Instagram, LogInIcon, MailIcon, PencilIcon, LayoutDashboard, User, Settings, FileText } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/tooltip"
 import { Dock, DockIcon } from "@/components/ui/dock"
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler"
-// import { div } from "framer-motion/client"
 import Login from "../features/login"
 import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
@@ -25,6 +24,10 @@ export type IconProps = React.HTMLAttributes<SVGElement>
 const Icons = {
   calendar: (props: IconProps) => <CalendarIcon {...props} />,
   email: (props: IconProps) => <MailIcon {...props} />,
+  profile: (props: IconProps) => <User {...props} />,
+  dashboard: (props: IconProps) => <LayoutDashboard {...props} />,
+  settings: (props: IconProps) => <Settings {...props} />,
+  notes: (props: IconProps) => <FileText {...props} />,
   linkedin: (props: IconProps) => (
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
       <title>LinkedIn</title>
@@ -61,39 +64,36 @@ const Icons = {
     <Instagram {...props} />)
 }
 
-const DATA = {
-  navbar: [
-    { href: "/", icon: HomeIcon, label: "Home" },
-    { href: "#", icon: LogInIcon, label: "Admin" },
-  ],
-  contact: {
-    social: {
-      // GitHub: {
-      //   name: "GitHub",
-      //   url: "#",
-      //   icon: Icons.github,
-      // },
-      // LinkedIn: {
-      //   name: "LinkedIn",
-      //   url: "#",
-      //   icon: Icons.linkedin,
-      // },
-      // X: {
-      //   name: "X",
-      //   url: "#",
-      //   icon: Icons.x,
-      // },
-      instagram: {
-        name: "Instagram",
-        url: "#",
-        icon: Icons.instagram,
-      },
-      email: {
-        name: "Send Email",
-        url: "#",
-        icon: Icons.email,
-      },
-    },
+// Public navbar data
+const PUBLIC_NAVBAR = [
+  { href: "/", icon: HomeIcon, label: "Home" },
+  { href: "#", icon: LogInIcon, label: "Admin" },
+]
+
+const PUBLIC_SOCIAL = {
+  instagram: {
+    name: "Instagram",
+    url: "#",
+    icon: Icons.instagram,
+  },
+  email: {
+    name: "Send Email",
+    url: "#",
+    icon: Icons.email,
+  },
+}
+
+// Admin navbar data - icons with paths
+const ADMIN_NAVBAR = [
+  { href: "/", icon: HomeIcon, label: "Home" },
+  { href: "/adm", icon: LayoutDashboard, label: "Dashboard" },
+]
+
+const ADMIN_SOCIAL = {
+  profile: {
+    name: "Profile",
+    url: "/adm/profile",
+    icon: Icons.profile,
   },
 }
 
@@ -144,7 +144,8 @@ export default function Navbar() {
       )}
       <TooltipProvider>
         <Dock direction="middle">
-          {DATA.navbar.map((item) => (
+          {/* Conditionally render navbar items based on path */}
+          {(pathname?.startsWith('/adm') ? ADMIN_NAVBAR : PUBLIC_NAVBAR).map((item) => (
             <DockIcon key={item.label}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -172,7 +173,7 @@ export default function Navbar() {
             </DockIcon>
           ))}
           <Separator orientation="vertical" className="h-full" />
-          {Object.entries(DATA.contact.social).map(([name, social]) => (
+          {Object.entries(pathname?.startsWith('/adm') ? ADMIN_SOCIAL : PUBLIC_SOCIAL).map(([name, social]: [string, { name: string; url: string; icon: React.FC<IconProps> }]) => (
             <DockIcon key={name}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -194,11 +195,25 @@ export default function Navbar() {
             </DockIcon>
           ))}
 
+          {/* Theme Toggle in Dock */}
+          <DockIcon>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={cn(
+                  buttonVariants({ variant: "ghost", size: "icon" }),
+                  "size-12 rounded-full"
+                )}>
+                  <AnimatedThemeToggler />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Theme</p>
+              </TooltipContent>
+            </Tooltip>
+          </DockIcon>
+
         </Dock>
       </TooltipProvider>
-      <div className="absolute right-8 bottom-[50%] translate-y-[110%]">
-        <AnimatedThemeToggler />
-      </div>
     </div>
 
   )

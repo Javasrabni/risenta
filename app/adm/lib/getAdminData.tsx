@@ -4,9 +4,13 @@ import { redirect } from 'next/navigation'
 import RisentaAdm from '../../models/risentaAdm'
 
 interface Admin {
+    _id?: string
     risentaID: string
     adm_usn: string
-    photoProfile: string
+    photoProfile?: string
+    position?: string
+    createdAt?: Date
+    updatedAt?: Date
 }
 
 export async function GetAdminData() {
