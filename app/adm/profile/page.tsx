@@ -6,6 +6,7 @@ interface PlainAdmin {
     risentaID: string
     adm_usn: string
     photoProfile?: string
+    cloudinaryPublicId?: string
     position?: string
     _id?: string
     createdAt?: string
@@ -26,6 +27,7 @@ export default async function ProfilePage() {
         createdAt: admin.createdAt?.toISOString(),
         updatedAt: admin.updatedAt?.toISOString(),
         position: admin.position || "",
+        cloudinaryPublicId: admin.cloudinaryPublicId || "",
     }
 
     return <ProfilePageClient admin={plainAdmin} />

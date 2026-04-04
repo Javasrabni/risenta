@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { risentaID, photoProfile, photoProfileBuffer, photoProfileContentType, position } = await req.json();
+    const { risentaID, photoProfile, cloudinaryPublicId, position } = await req.json();
 
     if (!risentaID) {
       return NextResponse.json(
@@ -89,17 +89,14 @@ export async function POST(req: Request) {
       );
     }
 
-    // Update photoProfile
+    // Update photoProfile with Cloudinary URL
     if (photoProfile !== undefined) {
       admin.photoProfile = photoProfile;
     }
     
-    // Update binary image data
-    if (photoProfileBuffer) {
-      // Convert base64 to Buffer
-      const buffer = Buffer.from(photoProfileBuffer, 'base64');
-      admin.photoProfileBuffer = buffer;
-      admin.photoProfileContentType = photoProfileContentType || 'image/jpeg';
+    // Update Cloudinary public ID for tracking
+    if (cloudinaryPublicId !== undefined) {
+      admin.cloudinaryPublicId = cloudinaryPublicId;
     }
     
     // Update position

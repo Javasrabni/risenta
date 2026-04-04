@@ -1,10 +1,10 @@
 import RisentaAdm from "@/app/models/risentaAdm";
 import connectDB from "@/lib/mongodb";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+// import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
-  console.log(await RisentaAdm.collection.name);
+  // console.log(await RisentaAdm.collection.name);
 
   try {
     await connectDB();

@@ -15,7 +15,7 @@ const TEAM_ORDER = [
 
 export async function AdminAvatarCircles() {
     await connectDB()
-    const admins = await RisentaAdm.find({}, 'adm_usn photoProfile photoProfileBuffer photoProfileContentType').lean()
+    const admins = await RisentaAdm.find({}, 'adm_usn photoProfile').lean()
     
     // Create a map of admins by name for quick lookup
     const adminMap = new Map(admins.map(admin => [admin.adm_usn, admin]))
@@ -23,18 +23,8 @@ export async function AdminAvatarCircles() {
     // Build avatars in fixed order
     const avatars = TEAM_ORDER.map(name => {
         const admin = adminMap.get(name)
-        let imageUrl = `/Assets/team/${name.replaceAll(' ', '')}.jpeg`
-        
-        // If admin has binary image data in MongoDB, convert to base64
-        if (admin?.photoProfileBuffer) {
-            const buffer = Buffer.from(admin.photoProfileBuffer)
-            const base64 = buffer.toString('base64')
-            const contentType = admin.photoProfileContentType || 'image/jpeg'
-            imageUrl = `data:${contentType};base64,${base64}`
-        } else if (admin?.photoProfile) {
-            // Use URL if available
-            imageUrl = admin.photoProfile
-        }
+        // Use Cloudinary URL if available, otherwise fallback to local
+        const imageUrl = admin?.photoProfile || `/Assets/team/${name.replaceAll(' ', '')}.jpeg`
         
         return {
             imageUrl,

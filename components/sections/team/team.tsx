@@ -186,7 +186,7 @@ export default function Team() {
                             <div className="w-12 h-12 md:w-20 md:h-20 relative rounded-full z-20">
                                 <div ref={div5Ref} className="absolute inset-0 m-auto size-1 pointer-events-none" />
                                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/10 relative">
-                                    <Image src={getMember(2)?.imageUrl || '/Assets/team/FiskaAndiniPutri.jpeg'} alt={getMember(2)?.name || ''} fill className="object-cover scale-100 translate-x-[-0px] object-top pointer-events-none select-none" draggable='false' />
+                                    <Image src={getMember(2)?.imageUrl || '/Assets/team/albar2.png'} alt={getMember(2)?.name || ''} fill className="object-cover scale-100 translate-x-[-0px] object-top pointer-events-none select-none" draggable='false' />
                                 </div>
                             </div>
                             <span className="flex flex-col text-right">

@@ -15,7 +15,7 @@ const TEAM_ORDER = [
 export async function GET() {
     try {
         await connectDB();
-        const admins = await RisentaAdm.find({}, 'adm_usn photoProfile photoProfileBuffer photoProfileContentType position').lean();
+        const admins = await RisentaAdm.find({}, 'adm_usn photoProfile cloudinaryPublicId position').lean();
         
         // Create a map of admins by name for quick lookup
         const adminMap = new Map(admins.map(admin => [admin.adm_usn, admin]));
@@ -25,12 +25,9 @@ export async function GET() {
             const admin = adminMap.get(name);
             let imageUrl = `/Assets/team/${name.replaceAll(' ', '')}.jpeg`;
             
-            // If admin has binary image data in MongoDB, convert to base64
-            if (admin?.photoProfileBuffer) {
-                const buffer = Buffer.from(admin.photoProfileBuffer);
-                const base64 = buffer.toString('base64');
-                const contentType = admin.photoProfileContentType || 'image/jpeg';
-                imageUrl = `data:${contentType};base64,${base64}`;
+            // If admin has Cloudinary URL, use it
+            if (admin?.photoProfile && admin.photoProfile.includes('cloudinary')) {
+                imageUrl = admin.photoProfile;
             } else if (admin?.photoProfile) {
                 // Use URL if available
                 imageUrl = admin.photoProfile;

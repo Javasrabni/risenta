@@ -3,6 +3,7 @@ import { AdminAvatarCircles } from './components/All-Admin/avatarCircle'
 import { AnimatedGridPattern } from '@/components/ui/animated-grid-pattern'
 import { AdminNote } from './components/notes/AdminNote'
 import PatchNote from './components/notes/patchNoteButton'
+import { DivisionSection } from './components/division/DivisionSection'
 import connectDB from '@/lib/mongodb'
 import RisentaAdm from '@/app/models/risentaAdm'
 
@@ -44,8 +45,8 @@ export default async function Page() {
                 <AdminNote reviews={reviews} />
             </div>
 
-
-
+            {/* DIVISION SECTION */}
+            <DivisionSection />
 
             {/* <LightRays /> */}
         </div>

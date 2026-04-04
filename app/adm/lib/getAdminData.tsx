@@ -8,6 +8,7 @@ interface Admin {
     risentaID: string
     adm_usn: string
     photoProfile?: string
+    cloudinaryPublicId?: string
     position?: string
     createdAt?: Date
     updatedAt?: Date

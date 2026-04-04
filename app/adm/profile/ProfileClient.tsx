@@ -10,12 +10,14 @@ interface ProfilePageProps {
     risentaID: string
     adm_usn: string
     photoProfile?: string
+    cloudinaryPublicId?: string
     position?: string
   }
 }
 
 export default function ProfilePageClient({ admin }: ProfilePageProps) {
   const [photoUrl, setPhotoUrl] = useState(admin.photoProfile || '')
+  const [cloudinaryPublicId, setCloudinaryPublicId] = useState(admin.cloudinaryPublicId || '')
   const [position, setPosition] = useState(admin.position || '')
   const [isUploading, setIsUploading] = useState(false)
   const [message, setMessage] = useState('')
@@ -25,11 +27,62 @@ export default function ProfilePageClient({ admin }: ProfilePageProps) {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Convert file to base64 for MongoDB storage
+    setIsUploading(true)
+    setMessage('Uploading...')
+
+    // Convert file to base64
     const reader = new FileReader()
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const base64String = reader.result as string
       setPhotoUrl(base64String)
+
+      try {
+        // Upload to Cloudinary
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            file: base64String,
+            folder: 'risenta-profiles',
+          }),
+        })
+
+        const uploadData = await uploadRes.json()
+
+        if (!uploadRes.ok) {
+          setMessage(uploadData.message || 'Failed to upload to Cloudinary')
+          setIsUploading(false)
+          return
+        }
+
+        const finalPhotoUrl = uploadData.url
+        const finalPublicId = uploadData.publicId
+        setPhotoUrl(finalPhotoUrl)
+        setCloudinaryPublicId(finalPublicId)
+
+        // Save to database
+        const res = await fetch('/api/admin/update-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            risentaID: admin.risentaID,
+            photoProfile: finalPhotoUrl,
+            cloudinaryPublicId: finalPublicId,
+          }),
+        })
+
+        const data = await res.json()
+
+        if (res.ok) {
+          setMessage('Photo updated successfully!')
+        } else {
+          setMessage(data.message || 'Failed to update profile')
+        }
+      } catch (error) {
+        setMessage('Error updating photo')
+      } finally {
+        setIsUploading(false)
+      }
     }
     reader.readAsDataURL(file)
   }
@@ -62,50 +115,6 @@ export default function ProfilePageClient({ admin }: ProfilePageProps) {
     }
   }
 
-  const handleSavePhoto = async () => {
-    setIsUploading(true)
-    setMessage('')
-
-    try {
-      // Check if photoUrl is a base64 data URL
-      let photoProfileBuffer = null
-      let photoProfileContentType = null
-      let photoProfileUrl = photoUrl
-
-      if (photoUrl && photoUrl.startsWith('data:image')) {
-        // Extract content type and base64 data
-        const matches = photoUrl.match(/^data:(image\/\w+);base64,(.+)$/)
-        if (matches) {
-          photoProfileContentType = matches[1]
-          photoProfileBuffer = matches[2]
-          // Keep the data URL for immediate display
-        }
-      }
-
-      const res = await fetch('/api/admin/update-profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          risentaID: admin.risentaID,
-          photoProfile: photoProfileUrl,
-          photoProfileBuffer,
-          photoProfileContentType,
-        }),
-      })
-
-      const data = await res.json()
-
-      if (res.ok) {
-        setMessage('Profile updated successfully!')
-      } else {
-        setMessage(data.message || 'Failed to update profile')
-      }
-    } catch (error) {
-      setMessage('Error updating profile')
-    } finally {
-      setIsUploading(false)
-    }
-  }
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-6">
@@ -203,21 +212,6 @@ export default function ProfilePageClient({ admin }: ProfilePageProps) {
               <Save className="mr-2 h-4 w-4" />
             )}
             Save Position
-          </Button>
-
-          {/* Save Photo Button */}
-          <Button 
-            onClick={handleSavePhoto}
-            disabled={isUploading}
-            variant="outline"
-            className="w-full"
-          >
-            {isUploading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Camera className="mr-2 h-4 w-4" />
-            )}
-            Save Photo
           </Button>
 
           {/* Message */}
