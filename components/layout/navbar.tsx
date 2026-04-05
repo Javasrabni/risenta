@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { CalendarIcon, HomeIcon, Instagram, LogInIcon, MailIcon, PencilIcon, LayoutDashboard, User, Settings, FileText } from "lucide-react"
+import { CalendarIcon, HomeIcon, Instagram, LogInIcon, MailIcon, PencilIcon, LayoutDashboard, User, Settings, FileText, Film } from "lucide-react"
 
+import { PlusIcon } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -18,6 +19,7 @@ import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler"
 import Login from "../features/login"
 import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
+import PostModal from "../features/post-modal"
 
 export type IconProps = React.HTMLAttributes<SVGElement>
 
@@ -100,10 +102,11 @@ const ADMIN_SOCIAL = {
 
 export default function Navbar() {
   const router = useRouter()
+  const pathname = usePathname();
   const [openAdminPage, setOpenAdminPage] = useState(false)
   const [admLogin, setAdmLogin] = React.useState(false);
+  const [openPostModal, setOpenPostModal] = useState(false);
 
-  const pathname = usePathname();
   useEffect(() => {
     setOpenAdminPage(false);
   }, [pathname]);
@@ -142,8 +145,42 @@ export default function Navbar() {
           <div className="fixed top-0 z-20 left-0 w-full h-full bg-[#00000080]" onClick={() => setOpenAdminPage(prev => !prev)} />
         </>
       )}
+
+      {/* Post Modal */}
+      {openPostModal && (
+        <>
+          <div className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50 mx-auto w-full max-w-lg px-4">
+            <PostModal onClose={() => setOpenPostModal(false)} />
+          </div>
+          <div className="fixed top-0 z-40 left-0 w-full h-full bg-black/50" onClick={() => setOpenPostModal(false)} />
+        </>
+      )}
       <TooltipProvider>
         <Dock direction="middle">
+          {/* Plus button - only on /adm path */}
+          {pathname?.startsWith('/adm') && (
+            <>
+              <DockIcon>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setOpenPostModal(true)}
+                      className={cn(
+                        buttonVariants({ variant: "ghost", size: "icon" }),
+                        "size-12 rounded-full"
+                      )}
+                    >
+                      <PlusIcon className="size-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Buat Postingan</p>
+                  </TooltipContent>
+                </Tooltip>
+              </DockIcon>
+              <Separator orientation="vertical" className="h-full" />
+            </>
+          )}
           {/* Conditionally render navbar items based on path */}
           {(pathname?.startsWith('/adm') ? ADMIN_NAVBAR : PUBLIC_NAVBAR).map((item) => (
             <DockIcon key={item.label}>
@@ -172,6 +209,28 @@ export default function Navbar() {
               </Tooltip>
             </DockIcon>
           ))}
+          {/* Posts icon - only on /adm path */}
+          {pathname?.startsWith('/adm') && (
+            <DockIcon>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/adm/posts"
+                    aria-label="Posts"
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "icon" }),
+                      "size-12 rounded-full"
+                    )}
+                  >
+                    <Film className="size-4" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Posts</p>
+                </TooltipContent>
+              </Tooltip>
+            </DockIcon>
+          )}
           <Separator orientation="vertical" className="h-full" />
           {Object.entries(pathname?.startsWith('/adm') ? ADMIN_SOCIAL : PUBLIC_SOCIAL).map(([name, social]: [string, { name: string; url: string; icon: React.FC<IconProps> }]) => (
             <DockIcon key={name}>

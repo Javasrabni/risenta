@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils"
 import { Marquee } from "@/components/ui/marquee"
 import Image from "next/image"
+import Link from "next/link"
 import { AddedPageMessage } from "next/dist/server/dev/hot-reloader-types"
 
 interface Reviews {
@@ -9,6 +10,7 @@ interface Reviews {
     adm_usn: string
     username?: string
     notes: string
+    risentaID?: string
 }
 
 
@@ -16,12 +18,14 @@ const ReviewCard = ({
     photoProfile: img,
     adm_usn: name,
     username,
-    notes: body
+    notes: body,
+    risentaID
 }: {
     photoProfile: string
     adm_usn: string
     username?: string
     notes: string
+    risentaID?: string
 }) => {
     return (
         <figure
@@ -38,8 +42,10 @@ const ReviewCard = ({
                     <Image className="rounded-full  object-cover" fill alt="" src={img} />
                 </div>
                 <div className="flex flex-col">
-                    <figcaption className="text-xs font-medium dark:text-white">
-                        {name}
+                    <figcaption className="text-xs font-medium dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        <Link href={`/adm/profile?user=${risentaID || ''}`} className="hover:underline">
+                            {name}
+                        </Link>
                     </figcaption>
                     {/* <p className="text-xs font-medium dark:text-white/40">{}</p> */}
                 </div>

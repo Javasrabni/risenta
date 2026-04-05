@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import RisentaAdm from '../../models/risentaAdm'
 
 interface Admin {
-    _id?: string
+    _id: string
     risentaID: string
     adm_usn: string
     photoProfile?: string
@@ -20,7 +20,7 @@ export async function GetAdminData() {
     if (!token) redirect('/')
 
     await connectDB()
-    const you = await RisentaAdm.findOne({ token }).lean<Admin>()
+    const you = await RisentaAdm.findOne({ token }, { _id: 1, risentaID: 1, adm_usn: 1, photoProfile: 1, cloudinaryPublicId: 1, position: 1 }).lean<Admin>()
     if (!you) redirect('/')
 
     return you;
