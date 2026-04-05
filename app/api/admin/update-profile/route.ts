@@ -11,7 +11,7 @@ async function getCurrentAdminFromSession() {
   if (!sessionToken) return null;
   
   await connectDB();
-  const admin = await RisentaAdm.findOne({ sessionToken }).lean();
+  const admin = await RisentaAdm.findOne({ token: sessionToken }).lean();
   return admin;
 }
 
@@ -28,7 +28,7 @@ export async function PUT(req: Request) {
       );
     }
 
-    const { risentaID, adm_usn, position, photoProfile, cloudinaryPublicId } = await req.json();
+    const { risentaID, adm_usn, position, division, skills, photoProfile, cloudinaryPublicId } = await req.json();
 
     if (!risentaID) {
       return NextResponse.json(
@@ -49,11 +49,18 @@ export async function PUT(req: Request) {
     }
 
     // Build update object with only provided fields
-    const updateData: Record<string, string> = {};
+    const updateData: Record<string, string | string[]> = {};
     if (adm_usn !== undefined) updateData.adm_usn = adm_usn;
     if (position !== undefined) updateData.position = position;
+    if (division !== undefined) updateData.division = division;
+    if (skills !== undefined) {
+      updateData.skills = skills;
+      console.log("[UpdateProfile] Skills received:", skills);
+    }
     if (photoProfile !== undefined) updateData.photoProfile = photoProfile;
     if (cloudinaryPublicId !== undefined) updateData.cloudinaryPublicId = cloudinaryPublicId;
+
+    console.log("[UpdateProfile] Update data:", updateData);
 
     // Update using findOneAndUpdate for atomic update
     const admin = await RisentaAdm.findOneAndUpdate(
@@ -94,7 +101,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { risentaID, photoProfile, cloudinaryPublicId, position } = await req.json();
+    const { risentaID, photoProfile, cloudinaryPublicId, position, division, skills } = await req.json();
 
     if (!risentaID) {
       return NextResponse.json(
@@ -137,6 +144,16 @@ export async function POST(req: Request) {
     // Update position
     if (position !== undefined) {
       admin.position = position;
+    }
+    
+    // Update division
+    if (division !== undefined) {
+      admin.division = division;
+    }
+    
+    // Update skills
+    if (skills !== undefined) {
+      admin.skills = skills;
     }
     
     await admin.save();

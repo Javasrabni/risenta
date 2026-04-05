@@ -1,8 +1,75 @@
 "use client"
 
 import { useState, useRef, useEffect } from 'react'
-import { Camera, Save, Loader2, Star, Briefcase, Pencil, X } from 'lucide-react'
+import { Camera, Save, Loader2, Pencil, X, Building2, FileText, Calendar, Plus, Trash2, MessageCircle, Eye, Send, MoreVertical, Check } from 'lucide-react'
 import { AnimatedGridPattern } from '@/components/ui/animated-grid-pattern'
+import Image from "next/image"
+import Link from "next/link"
+import { formatDistanceToNow } from "date-fns"
+import { id } from "date-fns/locale"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+
+interface Reply {
+  _id: string
+  authorId: string
+  authorName: string
+  authorPhoto?: string
+  content: string
+  createdAt: string
+  updatedAt?: string
+  parentReplyId?: string
+  replies: Reply[]
+}
+
+interface Comment {
+  _id: string
+  authorId: string
+  authorName: string
+  authorPhoto?: string
+  content: string
+  createdAt: string
+  updatedAt?: string
+  replies: Reply[]
+}
+
+interface Post {
+  _id: string
+  authorId: string
+  authorName: string
+  authorPhoto?: string
+  description: string
+  mediaUrl: string
+  mediaType: "image" | "video"
+  comments: Comment[]
+  views: string[]
+  createdAt: string
+}
+
+interface EditingState {
+  type: "comment" | "reply"
+  commentId: string
+  replyId?: string
+  text: string
+}
+
+interface ReplyingState {
+  commentId: string
+  parentReplyId: string | null
+  text: string
+}
+
+// Helper for ID comparison
+function toStr(val: unknown): string {
+  if (!val) return ""
+  if (typeof val === "string") return val
+  if (typeof val === "object") {
+    const o = val as Record<string, unknown>
+    if (typeof o.$oid === "string") return o.$oid
+    if (typeof (val as any).toString === "function") return (val as any).toString()
+  }
+  return String(val)
+}
 
 interface ProfilePageProps {
   admin: {
@@ -11,22 +78,64 @@ interface ProfilePageProps {
     photoProfile?: string
     cloudinaryPublicId?: string
     position?: string
+    division?: string
+    createdAt?: string
+    skills?: string[]
   }
   isOwnProfile: boolean
+  postCount: number
+  posts: Post[]
 }
 
-export default function ProfilePageClient({ admin, isOwnProfile }: ProfilePageProps) {
+export default function ProfilePageClient({ admin, isOwnProfile, postCount, posts: initialPosts }: ProfilePageProps) {
   const [photoUrl, setPhotoUrl] = useState(admin.photoProfile || '')
   const [cloudinaryPublicId, setCloudinaryPublicId] = useState(admin.cloudinaryPublicId || '')
   const [admUsn, setAdmUsn] = useState(admin.adm_usn || '')
   const [position, setPosition] = useState(admin.position || '')
+  const [division, setDivision] = useState(admin.division || '')
+  const [skills, setSkills] = useState<string[]>(admin.skills ?? [])
+  const [newSkill, setNewSkill] = useState('')
   const [isUploading, setIsUploading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [message, setMessage] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Posts state for interactivity
+  const [posts, setPosts] = useState<Post[]>(initialPosts)
+  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
+  const [commentText, setCommentText] = useState<Record<string, string>>({})
+  const [currentUser, setCurrentUser] = useState<{risentaID: string, _id?: string, adm_usn: string, photoProfile?: string} | null>(null)
+  const [currentUserMongoId, setCurrentUserMongoId] = useState<string | null>(null)
+  
+  // Post editing state
+  const [editingPost, setEditingPost] = useState<string | null>(null)
+  const [editText, setEditText] = useState<Record<string, string>>({})
+  
+  // Comment/reply editing state
+  const [editing, setEditing] = useState<EditingState | null>(null)
+  const [replying, setReplying] = useState<ReplyingState | null>(null)
+
+  // Fetch current user for commenting
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me", { credentials: "include" })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.admin) {
+            setCurrentUser(data.admin)
+            setCurrentUserMongoId(data.admin._id || null)
+          }
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    fetchCurrentUser()
+  }, [])
+
   // Debug log
-  console.log('[ProfileClient] isOwnProfile:', isOwnProfile, 'admin:', admin.risentaID)
+  console.log('[ProfileClient] isOwnProfile:', isOwnProfile, 'admin:', admin.risentaID, 'admin.skills:', admin.skills, 'skills state:', skills)
 
   // Sync state with props when admin data changes (e.g., navigating between profiles)
   useEffect(() => {
@@ -34,6 +143,8 @@ export default function ProfilePageClient({ admin, isOwnProfile }: ProfilePagePr
     setCloudinaryPublicId(admin.cloudinaryPublicId || '')
     setAdmUsn(admin.adm_usn || '')
     setPosition(admin.position || '')
+    setDivision(admin.division || '')
+    setSkills(admin.skills ?? [])
     setIsEditing(false)
     setMessage('')
   }, [admin.risentaID])
@@ -103,6 +214,18 @@ export default function ProfilePageClient({ admin, isOwnProfile }: ProfilePagePr
     setIsUploading(true)
     setMessage('')
 
+    // Add pending skill if user typed but didn't press Enter
+    let skillsToSave = skills
+    const trimmed = newSkill.trim()
+    if (trimmed && !skills.includes(trimmed)) {
+      skillsToSave = [...skills, trimmed]
+      setSkills(skillsToSave)
+      setNewSkill('')
+    }
+
+    // Debug: log skills state before saving
+    console.log('[ProfileClient] Saving profile - skills state:', skillsToSave)
+
     try {
       const res = await fetch('/api/admin/update-profile', {
         method: 'PUT',
@@ -111,6 +234,8 @@ export default function ProfilePageClient({ admin, isOwnProfile }: ProfilePagePr
           risentaID: admin.risentaID,
           adm_usn: admUsn,
           position,
+          division,
+          skills: skillsToSave,
           photoProfile: photoUrl,
           cloudinaryPublicId,
         }),
@@ -124,6 +249,8 @@ export default function ProfilePageClient({ admin, isOwnProfile }: ProfilePagePr
         // Update local admin data
         admin.adm_usn = admUsn
         admin.position = position
+        admin.division = division
+        admin.skills = skillsToSave
         admin.photoProfile = photoUrl
         admin.cloudinaryPublicId = cloudinaryPublicId
       } else {
@@ -140,11 +267,124 @@ export default function ProfilePageClient({ admin, isOwnProfile }: ProfilePagePr
     // Reset to original values
     setAdmUsn(admin.adm_usn)
     setPosition(admin.position || '')
+    setDivision(admin.division || '')
+    setSkills(admin.skills ?? [])
     setPhotoUrl(admin.photoProfile || '')
     setCloudinaryPublicId(admin.cloudinaryPublicId || '')
     setIsEditing(false)
     setMessage('')
   }
+
+  const addSkill = () => {
+    const trimmed = newSkill.trim()
+    if (trimmed && !skills.includes(trimmed)) {
+      setSkills(prev => [...prev, trimmed])
+      setNewSkill('')
+      console.log('[ProfileClient] Skill added:', trimmed, 'New skills:', [...skills, trimmed])
+    }
+  }
+
+  const removeSkill = (skillToRemove: string) => {
+    setSkills(prev => prev.filter(s => s !== skillToRemove))
+  }
+
+  // Post interaction functions
+  const toggleComments = (postId: string) => {
+    setExpandedComments(prev => ({ ...prev, [postId]: !prev[postId] }))
+  }
+
+  const handleCommentChange = (postId: string, text: string) => {
+    setCommentText(prev => ({ ...prev, [postId]: text }))
+  }
+
+  const handleAddComment = async (postId: string) => {
+    const text = commentText[postId]?.trim()
+    if (!text || !currentUser) return
+
+    try {
+      const res = await fetch(`/api/posts/${postId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setPosts(prev => prev.map(post => 
+          post._id === postId 
+            ? { ...post, comments: [...post.comments, data.comment] }
+            : post
+        ))
+        setCommentText(prev => ({ ...prev, [postId]: '' }))
+      }
+    } catch (error) {
+      console.error('Failed to add comment:', error)
+    }
+  }
+
+  // Refresh posts data
+  const fetchPosts = async () => {
+    try {
+      const res = await fetch(`/api/posts?author=${admin.risentaID}`, { credentials: "include" })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.posts) {
+          setPosts(data.posts)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch posts:', error)
+    }
+  }
+
+  // Post edit/delete handlers
+  const handleEditPost = async (postId: string, newDescription: string) => {
+    if (!newDescription.trim()) return
+    try {
+      const res = await fetch(`/api/posts/${postId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: newDescription.trim() }),
+      })
+      if (res.ok) {
+        setPosts(prev => prev.map(post => 
+          post._id === postId ? { ...post, description: newDescription.trim() } : post
+        ))
+        setEditingPost(null)
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm("Hapus postingan ini?")) return
+    try {
+      const res = await fetch(`/api/posts/${postId}`, { method: "DELETE" })
+      if (res.ok) {
+        setPosts(prev => prev.filter(post => post._id !== postId))
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const recordView = async (postId: string) => {
+    try {
+      await fetch(`/api/posts/${postId}/view`, { method: "POST", credentials: "include" })
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  // Format joined date
+  const joinedDate = admin.createdAt 
+    ? new Date(admin.createdAt).toLocaleDateString('id-ID', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      })
+    : 'Unknown'
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center relative overflow-hidden font-[inter]">
@@ -248,40 +488,71 @@ export default function ProfilePageClient({ admin, isOwnProfile }: ProfilePagePr
             </div>
           </div>
 
-          {/* Skill Tags */}
+          {/* Skill Tags - Editable */}
           <div className="flex flex-wrap gap-2 mb-6">
-            <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm rounded-full border border-neutral-200 dark:border-neutral-700">
-              Admin
-            </span>
-            <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm rounded-full border border-neutral-200 dark:border-neutral-700">
-              Management
-            </span>
-            <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm rounded-full border border-neutral-200 dark:border-neutral-700">
-              +1
-            </span>
+            {skills.map((skill) => (
+              <span 
+                key={skill} 
+                className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center gap-2"
+              >
+                {skill}
+                {isEditing && (
+                  <button 
+                    onClick={() => removeSkill(skill)}
+                    className="text-neutral-400 hover:text-red-500 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </span>
+            ))}
+            {isEditing && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addSkill()}
+                  placeholder="Add label..."
+                  className="px-3 py-1 w-28 rounded-full border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button 
+                  onClick={addSkill}
+                  className="p-1 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-full hover:bg-neutral-700 dark:hover:bg-neutral-200 transition-colors"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Stats Row */}
+          {/* Stats Row - Updated */}
           <div className="flex items-center justify-between py-4 border-t border-b border-neutral-200 dark:border-neutral-800 mb-6">
-            <div className="flex items-center gap-1.5">
-              <Star className="w-4 h-4 text-neutral-900 dark:text-white fill-current" />
-              <span className="font-semibold text-neutral-900 dark:text-white">4.8</span>
-              <span className="text-neutral-500 dark:text-neutral-400 text-sm">Rating</span>
+            <div className="flex flex-col items-start gap-1">
+              <div className="flex items-center gap-1.5">
+                <Building2 className="w-4 h-4 text-neutral-900 dark:text-white" />
+                <span className="font-semibold text-neutral-900 dark:text-white text-sm">
+                  {division || position || '-'}
+                </span>
+              </div>
+              <span className="text-neutral-500 dark:text-neutral-400 text-xs">Divisi</span>
             </div>
-            <div className="w-px h-6 bg-neutral-200 dark:bg-neutral-700" />
-            <div className="flex items-center gap-1.5">
-              <Briefcase className="w-4 h-4 text-neutral-900 dark:text-white" />
-              <span className="font-semibold text-neutral-900 dark:text-white">127</span>
-              <span className="text-neutral-500 dark:text-neutral-400 text-sm">Projects</span>
+            <div className="w-px h-8 bg-neutral-200 dark:bg-neutral-700" />
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-1.5">
+                <FileText className="w-4 h-4 text-neutral-900 dark:text-white" />
+                <span className="font-semibold text-neutral-900 dark:text-white text-sm">{postCount}</span>
+              </div>
+              <span className="text-neutral-500 dark:text-neutral-400 text-xs">Postingan</span>
             </div>
-            <div className="w-px h-6 bg-neutral-200 dark:bg-neutral-700" />
-            <div className="text-right">
-              <span className="font-semibold text-neutral-900 dark:text-white">${admin.risentaID.slice(-3)}</span>
-              <span className="text-neutral-500 dark:text-neutral-400 text-sm block">ID Rate</span>
+            <div className="w-px h-8 bg-neutral-200 dark:bg-neutral-700" />
+            <div className="flex flex-col items-end gap-1 text-center">
+              <span className="font-semibold text-neutral-900 dark:text-white text-xs">{joinedDate}</span>
+              <span className="text-neutral-500 dark:text-neutral-400 text-xs">Joined Since</span>
             </div>
           </div>
 
-            {/* Edit / Save / Cancel Buttons - Only for own profile */}
+          {/* Edit / Save / Cancel Buttons - Only for own profile */}
           {isOwnProfile && (
           <div className="mb-4">
             {isEditing ? (
@@ -289,29 +560,29 @@ export default function ProfilePageClient({ admin, isOwnProfile }: ProfilePagePr
                 <button
                   onClick={handleSaveProfile}
                   disabled={isUploading}
-                  className="flex-1 py-3 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-100 text-white dark:text-neutral-900 font-semibold rounded-full transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 py-2 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-100 text-white dark:text-neutral-900 font-semibold rounded-full transition-colors flex items-center justify-center gap-2 disabled:opacity-50 text-sm"
                 >
                   {isUploading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    <Save className="w-5 h-5" />
+                    <Save className="w-4 h-4" />
                   )}
                   Save
                 </button>
                 <button
                   onClick={handleCancelEdit}
                   disabled={isUploading}
-                  className="px-4 py-3 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-900 dark:text-white font-semibold rounded-full transition-colors flex items-center justify-center disabled:opacity-50"
+                  className="px-3 py-2 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-900 dark:text-white font-semibold rounded-full transition-colors flex items-center justify-center disabled:opacity-50"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="w-full py-3 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-100 text-white dark:text-neutral-900 font-semibold rounded-full transition-colors flex items-center justify-center gap-2"
+                className="px-3 py-1 bg-white dark:bg-white text-black dark:text-black text-sm rounded-full border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-100 transition-colors flex items-center justify-center gap-1.5 font-medium"
               >
-                <Pencil className="w-5 h-5" />
+                <Pencil className="w-3 h-3" />
                 Edit Profile
               </button>
             )}
@@ -326,6 +597,548 @@ export default function ProfilePageClient({ admin, isOwnProfile }: ProfilePagePr
           )}
         </div>
       </div>
+
+      {/* Posts Section */}
+      {posts.length > 0 && (
+        <div className="z-10 w-full max-w-md mt-6 px-6 mb-32">
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            Postingan
+          </h2>
+          <div className="space-y-4">
+            {posts.map((post) => (
+              <PostCard
+                key={post._id}
+                post={post}
+                currentUserId={currentUser?.risentaID || null}
+                currentUserMongoId={currentUserMongoId}
+                isOwnProfile={isOwnProfile}
+                commentText={commentText[post._id] ?? ""}
+                showComments={expandedComments[post._id] ?? false}
+                onCommentChange={(t) => setCommentText((p) => ({ ...p, [post._id]: t }))}
+                onToggleComments={() => setExpandedComments((p) => ({ ...p, [post._id]: !p[post._id] }))}
+                onAddComment={() => handleAddComment(post._id)}
+                isEditing={editingPost === post._id}
+                editText={editText[post._id] ?? ""}
+                onEditChange={(t) => setEditText((p) => ({ ...p, [post._id]: t }))}
+                onStartEdit={() => {
+                  setEditText((p) => ({ ...p, [post._id]: post.description }))
+                  setEditingPost(post._id)
+                }}
+                onCancelEdit={() => setEditingPost(null)}
+                onEdit={(t) => handleEditPost(post._id, t)}
+                onDelete={() => handleDeletePost(post._id)}
+                onView={() => recordView(post._id)}
+                onRefresh={fetchPosts}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {posts.length === 0 && (
+        <div className="z-10 w-full max-w-md mt-6 px-6 mb-32 text-center">
+          <p className="text-neutral-500 dark:text-neutral-400">
+            Belum ada postingan
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── PostCard ─────────────────────────────────────────────────────────────────
+interface PostCardProps {
+  post: Post
+  currentUserId: string | null
+  currentUserMongoId: string | null
+  isOwnProfile: boolean
+  commentText: string
+  showComments: boolean
+  onCommentChange: (t: string) => void
+  onToggleComments: () => void
+  onAddComment: () => void
+  isEditing: boolean
+  editText: string
+  onEditChange: (t: string) => void
+  onStartEdit: () => void
+  onCancelEdit: () => void
+  onEdit: (t: string) => void
+  onDelete: () => void
+  onView: () => void
+  onRefresh: () => void
+}
+
+function PostCard({
+  post, currentUserId, currentUserMongoId, isOwnProfile,
+  commentText, showComments, onCommentChange, onToggleComments, onAddComment,
+  isEditing, editText, onEditChange, onStartEdit, onCancelEdit, onEdit,
+  onDelete, onView, onRefresh,
+}: PostCardProps) {
+  const postAuthorId = toStr(post.authorId)
+  const isAuthor = isOwnProfile && (postAuthorId === toStr(currentUserId) || postAuthorId === toStr(currentUserMongoId))
+  const [showMenu, setShowMenu] = useState(false)
+
+  return (
+    <div
+      className="relative bg-white dark:bg-neutral-900 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-neutral-800"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-neutral-800">
+        <div className="flex items-center gap-3">
+          <div className="relative w-10 h-10 rounded-full overflow-hidden">
+            <Image src={post.authorPhoto ?? "/Assets/default-avatar.png"} alt={post.authorName} fill className="object-cover" />
+          </div>
+          <div>
+            <p className="font-semibold text-sm text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
+              <Link href={`/adm/profile?user=${post.authorId}`} className="hover:underline">
+                {post.authorName}
+              </Link>
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: id })}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Media */}
+      <div className="relative w-full bg-black">
+        {post.mediaType === "video" ? (
+          <video src={post.mediaUrl} className="w-full h-auto object-contain" controls preload="metadata" />
+        ) : (
+          <div className="relative w-full aspect-square">
+            <Image src={post.mediaUrl} alt="Post media" fill className="object-contain" />
+          </div>
+        )}
+      </div>
+
+      {/* Description */}
+      <div className="px-4 py-3">
+        {isEditing ? (
+          <div className="space-y-2">
+            <Textarea value={editText} onChange={(e) => onEditChange(e.target.value)} className="min-h-[80px] resize-none text-sm" />
+            <div className="flex gap-2">
+              <Button onClick={() => onEdit(editText)} size="sm" className="flex-1">Simpan</Button>
+              <Button variant="outline" onClick={onCancelEdit} size="sm">Batal</Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-white font-[inter]">{post.description}</p>
+        )}
+      </div>
+
+      {/* Stats */}
+      <div className="flex items-center justify-between px-4 py-2 border-t border-gray-100 dark:border-neutral-800">
+        <div className="flex items-center gap-4">
+          <button onClick={onToggleComments} className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <MessageCircle className="w-4 h-4" /><span>{post.comments.length}</span>
+          </button>
+          <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+            <Eye className="w-4 h-4" /><span>{post.views.length} dilihat</span>
+          </div>
+        </div>
+        {isAuthor && !isEditing && (
+          <div className="relative">
+            <button onClick={() => setShowMenu((v) => !v)} className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors">
+              <MoreVertical className="w-5 h-5" />
+            </button>
+            {showMenu && (
+              <div className="absolute bottom-full right-0 mb-1 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-gray-200 dark:border-neutral-700 py-1 z-50 min-w-[120px]">
+                <button onClick={(e) => { e.stopPropagation(); onStartEdit(); setShowMenu(false) }}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700 flex items-center gap-2">
+                  <Pencil className="w-4 h-4" /> Edit
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); onDelete(); setShowMenu(false) }}
+                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700 flex items-center gap-2">
+                  <Trash2 className="w-4 h-4" /> Hapus
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Comments */}
+      {showComments && (
+        <div className="border-t border-gray-100 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-800/50">
+          <CommentSection
+            post={post} currentUserId={currentUserId} currentUserMongoId={currentUserMongoId}
+            commentText={commentText} onCommentChange={onCommentChange}
+            onAddComment={onAddComment} onRefresh={onRefresh}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── CommentSection ────────────────────────────────────────────────────────────
+interface CommentSectionProps {
+  post: Post
+  currentUserId: string | null
+  currentUserMongoId: string | null
+  commentText: string
+  onCommentChange: (t: string) => void
+  onAddComment: () => void
+  onRefresh: () => void
+}
+
+function CommentSection({
+  post, currentUserId, currentUserMongoId, commentText, onCommentChange, onAddComment, onRefresh,
+}: CommentSectionProps) {
+  const [editing, setEditing] = useState<EditingState | null>(null)
+  const [replying, setReplying] = useState<ReplyingState | null>(null)
+
+  const put = async (body: Record<string, unknown>) => {
+    const res = await fetch(`/api/posts/${post._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+    if (res.ok) onRefresh()
+    return res.ok
+  }
+
+  const onSaveComment = async (commentId: string, content: string) => {
+    if (!content.trim()) return
+    if (await put({ commentId, content: content.trim() })) setEditing(null)
+  }
+
+  const onDeleteComment = async (commentId: string) => {
+    if (!confirm("Hapus komentar ini?")) return
+    await put({ commentId, action: "delete" })
+  }
+
+  const onSaveReply = async (commentId: string, replyId: string, content: string) => {
+    if (!content.trim()) return
+    if (await put({ commentId, replyId, content: content.trim() })) setEditing(null)
+  }
+
+  const onDeleteReply = async (commentId: string, replyId: string) => {
+    if (!confirm("Hapus balasan ini?")) return
+    await put({ commentId, replyId, action: "deleteReply" })
+  }
+
+  const onSendReply = async () => {
+    if (!replying?.text.trim()) return
+    try {
+      const res = await fetch(`/api/posts/${post._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "reply",
+          commentId: replying.commentId,
+          content: replying.text.trim(),
+          parentReplyId: replying.parentReplyId,
+        }),
+      })
+      if (res.ok) { setReplying(null); onRefresh() }
+    } catch (e) { console.error(e) }
+  }
+
+  const sharedProps = {
+    postId: post._id, currentUserId, currentUserMongoId,
+    editing, replying,
+    setEditing, setReplying,
+    onSaveComment, onDeleteComment,
+    onSaveReply, onDeleteReply, onSendReply,
+  }
+
+  return (
+    <div className="px-4 py-3">
+      <div className="max-h-[480px] overflow-y-auto mb-3">
+        {post.comments.length === 0 ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">Belum ada komentar</p>
+        ) : (
+          post.comments.map((comment) => (
+            <CommentRow key={comment._id} comment={comment} {...sharedProps} />
+          ))
+        )}
+      </div>
+      {/* New comment */}
+      <div className="flex gap-2 items-center pt-2 border-t border-gray-200 dark:border-neutral-700">
+        <Textarea
+          value={commentText}
+          onChange={(e) => onCommentChange(e.target.value)}
+          placeholder="Tulis komentar..."
+          className="h-10 min-h-[40px] flex-1 resize-none text-sm py-2"
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onAddComment() } }}
+        />
+        <Button onClick={onAddComment} disabled={!commentText.trim()} size="icon" className="h-10 w-10 flex-shrink-0">
+          <Send className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Tree Props ──────────────────────────────────────────────────────────────
+interface TreeProps {
+  postId: string
+  currentUserId: string | null
+  currentUserMongoId: string | null
+  editing: EditingState | null
+  replying: ReplyingState | null
+  setEditing: (v: EditingState | null) => void
+  setReplying: React.Dispatch<React.SetStateAction<ReplyingState | null>>
+  onSaveComment: (commentId: string, content: string) => void
+  onDeleteComment: (commentId: string) => void
+  onSaveReply: (commentId: string, replyId: string, content: string) => void
+  onDeleteReply: (commentId: string, replyId: string) => void
+  onSendReply: () => void
+}
+
+// ─── CommentRow ───────────────────────────────────────────────────────────────
+function CommentRow({ comment, ...props }: { comment: Comment } & TreeProps) {
+  const commentAuthorId = toStr(comment.authorId)
+  const isAuthor = commentAuthorId === toStr(props.currentUserId) || commentAuthorId === toStr(props.currentUserMongoId)
+  const isEditing = props.editing?.type === "comment" && props.editing.commentId === comment._id
+  const isReplying = props.replying?.commentId === comment._id && props.replying.parentReplyId === null
+  const hasReplies = (comment.replies?.length ?? 0) > 0
+
+  return (
+    <div className="flex mb-4">
+      {/* Avatar container */}
+      <div className="flex-shrink-0 mr-3 pt-3">
+        <div className="relative rounded-full overflow-hidden border-2 border-gray-100 dark:border-neutral-700 shadow-sm" style={{ width: 36, height: 36 }}>
+          <Image src={comment.authorPhoto ?? "/Assets/default-avatar.png"} alt={comment.authorName} fill className="object-cover" />
+        </div>
+      </div>
+
+      {/* Konten kanan */}
+      <div className="flex-1 min-w-0 pt-3 pb-1">
+        <div className="mb-2">
+          <div className="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <Link href={`/adm/profile?user=${comment.authorId}`} className="hover:underline">
+              {comment.authorName}
+            </Link>
+          </div>
+          <div className="text-xs text-gray-400 dark:text-gray-500">
+            {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: id })}
+            {comment.updatedAt && <span className="ml-1 italic">(diedit)</span>}
+          </div>
+        </div>
+
+        {isEditing ? (
+          <InlineEditForm
+            initialText={props.editing!.text}
+            onSave={(t) => props.onSaveComment(comment._id, t)}
+            onCancel={() => props.setEditing(null)}
+          />
+        ) : (
+          <p className="text-sm text-gray-800 dark:text-gray-100 break-words leading-relaxed">{comment.content}</p>
+        )}
+
+        {!isEditing && (
+          <div className="flex items-center gap-3 mt-1.5 mb-1">
+            <button
+              onClick={() => isReplying
+                ? props.setReplying(null)
+                : props.setReplying({ commentId: comment._id, parentReplyId: null, text: "" })}
+              className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              {isReplying ? "Batal" : "Balas"}
+            </button>
+            {isAuthor && (
+              <>
+                <button
+                  onClick={() => props.setEditing({ type: "comment", commentId: comment._id, text: comment.content })}
+                  className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >Edit</button>
+                <button onClick={() => props.onDeleteComment(comment._id)} className="text-xs text-red-500 hover:text-red-600">Hapus</button>
+              </>
+            )}
+          </div>
+        )}
+
+        {isReplying && (
+          <ReplyInput
+            placeholder="Balas komentar..."
+            value={props.replying!.text}
+            onChange={(t) => props.setReplying((p) => p ? { ...p, text: t } : null)}
+            onSend={props.onSendReply}
+            onCancel={() => props.setReplying(null)}
+          />
+        )}
+
+        {hasReplies && (
+          <div className="mt-6 space-y-4">
+            {comment.replies.map((reply) => (
+              <ReplyItem
+                key={reply._id}
+                reply={reply}
+                commentId={comment._id}
+                parentContent={comment.content}
+                {...props}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── ReplyItem ───────────────────────────────────────────────────────────────
+interface ReplyItemProps extends TreeProps {
+  reply: Reply
+  commentId: string
+  parentContent: string
+}
+
+function ReplyItem({ reply, commentId, parentContent, ...props }: ReplyItemProps) {
+  const replyAuthorId = toStr(reply.authorId)
+  const isReplyAuthor = replyAuthorId === toStr(props.currentUserId) || replyAuthorId === toStr(props.currentUserMongoId)
+  const isEditing = props.editing?.type === "reply" && props.editing.replyId === reply._id
+  const isReplying = props.replying?.commentId === commentId && props.replying?.parentReplyId === reply._id
+  const hasNested = (reply.replies?.length ?? 0) > 0
+
+  return (
+    <div className="mb-4">
+      <div className="flex items-start gap-2 mb-2">
+        <div className="flex-shrink-0">
+          <div className="relative rounded-full overflow-hidden border border-gray-200 dark:border-neutral-600 flex-shrink-0" style={{ width: 28, height: 28 }}>
+            <Image src={reply.authorPhoto ?? "/Assets/default-avatar.png"} alt={reply.authorName} fill className="object-cover" />
+          </div>
+        </div>
+        <div>
+          <div className="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <Link href={`/adm/profile?user=${reply.authorId}`} className="hover:underline">
+              {reply.authorName}
+            </Link>
+          </div>
+          <div className="text-xs text-gray-400 dark:text-gray-500">
+            {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true, locale: id })}
+            {reply.updatedAt && <span className="ml-1 italic">(diedit)</span>}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-2 p-2 bg-blue-50 dark:bg-blue-900/30 rounded">
+        <p className="text-xs text-gray-600 dark:text-gray-300 italic line-clamp-3">{parentContent}</p>
+      </div>
+
+      {isEditing ? (
+        <InlineEditForm
+          initialText={props.editing!.text}
+          onSave={(t) => props.onSaveReply(commentId, reply._id, t)}
+          onCancel={() => props.setEditing(null)}
+        />
+      ) : (
+        <p className="text-sm text-gray-800 dark:text-gray-100 break-words leading-relaxed">{reply.content}</p>
+      )}
+
+      {!isEditing && (
+        <div className="flex items-center gap-3 mt-1.5">
+          <button
+            onClick={() => isReplying
+              ? props.setReplying(null)
+              : props.setReplying({ commentId, parentReplyId: reply._id, text: "" })}
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            {isReplying ? "Batal" : "Balas"}
+          </button>
+          {isReplyAuthor && (
+            <>
+              <button
+                onClick={() => props.setEditing({ type: "reply", commentId, replyId: reply._id, text: reply.content })}
+                className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >Edit</button>
+              <button onClick={() => props.onDeleteReply(commentId, reply._id)} className="text-xs text-red-500 hover:text-red-600">Hapus</button>
+            </>
+          )}
+        </div>
+      )}
+
+      {isReplying && (
+        <ReplyInput
+          placeholder={`Balas ${reply.authorName}...`}
+          value={props.replying!.text}
+          onChange={(t) => props.setReplying((p) => p ? { ...p, text: t } : null)}
+          onSend={props.onSendReply}
+          onCancel={() => props.setReplying(null)}
+        />
+      )}
+
+      {hasNested && (
+        <div className="mt-4 space-y-4">
+          {reply.replies.map((nestedReply) => (
+            <ReplyItem
+              key={nestedReply._id}
+              reply={nestedReply}
+              commentId={commentId}
+              parentContent={reply.content}
+              {...props}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── InlineEditForm ───────────────────────────────────────────────────────────
+function InlineEditForm({ initialText, onSave, onCancel }: {
+  initialText: string
+  onSave: (t: string) => void
+  onCancel: () => void
+}) {
+  const [text, setText] = useState(initialText)
+  return (
+    <div className="mt-1 space-y-1.5">
+      <Textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        className="min-h-[56px] resize-none text-sm py-1.5"
+        autoFocus
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSave(text) }
+          if (e.key === "Escape") onCancel()
+        }}
+      />
+      <div className="flex gap-1.5">
+        <button
+          onClick={() => onSave(text)} disabled={!text.trim()}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium disabled:opacity-50 transition-colors"
+        >
+          <Check className="w-3 h-3" /> Simpan
+        </button>
+        <button
+          onClick={onCancel}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-gray-300 dark:border-neutral-600 text-gray-600 dark:text-gray-300 text-xs hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+        >
+          <X className="w-3 h-3" /> Batal
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── ReplyInput ───────────────────────────────────────────────────────────────
+function ReplyInput({ placeholder, value, onChange, onSend, onCancel }: {
+  placeholder: string
+  value: string
+  onChange: (t: string) => void
+  onSend: () => void
+  onCancel: () => void
+}) {
+  return (
+    <div className="flex gap-2 items-center mt-2 mb-1">
+      <Textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="h-9 min-h-[36px] flex-1 resize-none text-sm py-2"
+        autoFocus
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSend() }
+          if (e.key === "Escape") onCancel()
+        }}
+      />
+      <Button onClick={onSend} disabled={!value.trim()} size="icon" className="h-9 w-9 flex-shrink-0">
+        <Send className="w-4 h-4" />
+      </Button>
     </div>
   )
 }

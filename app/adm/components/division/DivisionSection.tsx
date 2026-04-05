@@ -40,14 +40,14 @@ Circle.displayName = "Circle"
 // ---------------------------------------------------------------------------
 const MemberAvatar = forwardRef<
   HTMLDivElement,
-  { src: string; alt: string; size?: "sm" | "md" | "lg" }
->(({ src, alt, size = "md" }, ref) => {
+  { src: string; alt: string; size?: "sm" | "md" | "lg"; risentaID?: string }
+>(({ src, alt, size = "md", risentaID }, ref) => {
   const sizeClasses = {
     sm: "w-8 h-8",
     md: "w-10 h-10",
     lg: "w-14 h-14",
   }
-  return (
+  const avatarContent = (
     <div
       ref={ref}
       className={cn(
@@ -60,6 +60,15 @@ const MemberAvatar = forwardRef<
       <Image src={src} alt={alt} fill className="object-cover" />
     </div>
   )
+  
+  if (risentaID) {
+    return (
+      <Link href={`/adm/profile?user=${risentaID}`} className="block">
+        {avatarContent}
+      </Link>
+    )
+  }
+  return avatarContent
 })
 MemberAvatar.displayName = "MemberAvatar"
 
@@ -267,17 +276,19 @@ export function DivisionSection() {
               {loading ? (
                 <AvatarSkeleton ref={igCoordinatorRef} />
               ) : igCoordinator ? (
-                <div
-                  ref={igCoordinatorRef}
-                  className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-neutral-800 shadow-md cursor-pointer transition-transform duration-300 hover:scale-110"
-                >
-                  <Image 
-                    src={igCoordinator.imageUrl} 
-                    alt={igCoordinator.name} 
-                    fill 
-                    className="object-cover"
-                  />
-                </div>
+                <Link href={`/adm/profile?user=${igCoordinator.risentaID || ''}`}>
+                  <div
+                    ref={igCoordinatorRef}
+                    className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-neutral-800 shadow-md cursor-pointer transition-transform duration-300 hover:scale-110"
+                  >
+                    <Image 
+                      src={igCoordinator.imageUrl} 
+                      alt={igCoordinator.name} 
+                      fill 
+                      className="object-cover"
+                    />
+                  </div>
+                </Link>
               ) : (
                 <div ref={igCoordinatorRef} className="w-10 h-10" />
               )}
@@ -291,6 +302,7 @@ export function DivisionSection() {
                   ref={igAvatarRef}
                   src={instagramMembers[0].imageUrl}
                   alt={instagramMembers[0].name}
+                  risentaID={instagramMembers[0].risentaID}
                 />
               ) : (
                 <div ref={igAvatarRef} className="w-10 h-10" />
@@ -301,6 +313,7 @@ export function DivisionSection() {
                     key={member.name} 
                     src={member.imageUrl} 
                     alt={member.name}
+                    risentaID={member.risentaID}
                     size={idx === 0 ? "md" : "sm"}
                   />
                 ))}
@@ -317,17 +330,19 @@ export function DivisionSection() {
               {loading ? (
                 <AvatarSkeleton ref={rasyidAvatarRef} size="lg" />
               ) : rasyidMember ? (
-                <div
-                  ref={rasyidAvatarRef}
-                  className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-3 border-white dark:border-neutral-800 shadow-xl cursor-pointer transition-transform duration-300 hover:scale-110"
-                >
-                  <Image 
-                    src={rasyidMember.imageUrl} 
-                    alt={rasyidMember.name} 
-                    fill 
-                    className="object-cover"
-                  />
-                </div>
+                <Link href={`/adm/profile?user=${rasyidMember.risentaID || ''}`}>
+                  <div
+                    ref={rasyidAvatarRef}
+                    className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-3 border-white dark:border-neutral-800 shadow-xl cursor-pointer transition-transform duration-300 hover:scale-110"
+                  >
+                    <Image 
+                      src={rasyidMember.imageUrl} 
+                      alt={rasyidMember.name} 
+                      fill 
+                      className="object-cover"
+                    />
+                  </div>
+                </Link>
               ) : (
                 <div ref={rasyidAvatarRef} className="w-14 h-14 md:w-16 md:h-16" />
               )}
@@ -349,17 +364,19 @@ export function DivisionSection() {
               {loading ? (
                 <AvatarSkeleton ref={bizCoordinatorRef} />
               ) : bizCoordinator ? (
-                <div
-                  ref={bizCoordinatorRef}
-                  className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-neutral-800 shadow-md cursor-pointer transition-transform duration-300 hover:scale-110"
-                >
-                  <Image 
-                    src={bizCoordinator.imageUrl} 
-                    alt={bizCoordinator.name} 
-                    fill 
-                    className="object-cover"
-                  />
-                </div>
+                <Link href={`/adm/profile?user=${bizCoordinator.risentaID || ''}`}>
+                  <div
+                    ref={bizCoordinatorRef}
+                    className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-neutral-800 shadow-md cursor-pointer transition-transform duration-300 hover:scale-110"
+                  >
+                    <Image 
+                      src={bizCoordinator.imageUrl} 
+                      alt={bizCoordinator.name} 
+                      fill 
+                      className="object-cover"
+                    />
+                  </div>
+                </Link>
               ) : (
                 <div ref={bizCoordinatorRef} className="w-10 h-10" />
               )}
@@ -373,6 +390,7 @@ export function DivisionSection() {
                   ref={bizAvatarRef}
                   src={businessMembers[0].imageUrl}
                   alt={businessMembers[0].name}
+                  risentaID={businessMembers[0].risentaID}
                 />
               ) : (
                 <div ref={bizAvatarRef} className="w-10 h-10" />
@@ -383,6 +401,7 @@ export function DivisionSection() {
                     key={member.name} 
                     src={member.imageUrl} 
                     alt={member.name}
+                    risentaID={member.risentaID}
                     size={idx === 0 ? "md" : "sm"}
                   />
                 ))}

@@ -247,7 +247,7 @@ function PostCard({
 
   return (
     <div
-      className="relative bg-white dark:bg-neutral-900 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-neutral-800"
+      className="relative bg-white dark:bg-neutral-900 rounded-xl overflow-hidden shadow-xs border border-gray-200 dark:border-neutral-800"
       onMouseEnter={() => !hasViewed && onView()}
     >
       {/* Header */}

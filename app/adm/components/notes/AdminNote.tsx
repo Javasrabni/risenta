@@ -38,9 +38,11 @@ const ReviewCard = ({
             )}
         >
             <div className="flex flex-row items-center gap-2">
-                <div className="relative w-10 h-10 rounded-full shrink-0">
-                    <Image className="rounded-full  object-cover" fill alt="" src={img} />
-                </div>
+                <Link href={`/adm/profile?user=${risentaID || ''}`}>
+                    <div className="relative w-10 h-10 rounded-full shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
+                        <Image className="rounded-full  object-cover" fill alt="" src={img} />
+                    </div>
+                </Link>
                 <div className="flex flex-col">
                     <figcaption className="text-xs font-medium dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                         <Link href={`/adm/profile?user=${risentaID || ''}`} className="hover:underline">

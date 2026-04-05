@@ -7,6 +7,8 @@ const risentaAdmSchema = new mongoose.Schema(
     token: { type: String, required: true },
     role: { type: String, required: true },
     position: { type: String, default: "" },
+    division: { type: String, default: "" },
+    skills: { type: [String], default: ["Belum menambah Label"] },
     photoProfile: { type: String },
     cloudinaryPublicId: { type: String },
     notes: { type: String, default: "" },
