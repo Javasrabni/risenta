@@ -25,6 +25,7 @@ export async function GET() {
       role: "admin",
       admin: {
         _id: admin._id.toString(),
+        risentaID: admin.risentaID,
         adm_usn: admin.adm_usn,
         photoProfile: admin.photoProfile,
       },

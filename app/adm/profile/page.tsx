@@ -40,10 +40,23 @@ export default async function ProfilePage({ searchParams }: PageProps) {
   // If user parameter exists, fetch that admin's data
   if (targetRisentaID) {
     await connectDB();
-    const targetAdmin = await RisentaAdm.findOne(
+    // Try find by risentaID first, then by _id (MongoDB ObjectId)
+    let targetAdmin = await RisentaAdm.findOne(
       { risentaID: targetRisentaID },
       { risentaID: 1, adm_usn: 1, photoProfile: 1, cloudinaryPublicId: 1, position: 1, _id: 1 }
     ).lean() as Admin | null;
+    
+    // If not found, try finding by _id (for backward compatibility)
+    if (!targetAdmin) {
+      try {
+        targetAdmin = await RisentaAdm.findOne(
+          { _id: targetRisentaID },
+          { risentaID: 1, adm_usn: 1, photoProfile: 1, cloudinaryPublicId: 1, position: 1, _id: 1 }
+        ).lean() as Admin | null;
+      } catch {
+        // Invalid ObjectId format, ignore
+      }
+    }
 
     if (targetAdmin) {
       adminToDisplay = targetAdmin;

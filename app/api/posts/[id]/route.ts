@@ -127,8 +127,9 @@ export async function PUT(
         return NextResponse.json({ message: "Balasan tidak ditemukan" }, { status: 404 });
       }
 
-      // Cek ownership menggunakan risentaID (bukan _id)
-      if (reply.authorId !== admin.risentaID) {
+      // Cek ownership menggunakan risentaID atau _id (fallback untuk data lama)
+      const isOwner = reply.authorId === admin.risentaID || reply.authorId === admin._id.toString();
+      if (!isOwner) {
         return NextResponse.json({ message: "Bukan pemilik balasan ini" }, { status: 403 });
       }
 
@@ -149,8 +150,9 @@ export async function PUT(
         return NextResponse.json({ message: "Komentar tidak ditemukan" }, { status: 404 });
       }
 
-      // Cek ownership menggunakan risentaID (bukan _id)
-      if (comment.authorId !== admin.risentaID) {
+      // Cek ownership menggunakan risentaID atau _id (fallback untuk data lama)
+      const isOwner = comment.authorId === admin.risentaID || comment.authorId === admin._id.toString();
+      if (!isOwner) {
         return NextResponse.json({ message: "Bukan pemilik komentar ini" }, { status: 403 });
       }
 
@@ -177,8 +179,10 @@ export async function PUT(
       return NextResponse.json({ message: "Deskripsi wajib diisi" }, { status: 400 });
     }
 
-    // Cek ownership post (post masih pakai _id author)
-    if (post.authorId?.toString() !== admin._id.toString()) {
+    // Cek ownership post (pakai _id atau risentaID untuk kompatibilitas data lama)
+    const isPostOwner = post.authorId?.toString() === admin._id.toString() || 
+                        post.authorId?.toString() === admin.risentaID;
+    if (!isPostOwner) {
       return NextResponse.json({ message: "Bukan pemilik post ini" }, { status: 403 });
     }
 

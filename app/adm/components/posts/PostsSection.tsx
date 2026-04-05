@@ -88,6 +88,7 @@ export function PostsSection() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserMongoId, setCurrentUserMongoId] = useState<string | null>(null)
   const [commentText, setCommentText] = useState<Record<string, string>>({})
   const [showComments, setShowComments] = useState<Record<string, boolean>>({})
   const [editingPost, setEditingPost] = useState<string | null>(null)
@@ -117,7 +118,10 @@ export function PostsSection() {
       const res = await fetch("/api/auth/me", { credentials: "include" })
       if (res.ok) {
         const data = await res.json()
-        if (data.admin) setCurrentUserId(data.admin._id)
+        if (data.admin) {
+          setCurrentUserId(data.admin.risentaID || data.admin._id)
+          setCurrentUserMongoId(data.admin._id)
+        }
       }
     } catch (e) {
       console.error(e)
@@ -195,6 +199,7 @@ export function PostsSection() {
             key={post._id}
             post={post}
             currentUserId={currentUserId}
+            currentUserMongoId={currentUserMongoId}
             commentText={commentText[post._id] ?? ""}
             showComments={showComments[post._id] ?? false}
             onCommentChange={(t) => setCommentText((p) => ({ ...p, [post._id]: t }))}
@@ -221,7 +226,7 @@ export function PostsSection() {
 
 // ─── PostCard ─────────────────────────────────────────────────────────────────
 interface PostCardProps {
-  post: Post; currentUserId: string | null
+  post: Post; currentUserId: string | null; currentUserMongoId: string | null
   commentText: string; showComments: boolean
   onCommentChange: (t: string) => void; onToggleComments: () => void; onAddComment: () => void
   isEditing: boolean; editText: string
@@ -230,13 +235,14 @@ interface PostCardProps {
 }
 
 function PostCard({
-  post, currentUserId, commentText, showComments,
+  post, currentUserId, currentUserMongoId, commentText, showComments,
   onCommentChange, onToggleComments, onAddComment,
   isEditing, editText, onEditChange, onStartEdit, onCancelEdit, onEdit,
   onDelete, onView, onRefresh,
 }: PostCardProps) {
-  const isAuthor = toStr(post.authorId) === toStr(currentUserId)
-  const hasViewed = currentUserId ? post.views.includes(currentUserId) : false
+  const postAuthorId = toStr(post.authorId)
+  const isAuthor = postAuthorId === toStr(currentUserId) || postAuthorId === toStr(currentUserMongoId)
+  const hasViewed = currentUserId ? post.views.includes(currentUserId) || post.views.includes(currentUserMongoId || "") : false
   const [showMenu, setShowMenu] = useState(false)
 
   return (
@@ -321,7 +327,7 @@ function PostCard({
       {showComments && (
         <div className="border-t border-gray-100 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-800/50">
           <CommentSection
-            post={post} currentUserId={currentUserId}
+            post={post} currentUserId={currentUserId} currentUserMongoId={currentUserMongoId}
             commentText={commentText} onCommentChange={onCommentChange}
             onAddComment={onAddComment} onRefresh={onRefresh}
           />
@@ -333,9 +339,9 @@ function PostCard({
 
 // ─── CommentSection ────────────────────────────────────────────────────────────
 function CommentSection({
-  post, currentUserId, commentText, onCommentChange, onAddComment, onRefresh,
+  post, currentUserId, currentUserMongoId, commentText, onCommentChange, onAddComment, onRefresh,
 }: {
-  post: Post; currentUserId: string | null
+  post: Post; currentUserId: string | null; currentUserMongoId: string | null
   commentText: string; onCommentChange: (t: string) => void
   onAddComment: () => void; onRefresh: () => void
 }) {
@@ -393,7 +399,7 @@ function CommentSection({
   }
 
   const sharedProps = {
-    postId: post._id, currentUserId,
+    postId: post._id, currentUserId, currentUserMongoId,
     editing, replying,
     setEditing, setReplying,
     onSaveComment, onDeleteComment,
@@ -430,7 +436,7 @@ function CommentSection({
 
 // ─── Shared tree props ────────────────────────────────────────────────────────
 interface TreeProps {
-  postId: string; currentUserId: string | null
+  postId: string; currentUserId: string | null; currentUserMongoId: string | null
   editing: EditingState | null; replying: ReplyingState | null
   setEditing: (v: EditingState | null) => void
   setReplying: React.Dispatch<React.SetStateAction<ReplyingState | null>>
@@ -465,7 +471,8 @@ interface TreeProps {
 //  - Karena outer row juga flex-row, tinggi rail = tinggi konten kanan secara otomatis
 //
 function CommentRow({ comment, ...props }: { comment: Comment } & TreeProps) {
-  const isAuthor = toStr(comment.authorId) === toStr(props.currentUserId)
+  const commentAuthorId = toStr(comment.authorId)
+  const isAuthor = commentAuthorId === toStr(props.currentUserId) || commentAuthorId === toStr(props.currentUserMongoId)
   const isEditing = props.editing?.type === "comment" && props.editing.commentId === comment._id
   const isReplying = props.replying?.commentId === comment._id && props.replying.parentReplyId === null
   const hasReplies = (comment.replies?.length ?? 0) > 0
@@ -566,7 +573,8 @@ interface ReplyItemProps extends TreeProps {
 }
 
 function ReplyItem({ reply, commentId, parentContent, ...props }: ReplyItemProps) {
-  const isReplyAuthor = toStr(reply.authorId) === toStr(props.currentUserId)
+  const replyAuthorId = toStr(reply.authorId)
+  const isReplyAuthor = replyAuthorId === toStr(props.currentUserId) || replyAuthorId === toStr(props.currentUserMongoId)
   const isEditing = props.editing?.type === "reply" && props.editing.replyId === reply._id
   const isReplying = props.replying?.commentId === commentId && props.replying?.parentReplyId === reply._id
   const hasNested = (reply.replies?.length ?? 0) > 0
