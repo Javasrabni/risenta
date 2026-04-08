@@ -8,8 +8,8 @@ export function proxy(request: NextRequest) {
 
     // Internal Admin subdomain: internal.risentta.com
     if (subdomain === 'internal') {
-        // Allow access to /internal/login page when not logged in
-        if (pathname === '/internal/login') {
+        // Allow static files and internal paths to pass through
+        if (pathname.startsWith('/_next/') || pathname.startsWith('/static/') || pathname.startsWith('/internal/')) {
             return NextResponse.next()
         }
 
