@@ -7,7 +7,7 @@ import { logAdminAction, getRequestInfo } from "@/lib/adminAudit";
 // GET - Get customer detail (admin only)
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
@@ -31,7 +31,7 @@ export async function GET(
       );
     }
     
-    const { id } = params;
+    const { id } = await params;
     
     // Find customer by ID or customerID
     const customer = await Customer.findOne({
@@ -59,7 +59,7 @@ export async function GET(
 // PUT - Update customer (admin only)
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
@@ -83,7 +83,7 @@ export async function PUT(
       );
     }
     
-    const { id } = params;
+    const { id } = await params;
     const updates = await req.json();
     
     // Find customer
@@ -166,7 +166,7 @@ export async function PUT(
 // DELETE - Deactivate customer (admin only)
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
@@ -190,7 +190,7 @@ export async function DELETE(
       );
     }
     
-    const { id } = params;
+    const { id } = await params;
     
     // Find customer
     const customer = await Customer.findOne({
