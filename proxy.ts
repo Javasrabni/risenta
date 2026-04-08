@@ -55,9 +55,14 @@ export function proxy(request: NextRequest) {
             return NextResponse.next()
         }
         
-        // Public routes that don't require auth
-        const publicRoutes = ['/', '/login', '/register', '/forgot-password']
+        // Public routes that don't require auth (including /write/ paths)
+        const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/write/login', '/write/register', '/write/forgot-password']
         if (publicRoutes.includes(pathname)) {
+            return NextResponse.next()
+        }
+        
+        // Allow access to public write paths without auth
+        if (pathname.startsWith('/write/login') || pathname.startsWith('/write/register') || pathname.startsWith('/write/forgot-password')) {
             return NextResponse.next()
         }
         
@@ -66,7 +71,7 @@ export function proxy(request: NextRequest) {
             return NextResponse.redirect(new URL('/write/login', request.url))
         }
         
-        // Allow access to write paths for both customers and internal admins
+        // Allow access to other write paths for authenticated users
         if (pathname.startsWith('/write/')) {
             return NextResponse.next()
         }
