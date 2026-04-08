@@ -39,8 +39,9 @@ export default function InternalLoginPage() {
         return;
       }
 
+      console.log("Login success, redirecting to /adm");
       // Redirect to admin dashboard
-      router.push("/adm");
+      window.location.href = "/adm";
     } catch (err) {
       console.error("Fetch error:", err);
       setErrorResp("Gagal terhubung ke server.");
