@@ -25,6 +25,7 @@ export default function InternalLoginPage() {
       });
 
       const data = await res.json();
+      console.log("Login response:", data);
 
       if (!res.ok) {
         setErrorResp(data.message);
