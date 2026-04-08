@@ -34,9 +34,40 @@ export async function GET(req: Request) {
     const rewards = await ReferralReward.find(query)
       .sort({ createdAt: -1 });
     
-    // Get stats
-    const stats = await ReferralReward.getRewardStats(customerID);
-    const pendingTotal = await ReferralReward.getPendingRewardsTotal(customerID);
+    // Get stats using aggregation
+    const statsAgg = await ReferralReward.aggregate([
+      { $match: { recipientCustomerID: customerID } },
+      { 
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+          totalValue: { $sum: "$rewardValue" }
+        }
+      }
+    ]);
+    
+    const stats = {
+      pending: { count: 0, totalValue: 0 },
+      approved: { count: 0, totalValue: 0 },
+      paid: { count: 0, totalValue: 0 },
+      cancelled: { count: 0, totalValue: 0 }
+    };
+    
+    statsAgg.forEach((stat: any) => {
+      if (stats[stat._id as keyof typeof stats]) {
+        stats[stat._id as keyof typeof stats] = {
+          count: stat.count,
+          totalValue: stat.totalValue
+        };
+      }
+    });
+    
+    // Get pending total
+    const pendingAgg = await ReferralReward.aggregate([
+      { $match: { recipientCustomerID: customerID, status: 'pending' } },
+      { $group: { _id: null, total: { $sum: "$rewardValue" } } }
+    ]);
+    const pendingTotal = pendingAgg[0]?.total || 0;
     
     return NextResponse.json({
       rewards,

@@ -70,26 +70,24 @@ CustomerSchema.index({ email: 1 });
 CustomerSchema.index({ referralCode: 1 });
 
 // Pre-save middleware untuk update updatedAt
-CustomerSchema.pre('save', function(next) {
+CustomerSchema.pre('save', function() {
   if (this.isModified()) {
     this.updatedAt = new Date();
   }
-  next();
 });
 
 // Generate unique customerID sebelum save
-CustomerSchema.pre('save', async function(next) {
+CustomerSchema.pre('save', async function() {
   if (!this.customerID) {
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
     this.customerID = `CST${timestamp}${random}`;
   }
   if (!this.referralCode) {
-    const timestamp = Date.now().toString(36).toUpperCase();
-    const random = Math.random().toString(36).substring(2, 5).toUpperCase();
-    this.referralCode = `REF${timestamp}${random}`;
+    const refTimestamp = Date.now().toString(36).toUpperCase();
+    const refRandom = Math.random().toString(36).substring(2, 5).toUpperCase();
+    this.referralCode = `REF${refTimestamp}${refRandom}`;
   }
-  next();
 });
 
 const Customer = mongoose.models.Customer || mongoose.model("Customer", CustomerSchema);

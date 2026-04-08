@@ -101,11 +101,10 @@ ReferralRewardSchema.index({ status: 1 });
 ReferralRewardSchema.index({ createdAt: -1 });
 
 // Pre-save middleware
-ReferralRewardSchema.pre('save', function(next) {
+ReferralRewardSchema.pre('save', function() {
   if (this.isModified()) {
     this.updatedAt = new Date();
   }
-  next();
 });
 
 // Static method to calculate total pending rewards

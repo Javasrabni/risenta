@@ -21,14 +21,14 @@ export const {
       return false;
     },
     async session({ session, token }) {
-      if (token.sub) {
-        session.user.id = token.sub;
+      if (token.sub && session.user) {
+        (session.user as any).id = token.sub;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.sub = user.id;
+        token.sub = (user as any).id;
       }
       return token;
     },

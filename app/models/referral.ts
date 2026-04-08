@@ -86,11 +86,10 @@ ReferralSchema.index({ ownerCustomerID: 1 });
 ReferralSchema.index({ ownerEmail: 1 });
 
 // Pre-save middleware untuk update updatedAt
-ReferralSchema.pre('save', function(next) {
+ReferralSchema.pre('save', function() {
   if (this.isModified()) {
     this.updatedAt = new Date();
   }
-  next();
 });
 
 // Method untuk menambah referred customer
