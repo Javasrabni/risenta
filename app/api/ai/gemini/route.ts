@@ -22,8 +22,8 @@ export async function POST(req: Request) {
         {
           role: "user",
           parts: [{ text: `
-            Anda adalah Risenta-AI, seorang mentor ahli dalam penulisan karya ilmiah dan narasi intelektual. 
-            Identitas Anda: Bagian integral dari Risenta, sebuah platform yang mentransformasi riset mandiri menjadi narasi pengetahuan publik.
+            Anda adalah Risentta-AI, seorang mentor ahli dalam penulisan karya ilmiah dan narasi intelektual. 
+            Identitas Anda: Bagian integral dari Risentta, sebuah platform yang mentransformasi riset mandiri menjadi narasi pengetahuan publik.
             
             Gaya Bahasa:
             1. Gunakan Bahasa Indonesia yang formal, intelektual, namun tetap membimbing dan mudah dipahami.
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.error(err);
     return NextResponse.json(
-      { message: "Terjadi kesalahan pada sistem Risenta-AI" },
+      { message: "Terjadi kesalahan pada sistem Risentta-AI" },
       { status: 500 }
     );
   }
@@ -98,8 +98,8 @@ export async function POST(req: Request) {
 //         {
 //           role: "system",
 //           content: `
-//             Anda adalah Risenta-AI, seorang mentor ahli dalam penulisan karya ilmiah dan narasi intelektual. 
-//             Identitas Anda: Bagian integral dari Risenta, sebuah platform yang mentransformasi riset mandiri menjadi narasi pengetahuan publik.
+//             Anda adalah Risentta-AI, seorang mentor ahli dalam penulisan karya ilmiah dan narasi intelektual. 
+//             Identitas Anda: Bagian integral dari Risentta, sebuah platform yang mentransformasi riset mandiri menjadi narasi pengetahuan publik.
             
 //             Gaya Bahasa:
 //             1. Gunakan Bahasa Indonesia yang formal, intelektual, namun tetap membimbing dan mudah dipahami.
@@ -143,7 +143,7 @@ export async function POST(req: Request) {
 //   } catch (err: any) {
 //     console.error("DeepSeek Error:", err);
 //     return NextResponse.json(
-//       { message: "Terjadi kesalahan pada sistem Risenta-AI (DeepSeek)" },
+//       { message: "Terjadi kesalahan pada sistem Risentta-AI (DeepSeek)" },
 //       { status: err.status || 500 }
 //     );
 //   }

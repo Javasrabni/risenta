@@ -3,7 +3,7 @@ import connectDB from "@/lib/mongodb";
 import Post from "@/app/models/post";
 import { cookies } from "next/headers";
 import { v2 as cloudinary } from "cloudinary";
-import RisentaAdm from "@/app/models/risentaAdm";
+import RisenttaAdm from "@/app/models/risentaAdm";
 
 // Cloudinary config
 cloudinary.config({
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     }
     
     // Get admin data
-    const admin = await RisentaAdm.findOne({ token: sessionToken });
+    const admin = await RisenttaAdm.findOne({ token: sessionToken });
     if (!admin) {
       return NextResponse.json(
         { message: "Unauthorized" },

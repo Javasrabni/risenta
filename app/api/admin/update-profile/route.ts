@@ -1,4 +1,4 @@
-import RisentaAdm from "@/app/models/risentaAdm";
+import RisenttaAdm from "@/app/models/risentaAdm";
 import connectDB from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -11,7 +11,7 @@ async function getCurrentAdminFromSession() {
   if (!sessionToken) return null;
   
   await connectDB();
-  const admin = await RisentaAdm.findOne({ token: sessionToken }).lean();
+  const admin = await RisenttaAdm.findOne({ token: sessionToken }).lean();
   return admin;
 }
 
@@ -32,7 +32,7 @@ export async function PUT(req: Request) {
 
     if (!risentaID) {
       return NextResponse.json(
-        { message: "RisentaID is required" },
+        { message: "RisenttaID is required" },
         { status: 400 }
       );
     }
@@ -40,7 +40,7 @@ export async function PUT(req: Request) {
     await connectDB();
 
     // SECURITY CHECK: Only allow updating own profile using _id comparison
-    const targetAdmin = await RisentaAdm.findOne({ risentaID }).lean();
+    const targetAdmin = await RisenttaAdm.findOne({ risentaID }).lean();
     if (!targetAdmin || targetAdmin._id.toString() !== currentAdmin._id.toString()) {
       return NextResponse.json(
         { message: "Forbidden - You can only update your own profile" },
@@ -63,7 +63,7 @@ export async function PUT(req: Request) {
     console.log("[UpdateProfile] Update data:", updateData);
 
     // Update using findOneAndUpdate for atomic update
-    const admin = await RisentaAdm.findOneAndUpdate(
+    const admin = await RisenttaAdm.findOneAndUpdate(
       { risentaID },
       updateData,
       { new: true, runValidators: true }
@@ -105,7 +105,7 @@ export async function POST(req: Request) {
 
     if (!risentaID) {
       return NextResponse.json(
-        { message: "RisentaID is required" },
+        { message: "RisenttaID is required" },
         { status: 400 }
       );
     }
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
     await connectDB();
 
     // SECURITY CHECK: Only allow updating own profile using _id comparison
-    const targetAdmin = await RisentaAdm.findOne({ risentaID }).lean();
+    const targetAdmin = await RisenttaAdm.findOne({ risentaID }).lean();
     if (!targetAdmin || targetAdmin._id.toString() !== currentAdmin._id.toString()) {
       return NextResponse.json(
         { message: "Forbidden - You can only update your own profile" },
@@ -122,7 +122,7 @@ export async function POST(req: Request) {
     }
 
     // Update admin profile
-    const admin = await RisentaAdm.findOne({ risentaID });
+    const admin = await RisenttaAdm.findOne({ risentaID });
     
     if (!admin) {
       return NextResponse.json(

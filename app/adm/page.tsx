@@ -5,13 +5,13 @@ import { AdminNote } from './components/notes/AdminNote'
 import PatchNote from './components/notes/patchNoteButton'
 import { DivisionSection } from './components/division/DivisionSection'
 import connectDB from '@/lib/mongodb'
-import RisentaAdm from '@/app/models/risentaAdm'
+import RisenttaAdm from '@/app/models/risentaAdm'
 
 export default async function Page() {
 
     // GET NOTES DATA FROM ADMIN COLLECTION
     await connectDB()
-    const reviews = await RisentaAdm.find({}).select('risentaID adm_usn photoProfile notes -_id').lean()
+    const reviews = await RisenttaAdm.find({}).select('risentaID adm_usn photoProfile notes -_id').lean()
 
     return (
         <div className={'w-full h-full flex flex-col gap-6 font-[inter] relative overflow-hidden'}>

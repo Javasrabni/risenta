@@ -1,4 +1,4 @@
-import RisentaAdm from "@/app/models/risentaAdm";
+import RisenttaAdm from "@/app/models/risentaAdm";
 import connectDB from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 
@@ -15,7 +15,7 @@ const TEAM_ORDER = [
 export async function GET() {
     try {
         await connectDB();
-        const admins = await RisentaAdm.find({}, 'adm_usn photoProfile cloudinaryPublicId position').lean();
+        const admins = await RisenttaAdm.find({}, 'adm_usn photoProfile cloudinaryPublicId position').lean();
         
         // Create a map of admins by name for quick lookup
         const adminMap = new Map(admins.map(admin => [admin.adm_usn, admin]));

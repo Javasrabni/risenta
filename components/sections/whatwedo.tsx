@@ -16,7 +16,7 @@ export default function WhatWeDo() {
             <div className="flex h-full flex-col justify-center gap-4 z-20 text-center md:text-left shrink-0 mt-[320px] md:mt-0">
                 <BlurFadeDiv delay={0.1}>
                     <span className="text-[10px] md:text-xs font-semibold tracking-[0.35em] text-slate-800/60 font-[inter] uppercase dark:text-slate-200/60">
-                        Risenta's <AuroraText>Mission</AuroraText>
+                        Risentta's <AuroraText>Mission</AuroraText>
                     </span>
                 </BlurFadeDiv>
                 <BlurFadeDiv delay={0.3}>

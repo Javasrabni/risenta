@@ -199,7 +199,7 @@ export function DivisionSection() {
           }
 
           // Add risentaID to team members
-          const addRisentaID = (member: TeamMember | null | undefined): TeamMember | null => {
+          const addRisenttaID = (member: TeamMember | null | undefined): TeamMember | null => {
             if (!member) return null
             const admin = adminData.find((a) => 
               a.adm_usn.toLowerCase().replace(/\s+/g, '') === 
@@ -208,11 +208,11 @@ export function DivisionSection() {
             return { ...member, risentaID: admin?.risentaID }
           }
 
-          setInstagramMembers(instagram.map(addRisentaID as any))
-          setIgCoordinator(addRisentaID(igCoord) ?? null)
-          setBusinessMembers(business.map(addRisentaID as any))
-          setBizCoordinator(addRisentaID(bizCoord) ?? null)
-          setRasyidMember(addRisentaID(rasyid) ?? null)
+          setInstagramMembers(instagram.map(addRisenttaID as any))
+          setIgCoordinator(addRisenttaID(igCoord) ?? null)
+          setBusinessMembers(business.map(addRisenttaID as any))
+          setBizCoordinator(addRisenttaID(bizCoord) ?? null)
+          setRasyidMember(addRisenttaID(rasyid) ?? null)
         }
       } catch (error) {
         console.error("Failed to fetch team data:", error)
@@ -230,7 +230,7 @@ export function DivisionSection() {
       {/* Header */}
       <div className="flex flex-col items-center justify-center gap-2 mb-4">
         <h1 className="pointer-events-none font-[inter] bg-linear-to-b from-black to-gray-300/80 bg-clip-text text-3xl lg:text-6xl leading-none font-bold whitespace-pre-wrap text-transparent dark:from-white dark:to-slate-900/10 tracking-[-1px] pb-1">
-          Divisi Risenta
+          Divisi Risentta
         </h1>
         <p className="text-sm sm:text-base text-center max-w-md text-slate-500 dark:text-slate-400 font-medium">
           Terhubung. Bergerak. Bersama.

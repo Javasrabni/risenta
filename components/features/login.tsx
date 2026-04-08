@@ -8,6 +8,16 @@ export default function Login() {
   const router = useRouter()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [subdomain, setSubdomain] = useState<string>('');
+
+  // Detect subdomain on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname;
+      const parts = host.split('.');
+      setSubdomain(parts[0] || '');
+    }
+  }, []);
 
   // Menutup dropdown saat klik di luar area
   useEffect(() => {
@@ -22,7 +32,7 @@ export default function Login() {
 
 
   // SEND DATA
-  const [risentaID, setRisentaID] = useState<String>('')
+  const [risentaID, setRisenttaID] = useState<String>('')
   const [token, setToken] = useState<String>('')
   const [errorResp, setErrorResp] = useState<String>('')
 
@@ -53,7 +63,19 @@ export default function Login() {
         console.log(data.message);
         return
       }
-      router.push('/adm')
+
+      // Check if accessing from internal subdomain and verify internal admin status
+      if (subdomain === 'internal' && !data.isInternalAdmin) {
+        setErrorResp("Akses ditolak. Anda bukan admin internal.")
+        return
+      }
+
+      // Redirect based on subdomain
+      if (subdomain === 'internal') {
+        router.push('/adm')
+      } else {
+        router.push('/adm')
+      }
     } catch (err) {
       console.error("Fetch error:", err);
       setErrorResp("Gagal terhubung ke server.");
@@ -71,10 +93,10 @@ export default function Login() {
             type="text"
             id="phone-input"
             className="w-full z-20 bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:outline-none block px-3 py-2.5 dark:bg-neutral-900 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white :outline-none"
-            placeholder="Risenta Id"
+            placeholder="Risentta Id"
             required
             maxLength={20}
-            onChange={(e) => setRisentaID(e.target.value)}
+            onChange={(e) => setRisenttaID(e.target.value)}
           />
         </div>
       </div>

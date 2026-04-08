@@ -153,7 +153,7 @@ export default function RisetSatuPage() {
                 {/* Footer */}
                 <footer className="mt-20 py-10 border-t border-zinc-900 text-center">
                     <p className="text-xs text-zinc-600 tracking-[0.4em] font-medium uppercase">
-                        Risenta Publications © 2026
+                        Risentta Publications © 2026
                     </p>
                 </footer>
             </div>

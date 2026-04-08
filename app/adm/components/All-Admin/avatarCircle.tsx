@@ -1,7 +1,7 @@
 import { AvatarCircles } from "@/components/ui/avatar-circles"
 import { Highlighter } from '@/components/ui/highlighter'
 import connectDB from '@/lib/mongodb'
-import RisentaAdm from '@/app/models/risentaAdm'
+import RisenttaAdm from '@/app/models/risentaAdm'
 
 // Fixed team order
 const TEAM_ORDER = [
@@ -15,7 +15,7 @@ const TEAM_ORDER = [
 
 export async function AdminAvatarCircles() {
     await connectDB()
-    const admins = await RisentaAdm.find({}, 'adm_usn photoProfile').lean()
+    const admins = await RisenttaAdm.find({}, 'adm_usn photoProfile').lean()
     
     // Create a map of admins by name for quick lookup
     const adminMap = new Map(admins.map(admin => [admin.adm_usn, admin]))
@@ -40,7 +40,7 @@ export async function AdminAvatarCircles() {
                 <Highlighter action="underline" color="#1447E6">
                     bergerak dan bekerja bersama
                 </Highlighter>{" "}
-                demi mencapai tujuan besar kita, Risenta.
+                demi mencapai tujuan besar kita, Risentta.
             </p>
         </div>
     )

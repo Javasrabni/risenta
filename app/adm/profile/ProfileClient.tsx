@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useRef, useEffect } from 'react'
-import { Camera, Save, Loader2, Pencil, X, Building2, FileText, Calendar, Plus, Trash2, MessageCircle, Eye, Send, MoreVertical, Check } from 'lucide-react'
+import { Camera, Save, Loader2, Pencil, X, Building2, FileText, Calendar, Plus, Trash2, MessageCircle, Eye, Send, MoreVertical, Check, IdCard, Download, Gift, CheckCheck } from 'lucide-react'
+import QRCode from 'react-qr-code'
+// html-to-image will be dynamically imported to avoid SSR issues
 import { AnimatedGridPattern } from '@/components/ui/animated-grid-pattern'
 import Image from "next/image"
 import Link from "next/link"
@@ -98,6 +100,10 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
   const [isUploading, setIsUploading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [message, setMessage] = useState('')
+  const [showIDCard, setShowIDCard] = useState(false)
+  const [copiedReferral, setCopiedReferral] = useState(false)
+  const idCardRef = useRef<HTMLDivElement>(null)
+  const idCardPrintRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Posts state for interactivity
@@ -136,6 +142,18 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
 
   // Debug log
   console.log('[ProfileClient] isOwnProfile:', isOwnProfile, 'admin:', admin.risentaID, 'admin.skills:', admin.skills, 'skills state:', skills)
+
+  // Set body data attribute when ID Card modal is open (for navbar styling)
+  useEffect(() => {
+    if (showIDCard) {
+      document.body.setAttribute('data-idcard-open', 'true')
+    } else {
+      document.body.removeAttribute('data-idcard-open')
+    }
+    return () => {
+      document.body.removeAttribute('data-idcard-open')
+    }
+  }, [showIDCard])
 
   // Sync state with props when admin data changes (e.g., navigating between profiles)
   useEffect(() => {
@@ -377,7 +395,52 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
     }
   }
 
-  // Format joined date
+  // Download ID Card function
+  const handleDownloadIDCard = async () => {
+    console.log('handleDownloadIDCard called, ref:', idCardRef.current)
+    
+    if (!idCardRef.current) {
+      console.error('idCardRef is null')
+      alert('Error: ID Card reference not found')
+      return
+    }
+    
+    try {
+      console.log('Starting html-to-image capture...')
+      
+      // Dynamically import html-to-image (client-side only)
+      const { toPng } = await import('html-to-image')
+      
+      // Use the print-friendly version (hidden) for capture
+      const printElement = idCardPrintRef.current
+      if (!printElement) {
+        alert('Error: Print version not found')
+        return
+      }
+      
+      // Wait for images to load in print version
+      await new Promise((resolve) => setTimeout(resolve, 800))
+      
+      // Capture the print-friendly element
+      const dataUrl = await toPng(printElement, {
+        pixelRatio: 2,
+        cacheBust: true,
+        skipFonts: true,
+      })
+      
+      console.log('Image generated, downloading...')
+      const link = document.createElement('a')
+      link.download = `ID-Tag-${admUsn.replaceAll(' ', '-')}.png`
+      link.href = dataUrl
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      console.log('Download triggered')
+    } catch (error) {
+      console.error('Failed to download ID card:', error)
+      alert('Failed to download ID card. Please try again.')
+    }
+  }
   const joinedDate = admin.createdAt 
     ? new Date(admin.createdAt).toLocaleDateString('id-ID', { 
         year: 'numeric', 
@@ -385,6 +448,22 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
         day: 'numeric' 
       })
     : 'Unknown'
+
+  // Generate referral code from last 3 characters of risentaID + "-GO"
+  const referralCode = admin.risentaID 
+    ? `${admin.risentaID.slice(-3).toUpperCase()}-GO` 
+    : ''
+
+  const handleCopyReferral = async () => {
+    if (!referralCode) return
+    try {
+      await navigator.clipboard.writeText(referralCode)
+      setCopiedReferral(true)
+      setTimeout(() => setCopiedReferral(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy referral code:', err)
+    }
+  }
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center relative overflow-hidden font-[inter]">
@@ -578,15 +657,79 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-3 py-1 bg-white dark:bg-white text-black dark:text-black text-sm rounded-full border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-100 transition-colors flex items-center justify-center gap-1.5 font-medium"
-              >
-                <Pencil className="w-3 h-3" />
-                Edit Profile
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-3 py-1 bg-white dark:bg-white text-black dark:text-black text-sm rounded-full border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-100 transition-colors flex items-center justify-center gap-1.5 font-medium"
+                >
+                  <Pencil className="w-3 h-3" />
+                  Edit Profile
+                </button>
+                <button
+                  onClick={() => setShowIDCard(true)}
+                  className="px-3 py-1 bg-neutral-900 dark:bg-neutral-800 text-white dark:text-white text-sm rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors flex items-center justify-center gap-1.5 font-medium"
+                >
+                  <IdCard className="w-3 h-3" />
+                  ID Tag
+                </button>
+                {referralCode && (
+                  <div className="flex flex-col items-center gap-1">
+                    <button
+                      onClick={handleCopyReferral}
+                      className="px-3 py-1 bg-neutral-900 dark:bg-neutral-800 text-white dark:text-white text-sm rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors flex items-center justify-center gap-1.5 font-medium"
+                    >
+                      {copiedReferral ? (
+                        <>
+                          <CheckCheck className="w-3 h-3" />
+                          Tersalin!
+                        </>
+                      ) : (
+                        <>
+                          <Gift className="w-3 h-3" />
+                          {referralCode}
+                        </>
+                      )}
+                    </button>
+                    <span className="text-neutral-500 dark:text-neutral-400 text-xs">Kode Referral</span>
+                  </div>
+                )}
+              </div>
             )}
           </div>
+          )}
+          
+          {/* ID Card Button - For other admins viewing this profile */}
+          {!isOwnProfile && (
+            <div className="mb-4 flex justify-start gap-2">
+              <button
+                onClick={() => setShowIDCard(true)}
+                className="px-3 py-1 bg-neutral-900 dark:bg-neutral-800 text-white dark:text-white text-sm rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors flex items-center justify-center gap-1.5 font-medium"
+              >
+                <IdCard className="w-3 h-3" />
+                ID Tag
+              </button>
+              {referralCode && (
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    onClick={handleCopyReferral}
+                    className="px-3 py-1 bg-neutral-900 dark:bg-neutral-800 text-white dark:text-white text-sm rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors flex items-center justify-center gap-1.5 font-medium"
+                  >
+                    {copiedReferral ? (
+                      <>
+                        <CheckCheck className="w-3 h-3" />
+                        Tersalin!
+                      </>
+                    ) : (
+                      <>
+                        <Gift className="w-3 h-3" />
+                        {referralCode}
+                      </>
+                    )}
+                  </button>
+                  <span className="text-neutral-500 dark:text-neutral-400 text-xs">Kode Referral</span>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Message */}
@@ -641,6 +784,215 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
           <p className="text-neutral-500 dark:text-neutral-400">
             Belum ada postingan
           </p>
+        </div>
+      )}
+
+      {/* ID Card Modal */}
+      {showIDCard && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          {/* Click overlay to close - separate from content */}
+          <div className="absolute inset-0" onClick={() => setShowIDCard(false)} />
+          
+          {/* Content container - above overlay and navbar */}
+          <div className="relative z-[60] flex flex-col items-center gap-4 pointer-events-none">
+            {/* ID Card Container */}
+            <div 
+              ref={idCardRef}
+              className="relative w-full max-w-md bg-gradient-to-b from-blue-950 via-blue-900 to-slate-900 rounded-2xl overflow-hidden shadow-2xl pointer-events-auto"
+            >
+              {/* Animated Grid Pattern Background */}
+              <div className="absolute inset-0 opacity-30">
+                <AnimatedGridPattern
+                  numSquares={20}
+                  maxOpacity={0.3}
+                  duration={3}
+                  repeatDelay={1}
+                />
+              </div>
+              
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              
+              {/* Content */}
+              <div className="relative z-10 flex flex-col items-center p-8">
+                {/* Header */}
+                <p className="text-white/80 text-sm font-light tracking-wider mb-6">
+                  Meet Our Team
+                </p>
+                
+                {/* Profile Photo */}
+                <div className="relative mb-6">
+                  <div className="w-40 h-40 rounded-lg overflow-hidden ring-2 ring-white/20 shadow-lg shadow-white/10">
+                    <Image 
+                      src={photoUrl || `/Assets/tema/${admUsn.replaceAll(' ', '')}.jpeg`}
+                      alt={`${admUsn} Profile`}
+                      fill
+                      className="object-cover rounded-lg"
+                    />
+                  </div>
+                </div>
+                
+                {/* Name */}
+                <h2 className="text-2xl font-bold text-white text-center mb-2">
+                  {admUsn}
+                </h2>
+                
+                {/* Major/Division & Position */}
+                <p className="text-blue-300 text-sm text-center mb-4">
+                  Divisi {division || 'Risentta'} • {position || 'Team Member'}
+                </p>
+                
+                {/* Description */}
+                <div className="w-full max-w-xs mb-8 px-4">
+                  <p className="text-white/70 text-xs leading-relaxed text-center">
+                    Berkontribusi di divisi {division || 'Risentta'}, {position ? `sebagai ${position}` : 'sebagai bagian dari tim Risentta'}, menciptakan solusi dan inovasi untuk kemajuan bersama.
+                  </p>
+                </div>
+                
+                {/* Footer */}
+                <div className="flex items-center justify-between w-full mt-auto pt-6 border-t border-white/10">
+                  {/* Logo - Matching Navbar Style */}
+                  <div className="relative overflow-hidden w-24 h-6 translate-x-2">
+                    <Image
+                      src="/Assets/logo/logo.jpeg"
+                      alt="Risentta Logo"
+                      fill
+                      className="object-cover position-center scale-125 translate-x-[-8px] invert-0"
+                    />
+                  </div>
+                  
+                  {/* QR Code & Website */}
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-white/60 text-xs">Joined {joinedDate}</p>
+                    </div>
+                    <div className="w-7 h-7 flex items-center justify-center">
+                      <QRCode 
+                        value={`https://risentta.com/adm/profile?user=${admin.risentaID}`}
+                        size={28}
+                        bgColor="transparent"
+                        fgColor="#ffffff"
+                        level="H"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setShowIDCard(false)}
+                className="absolute top-4 right-4 z-50 text-white/60 hover:text-white transition-colors p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Download Button - outside card, properly layered */}
+            <button
+              onClick={() => {
+                console.log('Download button clicked')
+                handleDownloadIDCard()
+              }}
+              className="px-4 py-2 bg-white text-neutral-900 text-sm font-medium rounded-full hover:bg-neutral-100 transition-colors flex items-center gap-2 shadow-lg pointer-events-auto cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              Download ID Tag
+            </button>
+            
+            {/* Hidden Print-Friendly ID Card for Download */}
+            <div 
+              ref={idCardPrintRef}
+              className="absolute opacity-0 pointer-events-none"
+              style={{ 
+                width: '400px', 
+                height: '600px',
+                background: 'linear-gradient(180deg, #172554 0%, #1e3a8a 50%, #0f172a 100%)',
+                borderRadius: '16px',
+                padding: '32px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                left: '-9999px',
+              }}
+            >
+              {/* Static Grid Background Pattern */}
+              <div 
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  opacity: 0.2,
+                  backgroundImage: `
+                    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
+                  `,
+                  backgroundSize: '20px 20px',
+                  borderRadius: '16px',
+                }}
+              />
+              
+              {/* Header */}
+              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', letterSpacing: '0.05em', marginBottom: '24px', position: 'relative', zIndex: 1 }}>
+                Meet Our Team
+              </p>
+              
+              {/* Profile Photo - using standard img */}
+              <div style={{ width: '160px', height: '160px', borderRadius: '8px', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)', marginBottom: '24px', position: 'relative', zIndex: 1 }}>
+                <img 
+                  src={photoUrl || `/Assets/tema/${admUsn.replaceAll(' ', '')}.jpeg`}
+                  alt={`${admUsn} Profile`}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  crossOrigin="anonymous"
+                />
+              </div>
+              
+              {/* Name */}
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'white', textAlign: 'center', marginBottom: '8px', position: 'relative', zIndex: 1 }}>
+                {admUsn}
+              </h2>
+              
+              {/* Division & Position */}
+              <p style={{ color: '#93c5fd', fontSize: '14px', textAlign: 'center', marginBottom: '16px', position: 'relative', zIndex: 1 }}>
+                Divisi {division || 'Risentta'} • {position || 'Team Member'}
+              </p>
+              
+              {/* Description */}
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px', lineHeight: '1.5', textAlign: 'center', maxWidth: '280px', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
+                Berkontribusi di divisi {division || 'Risentta'}, {position ? `sebagai ${position}` : 'sebagai bagian dari tim Risentta'}, menciptakan solusi dan inovasi untuk kemajuan bersama.
+              </p>
+              
+              {/* Footer */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginTop: 'auto', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)', position: 'relative', zIndex: 1 }}>
+                {/* Logo */}
+                <div style={{ width: '96px', height: '24px', position: 'relative' }}>
+                  <img
+                    src="/Assets/logo/logo.jpeg"
+                    alt="Risentta Logo"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    crossOrigin="anonymous"
+                  />
+                </div>
+                
+                {/* QR Code & Joined Date */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>Joined {joinedDate}</p>
+                  </div>
+                  <div style={{ width: '28px', height: '28px' }}>
+                    <QRCode 
+                      value={`https://risentta.com/adm/profile?user=${admin.risentaID}`}
+                      size={28}
+                      bgColor="transparent"
+                      fgColor="#ffffff"
+                      level="H"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

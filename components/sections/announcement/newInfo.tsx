@@ -14,7 +14,7 @@ export default function NewInfoLanding() {
         Kami telah <span className='font-semibold underline decoration-2 underline-offset-2'>mempublikasikan</span> karya ilmiah baru!{' '} 
       </p> */}
       <p className="ml-2 text-xs md:text-sm ">
-        Publikasi terbaru Risenta{' '}
+        Publikasi terbaru Risentta{' '}
       </p>
       <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m9 5 7 7-7 7" />

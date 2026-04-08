@@ -1,7 +1,7 @@
 "use server";
 
 import connectDB from "@/lib/mongodb";
-import RisentaAdm from "@/app/models/risentaAdm";
+import RisenttaAdm from "@/app/models/risentaAdm";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -22,7 +22,7 @@ export async function PATCH(req: Request) {
 
   await connectDB();
 
-  const admin = await RisentaAdm.findOneAndUpdate(
+  const admin = await RisenttaAdm.findOneAndUpdate(
     { token },
     { $set: { notes: note } },
     { new: true }

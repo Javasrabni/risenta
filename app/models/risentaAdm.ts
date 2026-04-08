@@ -12,13 +12,14 @@ const risentaAdmSchema = new mongoose.Schema(
     photoProfile: { type: String },
     cloudinaryPublicId: { type: String },
     notes: { type: String, default: "" },
+    isInternalAdmin: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
 
-const RisentaAdm =
+const RisenttaAdm =
   mongoose.models?.risenta_admin ||
   mongoose.model("risenta_admin", risentaAdmSchema, "risenta_admin");
 
-export default RisentaAdm;
+export default RisenttaAdm;

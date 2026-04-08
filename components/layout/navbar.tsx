@@ -66,10 +66,15 @@ const Icons = {
     <Instagram {...props} />)
 }
 
-// Public navbar data
+// Public navbar data (landing page - no login icon)
 const PUBLIC_NAVBAR = [
   { href: "/", icon: HomeIcon, label: "Home" },
-  { href: "#", icon: LogInIcon, label: "Admin" },
+]
+
+// Internal admin navbar data (with login icon)
+const INTERNAL_NAVBAR = [
+  { href: "/", icon: HomeIcon, label: "Home" },
+  { href: "#", icon: LogInIcon, label: "admin" },
 ]
 
 const PUBLIC_SOCIAL = {
@@ -106,10 +111,49 @@ export default function Navbar() {
   const [openAdminPage, setOpenAdminPage] = useState(false)
   const [admLogin, setAdmLogin] = React.useState(false);
   const [openPostModal, setOpenPostModal] = useState(false);
+  const [isIDCardOpen, setIsIDCardOpen] = useState(false);
+  const [subdomain, setSubdomain] = useState<string>('');
+
+  // Detect subdomain on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname;
+      const parts = host.split('.');
+      // internal.risentta.com → parts[0] = 'internal'
+      setSubdomain(parts[0] || '');
+    }
+  }, []);
+
+  // Note: Internal subdomain auth is now handled by /internal/login page
+  // No need for auto-show modal here as proxy.ts redirects to /internal/login
 
   useEffect(() => {
     setOpenAdminPage(false);
   }, [pathname]);
+
+  // Listen for ID Card modal state
+  useEffect(() => {
+    const checkIDCardState = () => {
+      setIsIDCardOpen(document.body.hasAttribute('data-idcard-open'))
+    }
+    
+    // Check immediately
+    checkIDCardState()
+    
+    // Set up mutation observer to detect changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-idcard-open') {
+          checkIDCardState()
+        }
+      })
+    })
+    
+    observer.observe(document.body, { attributes: true })
+    
+    return () => observer.disconnect()
+  }, [])
+
   // GET COOKIE
   async function handleAdminClick() {
 
@@ -167,7 +211,8 @@ export default function Navbar() {
                       onClick={() => setOpenPostModal(true)}
                       className={cn(
                         buttonVariants({ variant: "ghost", size: "icon" }),
-                        "size-12 rounded-full"
+                        "size-12 rounded-full",
+                        isIDCardOpen && "text-white hover:text-white hover:bg-white/10"
                       )}
                     >
                       <PlusIcon className="size-4" />
@@ -181,8 +226,13 @@ export default function Navbar() {
               <Separator orientation="vertical" className="h-full" />
             </>
           )}
-          {/* Conditionally render navbar items based on path */}
-          {(pathname?.startsWith('/adm') ? ADMIN_NAVBAR : PUBLIC_NAVBAR).map((item) => (
+          {/* Conditionally render navbar items based on path and subdomain */}
+          {(pathname?.startsWith('/adm') 
+            ? ADMIN_NAVBAR 
+            : subdomain === 'internal' 
+              ? INTERNAL_NAVBAR 
+              : PUBLIC_NAVBAR
+          ).map((item) => (
             <DockIcon key={item.label}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -190,21 +240,22 @@ export default function Navbar() {
                     href={item.href}
                     aria-label={item.label}
                     onClick={(e) => {
-                      if (item.label === "Admin") {
+                      if (item.label === "Admin" || item.label === "admin") {
                         e.preventDefault();
                         handleAdminClick();
                       }
                     }}
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "icon" }),
-                      "size-12 rounded-full"
+                      "size-12 rounded-full",
+                      isIDCardOpen && "text-white hover:text-white hover:bg-white/10"
                     )}
                   >
-                    <item.icon className="size-4" />
+                    <item.icon className={cn("size-4", isIDCardOpen && "text-white")} />
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{item.label}</p>
+                  <p>{item.label === 'admin' ? 'admin' : item.label}</p>
                 </TooltipContent>
               </Tooltip>
             </DockIcon>
@@ -219,7 +270,8 @@ export default function Navbar() {
                     aria-label="Posts"
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "icon" }),
-                      "size-12 rounded-full"
+                      "size-12 rounded-full",
+                      isIDCardOpen && "text-white hover:text-white hover:bg-white/10"
                     )}
                   >
                     <Film className="size-4" />
@@ -241,7 +293,8 @@ export default function Navbar() {
                     aria-label={social.name}
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "icon" }),
-                      "size-12 rounded-full"
+                      "size-12 rounded-full",
+                      isIDCardOpen && "text-white hover:text-white hover:bg-white/10"
                     )}
                   >
                     <social.icon className="size-4" />
@@ -260,7 +313,8 @@ export default function Navbar() {
               <TooltipTrigger asChild>
                 <div className={cn(
                   buttonVariants({ variant: "ghost", size: "icon" }),
-                  "size-12 rounded-full"
+                  "size-12 rounded-full",
+                  isIDCardOpen && "text-white hover:text-white hover:bg-white/10"
                 )}>
                   <AnimatedThemeToggler />
                 </div>

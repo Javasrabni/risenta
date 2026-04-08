@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
-import RisentaAdm from "@/app/models/risentaAdm";
+import RisenttaAdm from "@/app/models/risentaAdm";
 
 export async function GET() {
   try {
@@ -14,7 +14,7 @@ export async function GET() {
     }
 
     // Get admin data from token
-    const admin = await RisentaAdm.findOne({ token: token.value }).lean();
+    const admin = await RisenttaAdm.findOne({ token: token.value }).lean();
     
     if (!admin) {
       return NextResponse.json({ loggedIn: false });
@@ -23,11 +23,13 @@ export async function GET() {
     return NextResponse.json({
       loggedIn: true,
       role: "admin",
+      isInternalAdmin: admin.isInternalAdmin || false,
       admin: {
         _id: admin._id.toString(),
         risentaID: admin.risentaID,
         adm_usn: admin.adm_usn,
         photoProfile: admin.photoProfile,
+        isInternalAdmin: admin.isInternalAdmin || false,
       },
     });
   } catch (error) {

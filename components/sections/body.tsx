@@ -29,11 +29,11 @@ const Body = () => {
             Independent <AuroraText>Research</AuroraText>
           </span>
           {/* <h1 className="text-foreground font-[inter] text-4xl font-bold md:text-5xl">
-            Risenta
+            Risentta
           </h1> */}
           <AnimatedShinyText shimmerWidth={150} shimmerDuration={3.5}>
             <span className="pointer-events-none font-[inter] bg-linear-to-b from-black to-gray-300/80 bg-clip-text text-center text-6xl lg:text-8xl leading-none font-semibold whitespace-pre-wrap text-transparent dark:from-white dark:to-slate-900/10 tracking-[-2px]">
-              Risenta
+              Risentta
             </span>
           </AnimatedShinyText>
           <p className="max-w-md text-sm text-slate-800/80 md:text-base dark:text-slate-200/80 font-[inter] text-center">

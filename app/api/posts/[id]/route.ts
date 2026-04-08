@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Post from "@/app/models/post";
 import { cookies } from "next/headers";
-import RisentaAdm from "@/app/models/risentaAdm";
+import RisenttaAdm from "@/app/models/risentaAdm";
 import mongoose from "mongoose";
 
 // ─── Helper: Auth check ───────────────────────────────────────────────────────
@@ -10,7 +10,7 @@ async function getAuthAdmin() {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session_token")?.value;
   if (!sessionToken) return null;
-  return await RisentaAdm.findOne({ token: sessionToken });
+  return await RisenttaAdm.findOne({ token: sessionToken });
 }
 
 // ─── Helper: Find reply recursively di dalam nested replies ──────────────────

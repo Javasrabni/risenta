@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { GetAdminData } from "../lib/getAdminData";
 import ProfilePageClient from "./ProfileClient";
 import connectDB from "@/lib/mongodb";
-import RisentaAdm from "@/app/models/risentaAdm";
+import RisenttaAdm from "@/app/models/risentaAdm";
 import Post from "@/app/models/post";
 
 // Force dynamic rendering to ensure fresh data on every request
@@ -51,7 +51,7 @@ function getDivisionFromRole(role: string, name: string): string {
     return "Coordinator";
   }
   
-  return "Risenta";
+  return "Risentta";
 }
 
 interface Admin {
@@ -82,7 +82,7 @@ export default async function ProfilePage({ searchParams }: PageProps) {
 
   // Get query parameter
   const params = await searchParams;
-  const targetRisentaID = params.user as string | undefined;
+  const targetRisenttaID = params.user as string | undefined;
 
   let adminToDisplay = currentAdmin;
   let isOwnProfile = true;
@@ -90,18 +90,18 @@ export default async function ProfilePage({ searchParams }: PageProps) {
   await connectDB();
 
   // If user parameter exists, fetch that admin's data
-  if (targetRisentaID) {
+  if (targetRisenttaID) {
     // Try find by risentaID first, then by _id (MongoDB ObjectId)
-    let targetAdmin = await RisentaAdm.findOne(
-      { risentaID: targetRisentaID },
+    let targetAdmin = await RisenttaAdm.findOne(
+      { risentaID: targetRisenttaID },
       { risentaID: 1, adm_usn: 1, photoProfile: 1, cloudinaryPublicId: 1, position: 1, division: 1, skills: 1, createdAt: 1, _id: 1 }
     ).lean() as Admin | null;
     
     // If not found, try finding by _id (for backward compatibility)
     if (!targetAdmin) {
       try {
-        targetAdmin = await RisentaAdm.findOne(
-          { _id: targetRisentaID },
+        targetAdmin = await RisenttaAdm.findOne(
+          { _id: targetRisenttaID },
           { risentaID: 1, adm_usn: 1, photoProfile: 1, cloudinaryPublicId: 1, position: 1, division: 1, skills: 1, createdAt: 1, _id: 1 }
         ).lean() as Admin | null;
       } catch {

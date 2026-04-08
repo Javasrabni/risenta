@@ -119,7 +119,7 @@ export function PostsSection() {
       if (res.ok) {
         const data = await res.json()
         if (data.admin) {
-          setCurrentUserId(data.admin.risentaID || data.admin._id)
+          setCurrentUserId(data.admin.risenttaID || data.admin._id)
           setCurrentUserMongoId(data.admin._id)
         }
       }

@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         Authorization: `Bearer ${process.env.API_KEY}`,
         "Content-Type": "application/json",
         "HTTP-Referer": "http://localhost:3000",
-        "X-Title": "Risenta AI Writer",
+        "X-Title": "Risentta AI Writer",
       },
       body: JSON.stringify({
         model: "nvidia/nemotron-nano-12b-v2-vl:free",

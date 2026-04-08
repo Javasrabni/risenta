@@ -5,7 +5,7 @@ import { AdminNote } from '../components/notes/AdminNote'
 import PatchNote from '../components/notes/patchNoteButton'
 import { DivisionSection } from '../components/division/DivisionSection'
 import connectDB from '@/lib/mongodb'
-import RisentaAdm from '@/app/models/risentaAdm'
+import RisenttaAdm from '@/app/models/risentaAdm'
 
 // Components from root page design
 import { cn } from '@/lib/utils'
@@ -21,7 +21,7 @@ export default async function DashboardPage() {
 
     // GET NOTES DATA FROM ADMIN COLLECTION
     await connectDB()
-    const reviews = await RisentaAdm.find({}).select('risentaID adm_usn photoProfile notes -_id').lean()
+    const reviews = await RisenttaAdm.find({}).select('risentaID adm_usn photoProfile notes -_id').lean()
 
     return (
         <div className={'w-full min-h-screen flex flex-col font-[inter] relative overflow-hidden'}>
@@ -37,7 +37,7 @@ export default async function DashboardPage() {
                     </span>
                     <AnimatedShinyText shimmerWidth={150} shimmerDuration={3.5}>
                         <span className="pointer-events-none bg-linear-to-b from-black to-gray-300/80 bg-clip-text text-center text-5xl lg:text-7xl leading-none font-semibold whitespace-pre-wrap text-transparent dark:from-white dark:to-slate-900/10 tracking-[-2px]">
-                            Risenta
+                            Risentta
                         </span>
                     </AnimatedShinyText>
                     <p className="max-w-md text-sm text-slate-800/80 md:text-base dark:text-slate-200/80 text-center">

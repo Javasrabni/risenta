@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { file, folder = "risenta-profiles" } = await req.json();
+    const { file, folder = "Risentta-profiles" } = await req.json();
 
     if (!file) {
       return NextResponse.json(

@@ -1,4 +1,4 @@
-import RisentaAdm from "@/app/models/risentaAdm";
+import RisenttaAdm from "@/app/models/risentaAdm";
 import connectDB from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -22,7 +22,7 @@ export async function GET(req: Request) {
 
     if (!risentaID) {
       return NextResponse.json(
-        { message: "RisentaID is required" },
+        { message: "RisenttaID is required" },
         { status: 400 }
       );
     }
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
     await connectDB();
 
     // Find admin by risentaID
-    const admin = await RisentaAdm.findOne(
+    const admin = await RisenttaAdm.findOne(
       { risentaID },
       { risentaID: 1, adm_usn: 1, photoProfile: 1, cloudinaryPublicId: 1, position: 1, _id: 0 }
     );

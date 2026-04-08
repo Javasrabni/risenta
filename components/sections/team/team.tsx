@@ -105,7 +105,7 @@ export default function Team() {
                 </BlurFadeDiv>
                 <BlurFadeDiv delay={0.3}>
                     <h1 className="pointer-events-none font-[inter] bg-linear-to-b from-black to-gray-300/80 bg-clip-text text-left text-3xl lg:text-5xl leading-none font-semibold whitespace-pre-wrap text-transparent dark:from-white dark:to-slate-900/10 tracking-[-1px] pb-4">
-                        The Minds<br />Behind Risenta
+                        The Minds<br />Behind Risentta
                     </h1>
                 </BlurFadeDiv>
                 <BlurFadeDiv delay={0.5}>
@@ -114,9 +114,9 @@ export default function Team() {
                     </p>
                 </BlurFadeDiv>
 
-                {/* Logo Risenta Bawah Teks */}
+                {/* Logo Risentta Bawah Teks */}
                 <div className="relative w-40 h-25 md:w-64 md:h-25 translate-x-[-36px] sm:translate-x-[-58px]">
-                    <Image src={'/Assets/logo/logo.jpeg'} alt="Risenta Logo" fill className="invert dark:invert-0 object-cover" />
+                    <Image src={'/Assets/logo/logo.jpeg'} alt="Risentta Logo" fill className="invert dark:invert-0 object-cover" />
                 </div>
             </div>
 

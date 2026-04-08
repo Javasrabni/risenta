@@ -12,7 +12,7 @@ export default async function Navbar() {
             <Link className='relative overflow-hidden w-32 h-8' href={'/'}>
                 <Image
                     src={'/Assets/logo/logo.jpeg'}
-                    alt="Risenta Logo"
+                    alt="Risentta Logo"
                     fill
                     className="object-cover position-center scale-130 translate-x-[-18px] invert dark:invert-0"
                 />
