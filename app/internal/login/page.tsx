@@ -22,10 +22,13 @@ export default function InternalLoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ risentaID, token }),
+        credentials: 'include'
       });
 
       const data = await res.json();
       console.log("Login response:", data);
+      console.log("Response status:", res.status);
+      console.log("Response headers:", [...res.headers.entries()]);
 
       if (!res.ok) {
         setErrorResp(data.message);

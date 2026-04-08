@@ -13,6 +13,11 @@ export function proxy(request: NextRequest) {
             return NextResponse.next()
         }
 
+        // Allow API routes to pass through for login
+        if (pathname.startsWith('/api/')) {
+            return NextResponse.next()
+        }
+
         // If not logged in, redirect to /internal/login
         if (!token) {
             return NextResponse.redirect(new URL('/internal/login', request.url))
