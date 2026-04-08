@@ -57,9 +57,8 @@ export function proxy(request: NextRequest) {
     }
 
     // Main domain: risentta.com (landing page)
-    // Protect /adm paths on main domain too
-    const isPathAdmin = pathname.startsWith('/adm')
-    if (isPathAdmin && !token) {
+    // Block /internal/* and /adm/* paths on main domain - these are for internal subdomain only
+    if (pathname.startsWith('/internal/') || pathname.startsWith('/adm')) {
         return NextResponse.redirect(new URL('/', request.url))
     }
 
