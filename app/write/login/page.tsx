@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { BorderBeam } from "@/components/ui/border-beam";
+import GoogleSignInButton from "@/components/features/google-signin";
 
 export default function CustomerLoginPage() {
   const router = useRouter();
@@ -174,6 +175,19 @@ export default function CustomerLoginPage() {
                 </>
               )}
             </button>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-600"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-slate-900 text-slate-400">Atau</span>
+              </div>
+            </div>
+
+            {/* Google Sign In Button */}
+            <GoogleSignInButton />
           </form>
 
           {/* Links */}
