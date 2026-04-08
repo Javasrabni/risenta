@@ -64,10 +64,8 @@ const CustomerSchema = new mongoose.Schema({
   }
 });
 
-// Index untuk pencarian cepat
-CustomerSchema.index({ customerID: 1 });
-CustomerSchema.index({ email: 1 });
-CustomerSchema.index({ referralCode: 1 });
+// Indexes are automatically created for fields with 'unique: true'
+// Additional indexes can be added here if needed
 
 // Pre-save middleware untuk update updatedAt
 CustomerSchema.pre('save', function() {
