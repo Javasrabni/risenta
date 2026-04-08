@@ -38,14 +38,40 @@ export function proxy(request: NextRequest) {
 
     // SaaS subdomain: write.risentta.com
     if (subdomain === 'write') {
-        // Rewrite to /write path for SaaS app
-        if (pathname === '/' || pathname.startsWith('/write')) {
-            // Auth check for write subdomain (redirect to main if not logged in)
-            if (!token && pathname !== '/') {
-                return NextResponse.redirect(new URL('https://risentta.com/login'))
-            }
-            return NextResponse.rewrite(new URL(`/write${pathname === '/' ? '' : pathname}`, request.url))
+        const customerToken = request.cookies.get('customer_session')?.value
+        
+        // Allow static files to pass through
+        if (pathname.startsWith('/_next/') || pathname.startsWith('/static/')) {
+            return NextResponse.next()
         }
+        
+        // Allow customer auth API routes
+        if (pathname.startsWith('/api/customer/')) {
+            return NextResponse.next()
+        }
+        
+        // Allow internal admin auth API for admin access to write subdomain
+        if (pathname.startsWith('/api/auth/')) {
+            return NextResponse.next()
+        }
+        
+        // Public routes that don't require auth
+        const publicRoutes = ['/', '/login', '/register', '/forgot-password']
+        if (publicRoutes.includes(pathname)) {
+            return NextResponse.next()
+        }
+        
+        // If not logged in as customer, redirect to login
+        if (!customerToken && !token) {
+            return NextResponse.redirect(new URL('/write/login', request.url))
+        }
+        
+        // Allow access to write paths for both customers and internal admins
+        if (pathname.startsWith('/write/')) {
+            return NextResponse.next()
+        }
+        
+        return NextResponse.next()
     }
 
     // Admin subdomain: adm.risentta.com
