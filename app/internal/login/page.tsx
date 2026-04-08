@@ -14,10 +14,14 @@ export default function InternalLoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    console.log("handleLogin called");
+    console.log("risentaID:", risentaID);
+    console.log("token:", token);
     setErrorResp("");
     setIsLoading(true);
 
     try {
+      console.log("Fetching /api/auth/login...");
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
