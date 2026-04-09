@@ -52,7 +52,7 @@ export default function GoogleSignInButton() {
                 const data = await loginRes.json();
                 
                 if (loginRes.ok) {
-                  window.location.href = '/write/dashboard';
+                  window.location.href = '/dashboard';
                 } else {
                   alert(data.message || 'Login dengan Google gagal');
                   setIsLoading(false);

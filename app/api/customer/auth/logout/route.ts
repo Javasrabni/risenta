@@ -7,20 +7,25 @@ export async function POST(req: Request) {
       { status: 200 }
     );
     
+    const isProd = process.env.NODE_ENV === "production";
+    const cookieDomain = isProd ? ".risentta.com" : undefined;
+    
     // Clear session cookies
     response.cookies.set("customer_session", "", {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: isProd,
+      sameSite: isProd ? "lax" : "none",
       path: "/",
+      domain: cookieDomain,
       maxAge: 0
     });
     
     response.cookies.set("customer_id", "", {
       httpOnly: false,
-      secure: true,
-      sameSite: "none",
+      secure: isProd,
+      sameSite: isProd ? "lax" : "none",
       path: "/",
+      domain: cookieDomain,
       maxAge: 0
     });
     

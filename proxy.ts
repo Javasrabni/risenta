@@ -55,28 +55,42 @@ export function proxy(request: NextRequest) {
             return NextResponse.next()
         }
         
-        // Public routes that don't require auth (including /write/ paths)
-        const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/write/login', '/write/register', '/write/forgot-password']
-        if (publicRoutes.includes(pathname)) {
+        // Rewrite clean paths to /write/* paths for write subdomain
+        // Example: /login -> /write/login, /register -> /write/register
+        const publicPaths = ['/login', '/register', '/forgot-password']
+        const protectedPaths = ['/dashboard', '/projects', '/templates', '/settings', '/support']
+        
+        // Check if requesting a clean public path (e.g., /login)
+        if (publicPaths.includes(pathname)) {
+            return NextResponse.rewrite(new URL(`/write${pathname}`, request.url))
+        }
+        
+        // Check if requesting a clean protected path (e.g., /dashboard)
+        if (protectedPaths.some(path => pathname.startsWith(path))) {
+            // If not logged in, redirect to login
+            if (!customerToken && !token) {
+                return NextResponse.redirect(new URL('/login', request.url))
+            }
+            return NextResponse.rewrite(new URL(`/write${pathname}`, request.url))
+        }
+        
+        // Allow root path
+        if (pathname === '/') {
             return NextResponse.next()
         }
         
-        // Allow access to public write paths without auth
-        if (pathname.startsWith('/write/login') || pathname.startsWith('/write/register') || pathname.startsWith('/write/forgot-password')) {
-            return NextResponse.next()
-        }
-        
-        // If not logged in as customer, redirect to login
+        // If not logged in and trying to access any other path, redirect to login
         if (!customerToken && !token) {
-            return NextResponse.redirect(new URL('/write/login', request.url))
+            return NextResponse.redirect(new URL('/login', request.url))
         }
         
-        // Allow access to other write paths for authenticated users
+        // For authenticated users, rewrite any /write/* path
         if (pathname.startsWith('/write/')) {
             return NextResponse.next()
         }
         
-        return NextResponse.next()
+        // Rewrite any other path to /write/* for authenticated users
+        return NextResponse.rewrite(new URL(`/write${pathname}`, request.url))
     }
 
     // Admin subdomain: adm.risentta.com

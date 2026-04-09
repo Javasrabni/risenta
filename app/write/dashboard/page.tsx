@@ -39,7 +39,7 @@ export default function CustomerDashboard() {
         
         if (!res.ok) {
           if (res.status === 401) {
-            router.push("/write/login");
+            router.push("/login");
             return;
           }
           throw new Error("Failed to fetch customer data");
@@ -51,11 +51,11 @@ export default function CustomerDashboard() {
           setCustomer(data.customer);
           setReferralStats(data.referralStats);
         } else {
-          router.push("/write/login");
+          router.push("/login");
         }
       } catch (err) {
         console.error("Dashboard error:", err);
-        router.push("/write/login");
+        router.push("/login");
       } finally {
         setIsLoading(false);
       }
@@ -66,11 +66,14 @@ export default function CustomerDashboard() {
 
   const handleLogout = async () => {
     try {
+      // Logout
       await fetch("/api/customer/auth/logout", {
         method: "POST",
         credentials: 'include'
       });
-      router.push("/write/login");
+      
+      // Redirect to login
+      router.push("/login");
     } catch (err) {
       console.error("Logout error:", err);
     }

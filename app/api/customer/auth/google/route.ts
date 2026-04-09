@@ -92,19 +92,24 @@ export async function POST(req: Request) {
       }
     }, { status: 200 });
     
+    const isProd = process.env.NODE_ENV === "production";
+    const cookieDomain = isProd ? ".risentta.com" : undefined;
+    
     response.cookies.set("customer_session", sessionToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: isProd,
+      sameSite: isProd ? "lax" : "none",
       path: "/",
+      domain: cookieDomain,
       maxAge: 60 * 60 * 24 * 7 // 7 hari
     });
     
     response.cookies.set("customer_id", customer.customerID, {
       httpOnly: false,
-      secure: true,
-      sameSite: "none",
+      secure: isProd,
+      sameSite: isProd ? "lax" : "none",
       path: "/",
+      domain: cookieDomain,
       maxAge: 60 * 60 * 24 * 7
     });
     

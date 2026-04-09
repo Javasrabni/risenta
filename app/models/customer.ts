@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const CustomerSchema = new mongoose.Schema({
   customerID: {
     type: String,
-    required: true,
     unique: true,
+    sparse: true,
     trim: true
   },
   email: {
@@ -39,8 +39,7 @@ const CustomerSchema = new mongoose.Schema({
   },
   referralCode: {
     type: String,
-    unique: true,
-    sparse: true
+    unique: true
   },
   referredBy: {
     type: String,

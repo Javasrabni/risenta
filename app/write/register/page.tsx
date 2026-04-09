@@ -68,7 +68,7 @@ export default function CustomerRegisterPage() {
       
       // Redirect ke login setelah 2 detik
       setTimeout(() => {
-        router.push("/write/login");
+        router.push("/login");
       }, 2000);
 
     } catch (err) {
@@ -254,7 +254,7 @@ export default function CustomerRegisterPage() {
 
           <p className="mt-6 text-center text-slate-400 text-sm">
             Sudah punya akun?{" "}
-            <Link href="/write/login" className="text-blue-400 hover:text-blue-300">
+            <Link href="/login" className="text-blue-400 hover:text-blue-300">
               Login
             </Link>
           </p>

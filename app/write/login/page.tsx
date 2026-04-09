@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { BorderBeam } from "@/components/ui/border-beam";
+import GoogleSignInButton from "@/components/features/google-signin";
 
 export default function CustomerLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState<string>("");
+  const [identifier, setIdentifier] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errorResp, setErrorResp] = useState<string>("");
@@ -26,7 +27,7 @@ export default function CustomerLoginPage() {
         
         if (data.loggedIn) {
           // Already logged in, redirect to dashboard
-          router.push("/write/dashboard");
+          router.push("/dashboard");
         }
       } catch (err) {
         console.error("Auth check error:", err);
@@ -44,10 +45,10 @@ export default function CustomerLoginPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/customer/auth/login", {
+      const res = await fetch("/api/auth/sso/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password }),
         credentials: 'include'
       });
 
@@ -59,8 +60,14 @@ export default function CustomerLoginPage() {
         return;
       }
 
-      // Redirect to dashboard
-      window.location.href = "/write/dashboard";
+      // Redirect based on user type
+      if (data.userType === "admin") {
+        // Admin goes to /adm dashboard on internal subdomain or stays for management
+        window.location.href = "/adm";
+      } else {
+        // Customer goes to dashboard
+        window.location.href = "/dashboard";
+      }
     } catch (err) {
       console.error("Login error:", err);
       setErrorResp("Gagal terhubung ke server.");
@@ -108,14 +115,14 @@ export default function CustomerLoginPage() {
               <label className="block text-sm font-medium text-slate-300 mb-2">
                 <span className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  Email
+                  Email atau ID
                 </span>
               </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="nama@email.com"
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="email@domain.com atau RisentaID"
                 required
                 className="w-full bg-slate-800/50 border border-slate-600 text-white placeholder-slate-500 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
               />
@@ -175,18 +182,30 @@ export default function CustomerLoginPage() {
               )}
             </button>
 
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-600"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-slate-900 text-slate-400">Atau</span>
+              </div>
+            </div>
+
+            {/* Google Sign In Button */}
+            <GoogleSignInButton />
           </form>
 
           {/* Links */}
           <div className="mt-6 text-center space-y-3">
             <p className="text-slate-400 text-sm">
               Belum punya akun?{" "}
-              <Link href="/write/register" className="text-blue-400 hover:text-blue-300 transition-colors">
+              <Link href="/register" className="text-blue-400 hover:text-blue-300 transition-colors">
                 Daftar sekarang
               </Link>
             </p>
             <p className="text-slate-500 text-xs">
-              <Link href="/write/forgot-password" className="hover:text-slate-400 transition-colors">
+              <Link href="/forgot-password" className="hover:text-slate-400 transition-colors">
                 Lupa password?
               </Link>
             </p>
