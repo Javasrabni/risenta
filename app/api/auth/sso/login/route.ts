@@ -61,10 +61,13 @@ export async function POST(req: Request) {
       const isProd = process.env.NODE_ENV === "production";
       const cookieDomain = isProd ? ".risentta.com" : undefined;
       
+      // Use lax for both dev and prod - none requires secure which fails in dev
+      const sameSiteValue = "lax";
+      
       response.cookies.set("customer_session", sessionToken, {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "lax" : "none",
+        sameSite: sameSiteValue,
         path: "/",
         domain: cookieDomain,
         maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -73,7 +76,7 @@ export async function POST(req: Request) {
       response.cookies.set("customer_id", customer.customerID, {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "lax" : "none",
+        sameSite: sameSiteValue,
         path: "/",
         domain: cookieDomain,
         maxAge: 60 * 60 * 24 * 7,
@@ -112,10 +115,13 @@ export async function POST(req: Request) {
         const isProd = process.env.NODE_ENV === "production";
         const cookieDomain = isProd ? ".risentta.com" : undefined;
         
+        // Use lax for both dev and prod - none requires secure which fails in dev
+        const sameSiteValue = "lax";
+        
         response.cookies.set("session_token", admin.token, {
           httpOnly: true,
           secure: isProd,
-          sameSite: isProd ? "lax" : "none",
+          sameSite: sameSiteValue,
           path: "/",
           domain: cookieDomain,
           maxAge: 60 * 60 * 24, // 1 day

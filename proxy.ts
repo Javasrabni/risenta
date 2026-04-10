@@ -9,12 +9,17 @@ export function proxy(request: NextRequest) {
     // Internal Admin subdomain: internal.risentta.com
     if (subdomain === 'internal') {
         // Allow static files and internal paths to pass through
-        if (pathname.startsWith('/_next/') || pathname.startsWith('/static/') || pathname.startsWith('/internal/')) {
+        if (pathname.startsWith('/_next/') || pathname.startsWith('/static/')) {
             return NextResponse.next()
         }
 
         // Allow API routes to pass through for login
         if (pathname.startsWith('/api/')) {
+            return NextResponse.next()
+        }
+        
+        // Allow public login page to pass through
+        if (pathname === '/internal/login') {
             return NextResponse.next()
         }
 
