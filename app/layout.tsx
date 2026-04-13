@@ -4,8 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import SmoothScrollProvider from "@/components/layout/smoothScroll/SmoothScroll";
-import Navbar from "@/components/layout/navbar";
-import Script from "next/script";
+import ConditionalNavbar from '@/components/layout/ConditionalNavbar';
+import Script from 'next/script';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,10 +57,8 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="theme">
           <SmoothScrollProvider>
-            {/* NAVBAR */}
-            <div className='fixed bottom-8 z-100 left-0 right-0 flex items-center justify-center'>
-              <Navbar />
-            </div>
+            {/* NAVBAR - Hidden on write subdomain */}
+            <ConditionalNavbar />
             {children}
           </SmoothScrollProvider>
         </ThemeProvider>

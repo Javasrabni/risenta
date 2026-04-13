@@ -22,6 +22,7 @@
     "clsx": "^2.1.1",
     "cobe": "^0.6.5",
     "date-fns": "^4.1.0",
+    "diff-match-patch": "^1.0.5",
     "dotenv": "^17.2.4",
     "framer-motion": "^12.29.2",
     "html-to-image": "^1.11.13",
@@ -38,9 +39,12 @@
     "react-qr-code": "^2.0.18",
     "react-tweet": "^3.3.0",
     "rough-notation": "^0.5.1",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
     "svg-dotted-map": "^2.0.1",
     "tailwind-merge": "^3.4.0",
-    "ts-morph": "^27.0.2"
+    "ts-morph": "^27.0.2",
+    "yjs": "^13.6.30"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -7,6 +7,7 @@ export interface AuditLogData {
   isInternalAdmin?: boolean;
   action: string;
   targetType: 'customer' | 'system' | 'referral';
+  targetId?: string;
   targetCustomerID?: string;
   targetCustomerEmail?: string;
   changes?: {

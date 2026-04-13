@@ -167,6 +167,7 @@ export function DivisionSection() {
         if (response.ok) {
           const data = await response.json()
           const team: TeamMember[] = data.team || []
+          console.log("[DivisionSection] Team data from API:", team.map(t => ({ name: t.name, risentaID: t.risentaID })))
 
           const instagram = team.filter(
             (m) =>
@@ -198,9 +199,12 @@ export function DivisionSection() {
             adminData = await adminResponse.json()
           }
 
-          // Add risentaID to team members
+          // Add risentaID to team members (preserve existing risentaID from team API, use admin API as fallback)
           const addRisenttaID = (member: TeamMember | null | undefined): TeamMember | null => {
             if (!member) return null
+            // If risentaID already exists from team API, use it
+            if (member.risentaID) return member
+            // Otherwise try to find from admin data
             const admin = adminData.find((a) => 
               a.adm_usn.toLowerCase().replace(/\s+/g, '') === 
               member.name.toLowerCase().replace(/\s+/g, '')
@@ -208,11 +212,24 @@ export function DivisionSection() {
             return { ...member, risentaID: admin?.risentaID }
           }
 
-          setInstagramMembers(instagram.map(addRisenttaID as any))
-          setIgCoordinator(addRisenttaID(igCoord) ?? null)
-          setBusinessMembers(business.map(addRisenttaID as any))
-          setBizCoordinator(addRisenttaID(bizCoord) ?? null)
-          setRasyidMember(addRisenttaID(rasyid) ?? null)
+          const igMembersWithID = instagram.map(addRisenttaID).filter((m): m is TeamMember => m !== null)
+          const igCoordWithID = addRisenttaID(igCoord)
+          const bizMembersWithID = business.map(addRisenttaID).filter((m): m is TeamMember => m !== null)
+          const bizCoordWithID = addRisenttaID(bizCoord)
+          const rasyidWithID = addRisenttaID(rasyid)
+          
+          console.log("[DivisionSection] After processing:", {
+            igCoordinator: igCoordWithID,
+            bizCoordinator: bizCoordWithID,
+            rasyidMember: rasyidWithID,
+            instagramMembers: igMembersWithID.map((m) => ({ name: m.name, risentaID: m.risentaID })),
+          })
+          
+          setInstagramMembers(igMembersWithID)
+          setIgCoordinator(igCoordWithID ?? null)
+          setBusinessMembers(bizMembersWithID)
+          setBizCoordinator(bizCoordWithID ?? null)
+          setRasyidMember(rasyidWithID ?? null)
         }
       } catch (error) {
         console.error("Failed to fetch team data:", error)

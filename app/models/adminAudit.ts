@@ -29,13 +29,17 @@ const AdminAuditSchema = new mongoose.Schema({
       'VIEW_CUSTOMER_DATA',
       'EXPORT_CUSTOMER_DATA',
       'MANAGE_REFERRAL',
-      'SYSTEM_CONFIG'
+      'SYSTEM_CONFIG',
+      'VIEW_PLAN_CONFIGS',
+      'VIEW_PLANS',
+      'UPDATE_PLAN',
+      'DELETE_PLAN'
     ]
   },
   targetType: {
     type: String,
     required: true,
-    enum: ['customer', 'system', 'referral']
+    enum: ['customer', 'system', 'referral', 'plan']
   },
   targetCustomerID: {
     type: String,
@@ -83,6 +87,11 @@ AdminAuditSchema.index({ adminID: 1, timestamp: -1 });
 AdminAuditSchema.index({ targetCustomerID: 1, timestamp: -1 });
 AdminAuditSchema.index({ action: 1, timestamp: -1 });
 AdminAuditSchema.index({ timestamp: -1 });
+
+// Force delete model in development to pick up schema changes
+if (process.env.NODE_ENV === 'development') {
+  delete mongoose.models.AdminAudit;
+}
 
 const AdminAudit = mongoose.models.AdminAudit || mongoose.model("AdminAudit", AdminAuditSchema);
 

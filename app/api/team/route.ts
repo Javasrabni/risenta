@@ -15,7 +15,7 @@ const TEAM_ORDER = [
 export async function GET() {
     try {
         await connectDB();
-        const admins = await RisenttaAdm.find({}, 'adm_usn photoProfile cloudinaryPublicId position').lean();
+        const admins = await RisenttaAdm.find({}, 'adm_usn photoProfile cloudinaryPublicId position risentaID').lean();
         
         // Create a map of admins by name for quick lookup
         const adminMap = new Map(admins.map(admin => [admin.adm_usn, admin]));
@@ -36,7 +36,8 @@ export async function GET() {
             return {
                 name,
                 imageUrl,
-                role: admin?.position || getRoleFromName(name)
+                role: admin?.position || getRoleFromName(name),
+                risentaID: admin?.risentaID
             };
         });
 

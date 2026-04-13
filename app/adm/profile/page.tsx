@@ -90,12 +90,14 @@ export default async function ProfilePage({ searchParams }: PageProps) {
   await connectDB();
 
   // If user parameter exists, fetch that admin's data
+  console.log("[ProfilePage] targetRisenttaID from URL:", targetRisenttaID);
   if (targetRisenttaID) {
     // Try find by risentaID first, then by _id (MongoDB ObjectId)
     let targetAdmin = await RisenttaAdm.findOne(
       { risentaID: targetRisenttaID },
       { risentaID: 1, adm_usn: 1, photoProfile: 1, cloudinaryPublicId: 1, position: 1, division: 1, skills: 1, createdAt: 1, _id: 1 }
     ).lean() as Admin | null;
+    console.log("[ProfilePage] targetAdmin found by risentaID:", targetAdmin);
     
     // If not found, try finding by _id (for backward compatibility)
     if (!targetAdmin) {

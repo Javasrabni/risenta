@@ -101,7 +101,7 @@ export async function POST(req: Request) {
     
     // Create post in database
     const newPost = await Post.create({
-      authorId: admin._id.toString(),
+      authorId: admin.risentaID,
       authorName: admin.adm_usn,
       authorPhoto: admin.photoProfile,
       description,

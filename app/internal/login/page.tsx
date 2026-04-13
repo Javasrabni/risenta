@@ -48,6 +48,12 @@ export default function InternalLoginPage() {
       }
 
       console.log("Login success, redirecting to /adm");
+
+      // Clear localStorage on login (preserve theme only)
+      const theme = localStorage.getItem('theme');
+      localStorage.clear();
+      if (theme) localStorage.setItem('theme', theme);
+
       // Redirect to admin dashboard
       window.location.href = "/adm";
     } catch (err) {

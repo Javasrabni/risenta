@@ -54,7 +54,12 @@ export function proxy(request: NextRequest) {
         if (pathname.startsWith('/api/customer/')) {
             return NextResponse.next()
         }
-        
+
+        // Allow write app API routes (Gemini AI, etc)
+        if (pathname.startsWith('/api/write/')) {
+            return NextResponse.next()
+        }
+
         // Allow internal admin auth API for admin access to write subdomain
         if (pathname.startsWith('/api/auth/')) {
             return NextResponse.next()
@@ -79,8 +84,13 @@ export function proxy(request: NextRequest) {
             return NextResponse.rewrite(new URL(`/write${pathname}`, request.url))
         }
         
-        // Allow root path
+        // Root path should rewrite to /write page
         if (pathname === '/') {
+            return NextResponse.rewrite(new URL('/write', request.url))
+        }
+        
+        // If they explicitly type /write, just pass it through
+        if (pathname === '/write') {
             return NextResponse.next()
         }
         
@@ -89,7 +99,7 @@ export function proxy(request: NextRequest) {
             return NextResponse.redirect(new URL('/login', request.url))
         }
         
-        // For authenticated users, rewrite any /write/* path
+        // For authenticated users, pass through any /write/* path
         if (pathname.startsWith('/write/')) {
             return NextResponse.next()
         }

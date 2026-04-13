@@ -478,7 +478,7 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
       </div> */}
 
       {/* Profile Card - Reference Style */}
-      <div className="z-10 w-full max-w-md bg-white dark:bg-black md:rounded-2xl md:shadow-xl overflow-hidden md:border md:border-neutral-200 dark:md:border-neutral-800 md:mt-16">
+      <div className="z-10 w-full max-w-lg bg-white dark:bg-black md:rounded-2xl md:shadow-xl overflow-hidden md:border md:border-neutral-200 dark:md:border-neutral-800 md:mt-16">
         
         {/* Cover Image Area with AnimatedGridPattern */}
         <div className="relative h-42 w-full overflow-hidden">
@@ -562,6 +562,8 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
                   <p className="text-neutral-500 dark:text-neutral-400">
                     {position || 'Admin'}
                   </p>
+                  
+                  
                 </div>
               )}
             </div>
@@ -569,6 +571,7 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
 
           {/* Skill Tags - Editable */}
           <div className="flex flex-wrap gap-2 mb-6">
+            
             {skills.map((skill) => (
               <span 
                 key={skill} 
@@ -585,6 +588,8 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
                 )}
               </span>
             ))}
+
+            
             {isEditing && (
               <div className="flex items-center gap-2">
                 <input
@@ -603,6 +608,31 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
                 </button>
               </div>
             )}
+
+            {referralCode && (
+                  <div className="text-start items-center gap-1 w-full">
+                    <button
+                      onClick={handleCopyReferral}
+                      className="px-0 py-1 bg-transparent dark:bg-transparent text-white dark:text-white text-sm rounded-full cursor-pointer flex items-center justify-center gap-1.5 font-medium w-fit"
+                    >
+                      <span className="flex items-center justify-start gap-1">
+
+                      <span className="text-neutral-500 dark:text-neutral-400 text-sm">Kode Referral:</span>
+                      {copiedReferral ? (
+                        <>
+                          <CheckCheck className="w-3 h-3" />
+                          Tersalin!
+                        </>
+                      ) : (
+                        <>
+                          <Gift className="w-3 h-3" />
+                          <span className="hover:underline">{referralCode}</span>
+                        </>
+                      )}
+                      </span>
+                    </button>
+                  </div>
+                )}
           </div>
 
           {/* Stats Row - Updated */}
@@ -672,27 +702,7 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
                   <IdCard className="w-3 h-3" />
                   ID Tag
                 </button>
-                {referralCode && (
-                  <div className="flex flex-col items-center gap-1">
-                    <button
-                      onClick={handleCopyReferral}
-                      className="px-3 py-1 bg-neutral-900 dark:bg-neutral-800 text-white dark:text-white text-sm rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors flex items-center justify-center gap-1.5 font-medium"
-                    >
-                      {copiedReferral ? (
-                        <>
-                          <CheckCheck className="w-3 h-3" />
-                          Tersalin!
-                        </>
-                      ) : (
-                        <>
-                          <Gift className="w-3 h-3" />
-                          {referralCode}
-                        </>
-                      )}
-                    </button>
-                    <span className="text-neutral-500 dark:text-neutral-400 text-xs">Kode Referral</span>
-                  </div>
-                )}
+                
               </div>
             )}
           </div>
@@ -708,27 +718,7 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
                 <IdCard className="w-3 h-3" />
                 ID Tag
               </button>
-              {referralCode && (
-                <div className="flex flex-col items-center gap-1">
-                  <button
-                    onClick={handleCopyReferral}
-                    className="px-3 py-1 bg-neutral-900 dark:bg-neutral-800 text-white dark:text-white text-sm rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors flex items-center justify-center gap-1.5 font-medium"
-                  >
-                    {copiedReferral ? (
-                      <>
-                        <CheckCheck className="w-3 h-3" />
-                        Tersalin!
-                      </>
-                    ) : (
-                      <>
-                        <Gift className="w-3 h-3" />
-                        {referralCode}
-                      </>
-                    )}
-                  </button>
-                  <span className="text-neutral-500 dark:text-neutral-400 text-xs">Kode Referral</span>
-                </div>
-              )}
+              
             </div>
           )}
 
@@ -743,7 +733,7 @@ export default function ProfilePageClient({ admin, isOwnProfile, postCount, post
 
       {/* Posts Section */}
       {posts.length > 0 && (
-        <div className="z-10 w-full max-w-md mt-6 px-6 mb-32">
+        <div className="z-10 w-full max-w-lg mt-6 px-6 md:px-0 mb-32">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
             <FileText className="w-5 h-5" />
             Postingan

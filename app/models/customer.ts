@@ -30,8 +30,18 @@ const CustomerSchema = new mongoose.Schema({
   },
   subscriptionPlan: {
     type: String,
-    enum: ['free', 'pro', 'enterprise'],
+    enum: ['free', 'daily-12k', 'weekly-25k', 'biweekly-49k'],
     default: 'free'
+  },
+  aiUsage: {
+    autoGenerateRemaining: { type: Number, default: 1 },
+    promptRemaining: { type: Number, default: 4 },
+    totalAutoGenerateUsed: { type: Number, default: 0 },
+    totalPromptUsed: { type: Number, default: 0 },
+    planActivatedAt: { type: Date, default: null },
+    planExpiresAt: { type: Date, default: null },
+    carriedOverAutoGenerate: { type: Number, default: 0 },
+    carriedOverPrompt: { type: Number, default: 0 }
   },
   isActive: {
     type: Boolean,

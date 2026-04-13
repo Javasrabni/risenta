@@ -16,6 +16,14 @@ interface CustomerData {
   createdAt: string;
 }
 
+interface AdminData {
+  _id: string;
+  risentaID: string;
+  adm_usn: string;
+  photoProfile?: string;
+  isInternalAdmin: boolean;
+}
+
 interface ReferralStats {
   totalSignups: number;
   activeReferrals: number;
@@ -26,33 +34,48 @@ interface ReferralStats {
 export default function CustomerDashboard() {
   const router = useRouter();
   const [customer, setCustomer] = useState<CustomerData | null>(null);
+  const [admin, setAdmin] = useState<AdminData | null>(null);
+  const [userType, setUserType] = useState<"customer" | "admin" | null>(null);
   const [referralStats, setReferralStats] = useState<ReferralStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const fetchCustomerData = async () => {
+    const fetchUserData = async () => {
       try {
-        const res = await fetch("/api/customer/auth/me", {
+        // Try customer auth first
+        const customerRes = await fetch("/api/customer/auth/me", {
           credentials: 'include'
         });
         
-        if (!res.ok) {
-          if (res.status === 401) {
-            router.push("/login");
+        if (customerRes.ok) {
+          const customerData = await customerRes.json();
+          if (customerData.loggedIn) {
+            setCustomer(customerData.customer);
+            setReferralStats(customerData.referralStats);
+            setUserType("customer");
+            setIsLoading(false);
             return;
           }
-          throw new Error("Failed to fetch customer data");
         }
         
-        const data = await res.json();
+        // If customer auth fails, try admin auth
+        const adminRes = await fetch("/api/auth/me", {
+          credentials: 'include'
+        });
         
-        if (data.loggedIn) {
-          setCustomer(data.customer);
-          setReferralStats(data.referralStats);
-        } else {
-          router.push("/login");
+        if (adminRes.ok) {
+          const adminData = await adminRes.json();
+          if (adminData.loggedIn) {
+            setAdmin(adminData.admin);
+            setUserType("admin");
+            setIsLoading(false);
+            return;
+          }
         }
+        
+        // Both failed, redirect to login
+        router.push("/login");
       } catch (err) {
         console.error("Dashboard error:", err);
         router.push("/login");
@@ -60,18 +83,30 @@ export default function CustomerDashboard() {
         setIsLoading(false);
       }
     };
-    
-    fetchCustomerData();
+
+    fetchUserData();
   }, [router]);
 
   const handleLogout = async () => {
     try {
-      // Logout
-      await fetch("/api/customer/auth/logout", {
-        method: "POST",
-        credentials: 'include'
-      });
-      
+      // Logout based on user type
+      if (userType === "customer") {
+        await fetch("/api/customer/auth/logout", {
+          method: "POST",
+          credentials: 'include'
+        });
+      } else if (userType === "admin") {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          credentials: 'include'
+        });
+      }
+
+      // Clear localStorage on logout (preserve theme only)
+      const theme = localStorage.getItem('theme');
+      localStorage.clear();
+      if (theme) localStorage.setItem('theme', theme);
+
       // Redirect to login
       router.push("/login");
     } catch (err) {
@@ -95,7 +130,7 @@ export default function CustomerDashboard() {
     );
   }
 
-  if (!customer) {
+  if (!customer && !admin) {
     return null;
   }
 
@@ -114,7 +149,12 @@ export default function CustomerDashboard() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-            <p className="text-slate-400 mt-1">Selamat datang, {customer.name}!</p>
+            <p className="text-slate-400 mt-1">
+              Selamat datang, {userType === "admin" ? admin?.adm_usn : customer?.name}!
+            </p>
+            {userType === "admin" && (
+              <p className="text-amber-400 text-sm mt-1">Admin Access ({admin?.risentaID})</p>
+            )}
           </div>
           <button
             onClick={handleLogout}
@@ -125,134 +165,177 @@ export default function CustomerDashboard() {
           </button>
         </div>
 
-        {/* Profile Card */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+        {/* Admin View */}
+        {userType === "admin" && admin && (
+          <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 mb-8">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-              <User className="w-5 h-5 text-blue-400" />
-              Informasi Profil
+              <User className="w-5 h-5 text-amber-400" />
+              Admin Access
             </h2>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <User className="w-5 h-5 text-blue-400" />
+                <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                  <User className="w-5 h-5 text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Nama</p>
-                  <p className="text-white font-medium">{customer.name}</p>
+                  <p className="text-slate-400 text-sm">Username</p>
+                  <p className="text-white font-medium">{admin.adm_usn}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-green-400" />
+                  <Crown className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Email</p>
-                  <p className="text-white font-medium">{customer.email}</p>
+                  <p className="text-slate-400 text-sm">Risenta ID</p>
+                  <p className="text-white font-mono text-sm">{admin.risentaID}</p>
                 </div>
               </div>
-              {customer.companyName && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-sm">Perusahaan</p>
-                    <p className="text-white font-medium">{customer.companyName}</p>
-                  </div>
+              {admin.isInternalAdmin && (
+                <div className="p-3 bg-amber-500/20 border border-amber-500/30 rounded-lg">
+                  <p className="text-amber-400 text-sm font-medium">Internal Admin Access</p>
+                  <p className="text-slate-400 text-xs mt-1">You have full system access</p>
                 </div>
               )}
             </div>
           </div>
+        )}
 
-          {/* Subscription Card */}
-          <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-              <Crown className="w-5 h-5 text-amber-400" />
-              Subscription
-            </h2>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-slate-400 text-sm">Plan Saat Ini</p>
-                <p className={`text-2xl font-bold capitalize ${getPlanColor(customer.subscriptionPlan)}`}>
-                  {customer.subscriptionPlan}
-                </p>
+        {/* Customer View */}
+        {userType === "customer" && customer && (
+          <>
+            {/* Profile Card */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                  <User className="w-5 h-5 text-blue-400" />
+                  Informasi Profil
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                      <User className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-slate-400 text-sm">Nama</p>
+                      <p className="text-white font-medium">{customer.name}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-slate-400 text-sm">Email</p>
+                      <p className="text-white font-medium">{customer.email}</p>
+                    </div>
+                  </div>
+                  {customer.companyName && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                        <Building2 className="w-5 h-5 text-purple-400" />
+                      </div>
+                      <div>
+                        <p className="text-slate-400 text-sm">Perusahaan</p>
+                        <p className="text-white font-medium">{customer.companyName}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-slate-400 text-sm">Customer ID</p>
-                <p className="text-white font-mono text-sm">{customer.customerID}</p>
-              </div>
-            </div>
-            <button className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors">
-              Upgrade Plan
-            </button>
-          </div>
-        </div>
 
-        {/* Referral Card */}
-        <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 mb-8">
-          <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-            <Gift className="w-5 h-5 text-pink-400" />
-            Program Referral
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <p className="text-slate-400 text-sm mb-2">Kode Referral Anda</p>
-              <div className="flex items-center gap-3">
-                <code className="flex-1 bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white font-mono text-lg">
-                  {customer.referralCode}
-                </code>
-                <button
-                  onClick={copyReferralCode}
-                  className="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
-                >
-                  {copied ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+              {/* Subscription Card */}
+              <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                  <Crown className="w-5 h-5 text-amber-400" />
+                  Subscription
+                </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-slate-400 text-sm">Plan Saat Ini</p>
+                    <p className={`text-2xl font-bold capitalize ${getPlanColor(customer.subscriptionPlan)}`}>
+                      {customer.subscriptionPlan}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-slate-400 text-sm">Customer ID</p>
+                    <p className="text-white font-mono text-sm">{customer.customerID}</p>
+                  </div>
+                </div>
+                <button className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors">
+                  Upgrade Plan
                 </button>
               </div>
-              <p className="text-slate-500 text-sm mt-2">
-                Bagikan kode ini untuk mendapatkan reward!
-              </p>
             </div>
 
-            {referralStats && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-800/50 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-white">{referralStats.totalSignups}</p>
-                  <p className="text-slate-400 text-sm">Total Signup</p>
+            {/* Referral Card */}
+            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 mb-8">
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <Gift className="w-5 h-5 text-pink-400" />
+                Program Referral
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-slate-400 text-sm mb-2">Kode Referral Anda</p>
+                  <div className="flex items-center gap-3">
+                    <code className="flex-1 bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white font-mono text-lg">
+                      {customer.referralCode}
+                    </code>
+                    <button
+                      onClick={copyReferralCode}
+                      className="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
+                    >
+                      {copied ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  <p className="text-slate-500 text-sm mt-2">
+                    Bagikan kode ini untuk mendapatkan reward!
+                  </p>
                 </div>
-                <div className="bg-slate-800/50 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-green-400">{referralStats.activeReferrals}</p>
-                  <p className="text-slate-400 text-sm">Referral Aktif</p>
-                </div>
-                <div className="bg-slate-800/50 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-purple-400">{referralStats.convertedToPaid}</p>
-                  <p className="text-slate-400 text-sm">Upgrade ke Paid</p>
-                </div>
-                <div className="bg-slate-800/50 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-amber-400">${referralStats.totalRevenue}</p>
-                  <p className="text-slate-400 text-sm">Total Revenue</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link href="/write/projects" className="bg-white/5 hover:bg-white/10 backdrop-blur-lg border border-white/10 rounded-xl p-6 transition-colors">
-            <h3 className="text-lg font-medium text-white mb-2">Proyek Saya</h3>
-            <p className="text-slate-400 text-sm">Kelola dokumen dan proyek menulis Anda</p>
-          </Link>
-          <Link href="/write/templates" className="bg-white/5 hover:bg-white/10 backdrop-blur-lg border border-white/10 rounded-xl p-6 transition-colors">
-            <h3 className="text-lg font-medium text-white mb-2">Template</h3>
-            <p className="text-slate-400 text-sm">Jelajahi template siap pakai</p>
-          </Link>
-          <Link href="/write/support" className="bg-white/5 hover:bg-white/10 backdrop-blur-lg border border-white/10 rounded-xl p-6 transition-colors">
-            <h3 className="text-lg font-medium text-white mb-2">Support</h3>
-            <p className="text-slate-400 text-sm">Butuh bantuan? Hubungi kami</p>
-          </Link>
-        </div>
+                {referralStats && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-800/50 rounded-lg p-4 text-center">
+                      <p className="text-2xl font-bold text-white">{referralStats.totalSignups}</p>
+                      <p className="text-slate-400 text-sm">Total Signup</p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-lg p-4 text-center">
+                      <p className="text-2xl font-bold text-green-400">{referralStats.activeReferrals}</p>
+                      <p className="text-slate-400 text-sm">Referral Aktif</p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-lg p-4 text-center">
+                      <p className="text-2xl font-bold text-purple-400">{referralStats.convertedToPaid}</p>
+                      <p className="text-slate-400 text-sm">Upgrade ke Paid</p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-lg p-4 text-center">
+                      <p className="text-2xl font-bold text-amber-400">${referralStats.totalRevenue}</p>
+                      <p className="text-slate-400 text-sm">Total Revenue</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Quick Actions - Customer Only */}
+        {userType === "customer" && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link href="/projects" className="bg-white/5 hover:bg-white/10 backdrop-blur-lg border border-white/10 rounded-xl p-6 transition-colors">
+              <h3 className="text-lg font-medium text-white mb-2">Proyek Saya</h3>
+              <p className="text-slate-400 text-sm">Kelola dokumen dan proyek menulis Anda</p>
+            </Link>
+            <Link href="/templates" className="bg-white/5 hover:bg-white/10 backdrop-blur-lg border border-white/10 rounded-xl p-6 transition-colors">
+              <h3 className="text-lg font-medium text-white mb-2">Template</h3>
+              <p className="text-slate-400 text-sm">Jelajahi template siap pakai</p>
+            </Link>
+            <Link href="/support" className="bg-white/5 hover:bg-white/10 backdrop-blur-lg border border-white/10 rounded-xl p-6 transition-colors">
+              <h3 className="text-lg font-medium text-white mb-2">Support</h3>
+              <p className="text-slate-400 text-sm">Butuh bantuan? Hubungi kami</p>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

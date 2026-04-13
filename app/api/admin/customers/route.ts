@@ -3,15 +3,26 @@ import RisentaAdm from "@/app/models/risentaAdm";
 import connectDB from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import { logAdminAction, getRequestInfo } from "@/lib/adminAudit";
+import { cookies } from "next/headers";
 
 // GET - List all customers (admin only)
 export async function GET(req: Request) {
   try {
     await connectDB();
     
-    // Get admin session
-    const cookieHeader = req.headers.get('cookie');
-    const sessionToken = cookieHeader?.match(/session_token=([^;]+)/)?.[1];
+    // Get admin session using cookies() from next/headers
+    const cookieStore = await cookies();
+    const sessionTokenCookie = cookieStore.get("session_token");
+    let sessionToken = sessionTokenCookie?.value;
+    
+    // Fallback: parse from request headers if cookies() doesn't work
+    if (!sessionToken) {
+      const cookieHeader = req.headers.get('cookie');
+      const match = cookieHeader?.match(/session_token=([^;]+)/);
+      if (match) {
+        sessionToken = match[1];
+      }
+    }
     
     if (!sessionToken) {
       return NextResponse.json(

@@ -65,7 +65,14 @@ export default function CustomerRegisterPage() {
       }
 
       setSuccess(true);
-      
+
+      // Set flag to trigger document migration on first login after registration
+      // (only if guest has documents to migrate)
+      const hasGuestDocs = localStorage.getItem('write-documents');
+      if (hasGuestDocs) {
+        localStorage.setItem('justRegistered', Date.now().toString());
+      }
+
       // Redirect ke login setelah 2 detik
       setTimeout(() => {
         router.push("/login");

@@ -16,18 +16,32 @@ export default function CustomerLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Check if already logged in
+  // Check if already logged in (customer or admin)
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/customer/auth/me", {
+        // Try customer auth first
+        const customerRes = await fetch("/api/customer/auth/me", {
           credentials: 'include'
         });
-        const data = await res.json();
+        const customerData = await customerRes.json();
         
-        if (data.loggedIn) {
-          // Already logged in, redirect to dashboard
-          router.push("/dashboard");
+        if (customerData.loggedIn) {
+          // Customer already logged in, redirect to main page
+          router.push("/");
+          return;
+        }
+        
+        // If customer auth fails, try admin auth
+        const adminRes = await fetch("/api/auth/me", {
+          credentials: 'include'
+        });
+        const adminData = await adminRes.json();
+        
+        if (adminData.loggedIn) {
+          // Admin already logged in, redirect to main page
+          router.push("/");
+          return;
         }
       } catch (err) {
         console.error("Auth check error:", err);
@@ -60,14 +74,24 @@ export default function CustomerLoginPage() {
         return;
       }
 
-      // Redirect based on user type
-      if (data.userType === "admin") {
-        // Admin goes to /adm dashboard on internal subdomain or stays for management
-        window.location.href = "/adm";
-      } else {
-        // Customer goes to dashboard
-        window.location.href = "/dashboard";
-      }
+      // Clear localStorage on login (preserve theme and migration flags)
+      const theme = localStorage.getItem('theme');
+      const justRegistered = localStorage.getItem('justRegistered');
+      const hasGuestDocuments = localStorage.getItem('hasGuestDocuments');
+      const writeDocuments = localStorage.getItem('write-documents');
+      const writeActiveDocId = localStorage.getItem('write-active-doc-id');
+
+      localStorage.clear();
+
+      // Restore preserved items
+      if (theme) localStorage.setItem('theme', theme);
+      if (justRegistered) localStorage.setItem('justRegistered', justRegistered);
+      if (hasGuestDocuments) localStorage.setItem('hasGuestDocuments', hasGuestDocuments);
+      if (writeDocuments) localStorage.setItem('write-documents', writeDocuments);
+      if (writeActiveDocId) localStorage.setItem('write-active-doc-id', writeActiveDocId);
+
+      // All users (customer and admin) go to main page (proxy will handle conditional routing)
+      window.location.href = "/";
     } catch (err) {
       console.error("Login error:", err);
       setErrorResp("Gagal terhubung ke server.");
