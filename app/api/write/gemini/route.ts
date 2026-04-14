@@ -12,14 +12,16 @@ export async function POST(req: NextRequest) {
     const reqBody = await req.json();
     const { prompt, type, topic, length, currentContent, content, templatePrompt } = reqBody;
 
-    // Check authentication (customer or admin)
+    // Check authentication (customer, admin, or guest)
     const cookieHeader = req.headers.get('cookie');
-    console.log('[Gemini API] Cookie header:', cookieHeader?.substring(0, 200));
+    const guestId = req.headers.get('x-guest-id');
     
     const auth = getAuthFromCookie(cookieHeader);
-    console.log('[Gemini API] Auth result:', auth);
 
-    if (!auth) {
+    // Allow guest users with limited access
+    const isGuest = !auth && !!guestId;
+
+    if (!auth && !isGuest) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized. Silakan login terlebih dahulu.' },
         { status: 401 }
@@ -32,7 +34,16 @@ export async function POST(req: NextRequest) {
     let isAdmin = false;
     let customerID: string | null = null;
 
-    if (auth.type === 'admin') {
+    if (isGuest) {
+      // Guest users: limited access, no auto-generate
+      if (type === 'auto-generate') {
+        return NextResponse.json(
+          { success: false, error: 'Login atau daftar untuk menggunakan Auto-Generate.' },
+          { status: 403 }
+        );
+      }
+      // Allow basic prompt usage for guests (no quota tracking)
+    } else if (auth && auth.type === 'admin') {
       // Verify admin and allow unlimited access
       const admin = await RisentaAdm.findOne({ token: auth.sessionToken });
       if (!admin) {
@@ -42,7 +53,7 @@ export async function POST(req: NextRequest) {
         );
       }
       isAdmin = true;
-    } else {
+    } else if (auth && auth.type === 'customer') {
       customerID = auth.customerID;
       // Check usage limits for customers
       const usageCheck = await checkAIUsage(customerID, actionType);

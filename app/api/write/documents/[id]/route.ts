@@ -122,20 +122,51 @@ export async function GET(
     // Check if user is owner
     const isOwner = doc.userId === userId && doc.userType === userType;
     
-    // If not owner, check if user is a collaborator
+    // If not owner, check access
     if (!isOwner) {
-      const isCollaborator = await DocumentCollaborator.findOne({
+      // Check if user is an existing collaborator
+      const existingCollab = await DocumentCollaborator.findOne({
         documentId: id,
         userId,
         userType,
         isActive: true,
       }).lean();
       
-      if (!isCollaborator) {
-        return NextResponse.json(
-          { error: "Unauthorized" },
-          { status: 403 }
-        );
+      if (!existingCollab) {
+        // Check if document has collaboration enabled — if so, allow access
+        // and auto-add the user as a collaborator with the default role
+        const collabSettings = doc.collaborationSettings;
+        const isCollaborative = collabSettings?.isCollaborative;
+        
+        // Also check for ?join=true query param (shared link)
+        const url = new URL(req.url);
+        const isJoinRequest = url.searchParams.get('join') === 'true';
+        
+        if (isCollaborative || isJoinRequest) {
+          // Auto-add as collaborator with default role
+          try {
+            await DocumentCollaborator.findOneAndUpdate(
+              { documentId: id, userId, userType },
+              {
+                documentId: id,
+                userId,
+                userType,
+                userName: (auth as any).name || (auth.user as any)?.name || (auth.user as any)?.adm_usn || 'Anonymous',
+                role: collabSettings?.defaultRole || 'viewer',
+                isActive: true,
+                joinedAt: new Date(),
+              },
+              { upsert: true, new: true }
+            );
+          } catch (collabErr) {
+            console.error('Error auto-adding collaborator:', collabErr);
+          }
+        } else {
+          return NextResponse.json(
+            { error: "Unauthorized" },
+            { status: 403 }
+          );
+        }
       }
     }
     

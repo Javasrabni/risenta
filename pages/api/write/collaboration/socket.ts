@@ -118,14 +118,14 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponse) => {
           isOnline: true
         }));
 
-        socket.emit('doc:sync', {
+        (socket as any).emit('doc:sync', {
           documentId,
           update: stateUpdate,
           initialContent: doc.content,
           users: usersList
         });
 
-        socket.to(`doc:${documentId}`).emit('user:joined', {
+        (socket as any).to(`doc:${documentId}`).emit('user:joined', {
           userId,
           userType,
           userName,
@@ -133,7 +133,7 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponse) => {
           socketId: socket.id
         });
 
-        socket.emit('users:list', {
+        (socket as any).emit('users:list', {
           documentId,
           users: usersList
         });
@@ -146,14 +146,14 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponse) => {
     socket.on('doc:update', ({ documentId, update }) => {
       const ydoc = getYDoc(documentId);
       Y.applyUpdate(ydoc, new Uint8Array(update));
-      socket.to(`doc:${documentId}`).emit('doc:update', { documentId, update });
+      (socket as any).to(`doc:${documentId}`).emit('doc:update', { documentId, update });
     });
 
     socket.on('cursor:update', async ({ documentId, cursorPosition }) => {
       try {
         const session = await CollaborationSession.findOne({ socketId: socket.id }).lean();
         if (session) {
-          socket.to(`doc:${documentId}`).emit('cursor:update', { 
+          (socket as any).to(`doc:${documentId}`).emit('cursor:update', { 
             userId: session.userId,
             userName: session.userName,
             userColor: session.userColor,
@@ -174,7 +174,7 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponse) => {
         { new: true }
       );
       if (session) {
-        socket.to(`doc:${session.documentId}`).emit('user:left', {
+        (socket as any).to(`doc:${session.documentId}`).emit('user:left', {
           userId: session.userId,
           userType: session.userType
         });

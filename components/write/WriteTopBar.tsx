@@ -30,6 +30,8 @@ interface WriteTopBarProps {
   collaboratorCount?: number;
   pendingCount?: number;
   activeUsers?: any[];
+  mode?: 'dashboard' | 'editor';
+  onBack?: () => void;
 }
 
 export default function WriteTopBar({
@@ -50,6 +52,8 @@ export default function WriteTopBar({
   collaboratorCount = 0,
   pendingCount = 0,
   activeUsers = [],
+  mode = 'editor',
+  onBack,
 }: WriteTopBarProps) {
   const [saving, setSaving] = useState(false);
   const [title, setTitle] = useState('');
@@ -205,6 +209,16 @@ export default function WriteTopBar({
 
   return (
     <div className="topbar">
+      {onBack && mode === 'editor' && (
+        <button
+          className="btn btn-icon topbar-back-btn"
+          onClick={onBack}
+          title="Kembali ke Dokumen"
+          style={{ marginRight: '4px' }}
+        >
+          <span>←</span>
+        </button>
+      )}
       <div className="logo">
         <div className="logo-dot" />
         <span>write.risentta.com</span>

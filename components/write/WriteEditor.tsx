@@ -250,7 +250,7 @@ export default function WriteEditor({
       }
     });
     
-    socket.on('doc:sync', (data) => {
+    socket.on('doc:sync', (data: any) => {
       // Initialize with server content
       const contentToApply = data.initialContent || data.content;
       if (yTextRef.current && contentToApply && yTextRef.current.length === 0) {
@@ -268,7 +268,7 @@ export default function WriteEditor({
       }
     });
     
-    socket.on('doc:update', async (data) => {
+    socket.on('doc:update', async (data: any) => {
       // Apply remote update
       const update = data.update || data; // Handle both raw and wrapped
       if (yDocRef.current && update) {
@@ -284,7 +284,7 @@ export default function WriteEditor({
       }
     });
     
-    socket.on('cursor:update', (data) => {
+    (socket as any).on('cursor:update', (data: any) => {
       // Update remote user cursor and selection position
       setRemoteUsers(prev => {
         const existing = prev.find(u => u.userId === data.userId);
@@ -302,7 +302,7 @@ export default function WriteEditor({
       });
     });
     
-    socket.on('user:left', (leftUserId) => {
+    (socket as any).on('user:left', (leftUserId: string) => {
       setRemoteUsers(prev => prev.filter(u => u.userId !== leftUserId));
     });
     
@@ -323,14 +323,15 @@ export default function WriteEditor({
       setIsCollaborationReady(false);
       
       if (socket) {
-        socket.off('connect');
-        socket.off('doc:sync');
-        socket.off('doc:update');
-        socket.off('users:list');
-        socket.off('user:joined');
-        socket.off('user:left');
-        socket.off('cursor:update');
-        socket.off('cursor:updated');
+        const s = socket as any;
+        s.off('connect');
+        s.off('doc:sync');
+        s.off('doc:update');
+        s.off('users:list');
+        s.off('user:joined');
+        s.off('user:left');
+        s.off('cursor:update');
+        s.off('cursor:updated');
       }
     };
   }, [isCollaborative, documentId, userId, userType, userName]);
@@ -1850,7 +1851,7 @@ export default function WriteEditor({
               onClick={() => {
                 const sel = window.getSelection();
                 if (sel && sel.toString().trim()) {
-                  onToggleComments(true);
+                  onToggleComments?.();
                 } else {
                   setChiMood({ type: 'concerned', comment: 'Pilih teks terlebih dahulu untuk memberikan komentar.' });
                 }
@@ -2622,7 +2623,7 @@ export default function WriteEditor({
                         setShowCommentInput(false);
                         setCapturedSelection(null);
                         setChiMood({ type: 'happy', comment: 'Komentar berhasil ditambahkan!' });
-                        onToggleComments(true);
+                        onToggleComments?.();
                       } else {
                         setChiMood({ type: 'concerned', comment: 'Gagal mengirim komentar. Silakan login kembali.' });
                       }
