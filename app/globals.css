@@ -265,6 +265,38 @@ body {
   background-color: inherit;
 }
 
+/* ── COLLABORATIVE MOUSE CURSOR ── */
+.mouse-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 5000;
+  transition: transform 0.1s linear;
+  will-change: transform;
+}
+
+.mouse-cursor__icon {
+  width: 15px;
+  height: 15px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+  display: block;
+}
+
+.mouse-cursor-label {
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  pointer-events: none;
+}
+
 .tiptap-editor-content table {
   border-collapse: collapse;
   margin: 0;

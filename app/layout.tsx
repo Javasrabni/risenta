@@ -55,7 +55,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="theme">
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="theme">
           <SmoothScrollProvider>
             {/* NAVBAR - Hidden on write subdomain */}
             <ConditionalNavbar />

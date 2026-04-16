@@ -59,6 +59,7 @@ interface TiptapWriteEditorProps {
   myRole?: 'owner' | 'editor' | 'commenter' | 'viewer' | 'pending';
   onRefreshUsage?: () => void;
   tokenUsage?: { promptRemaining: number; promptTotal: number; autoGenerateRemaining: number; autoGenerateTotal: number; planName: string };
+  onActiveUsersChange?: (users: any[]) => void;
 }
 
 const COLLAB_COLORS = [
@@ -91,6 +92,7 @@ export default function TiptapWriteEditor({
   onSetAIGenerating,
   onRefreshUsage,
   tokenUsage,
+  onActiveUsersChange,
 }: TiptapWriteEditorProps) {
   const [yDoc] = useState(() => new Y.Doc());
 
@@ -129,6 +131,9 @@ export default function TiptapWriteEditor({
   const [currentFontFamily, setCurrentFontFamily] = useState('sans');
 
   const [pageCount, setPageCount] = useState(1);
+  const [remoteCursors, setRemoteCursors] = useState<Record<number, any>>({});
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const workspaceRef = useRef<HTMLDivElement>(null);
 
   const commentsHook = useComments({
     documentId: documentId || '',
@@ -205,6 +210,15 @@ export default function TiptapWriteEditor({
     onUpdate: ({ editor: e }) => {
       const html = e.getHTML();
       debouncedPersist(html);
+
+      // Handle Typing state
+      if (provider) {
+        provider.awareness.setLocalStateField('isTyping', true);
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+          provider.awareness.setLocalStateField('isTyping', false);
+        }, 3000);
+      }
     },
   });
 
@@ -231,12 +245,89 @@ export default function TiptapWriteEditor({
 
   useEffect(() => {
     if (!provider) return;
+    
+    // Update local awareness with user info
     provider.awareness.setLocalStateField('user', {
       name: userName || 'Anonymous',
       color: getUserColorFromId(userId || 'anon'),
       userType: userType || 'guest',
     });
-  }, [provider, userName, userId, userType]);
+
+    // Listen for remote awareness changes (for mouse cursors)
+    const handleUpdate = () => {
+      const states = provider.awareness.getStates();
+      const cursors: Record<number, any> = {};
+      
+      states.forEach((state, clientID) => {
+        if (clientID === provider.awareness.clientID) return;
+        if (state.user && state.mouse) {
+          cursors[clientID] = {
+            user: state.user,
+            mouse: state.mouse,
+            isTyping: !!state.isTyping,
+          };
+        }
+      });
+      
+      setRemoteCursors(cursors);
+
+      // Call onActiveUsersChange if provided
+      if (onActiveUsersChange) {
+        const activeUsersList = Array.from(states.values()).map(s => s.user).filter(Boolean);
+        onActiveUsersChange(activeUsersList);
+      }
+    };
+
+    provider.awareness.on('change', handleUpdate);
+    return () => {
+      provider.awareness.off('change', handleUpdate);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    };
+  }, [provider, userName, userId, userType, onActiveUsersChange]);
+
+  // ── Sync Text Cursor Label Visibility ──
+  useEffect(() => {
+    // We target the Tiptap cursor labels using their text content (user name)
+    const labels = document.querySelectorAll('.collaboration-cursor__label');
+    labels.forEach(label => {
+      const name = label.textContent;
+      const client = Object.values(remoteCursors).find(c => c.user.name === name);
+      if (client) {
+        // Only show text label IF user is typing
+        (label as HTMLElement).style.opacity = client.isTyping ? '1' : '0';
+        (label as HTMLElement).style.transform = client.isTyping ? 'translateY(0)' : 'translateY(5px)';
+        (label as HTMLElement).style.pointerEvents = client.isTyping ? 'auto' : 'none';
+        (label as HTMLElement).style.transition = 'all 0.2s ease-in-out';
+      } else {
+        // Fallback for current user or unknown - hide label
+        (label as HTMLElement).style.opacity = '0';
+      }
+    });
+
+    // Also hide the local (self) label which might appear briefly
+    const myLabel = Array.from(labels).find(l => l.textContent === userName);
+    if (myLabel) (myLabel as HTMLElement).style.opacity = '0';
+
+  }, [remoteCursors, userName]);
+
+  // ── Track Mouse Movements ──
+  const lastMouseUpdate = useRef(0);
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!provider || !workspaceRef.current) return;
+    
+    const now = Date.now();
+    if (now - lastMouseUpdate.current < 50) return; // 20fps update
+    
+    const rect = workspaceRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left + workspaceRef.current.scrollLeft);
+    const y = (e.clientY - rect.top + workspaceRef.current.scrollTop);
+    
+    // Horizontal percentage, vertical pixels (reliable for long docs)
+    const xPct = (x / workspaceRef.current.scrollWidth) * 100;
+
+    provider.awareness.setLocalStateField('mouse', { x: xPct, y: y });
+    lastMouseUpdate.current = now;
+  };
 
   const hasSeeded = useRef(false);
 
@@ -676,7 +767,33 @@ export default function TiptapWriteEditor({
       </div>
 
       {/* Main Editor Area */}
-      <div className="flex-1 overflow-y-auto bg-write-bg2 flex flex-col items-center pt-8 pb-32 relative scroll-smooth selection:bg-write-blue/20">
+      <div 
+        ref={workspaceRef}
+        onMouseMove={handleMouseMove}
+        className="flex-1 overflow-y-auto bg-write-bg2 flex flex-col items-center pt-8 pb-32 relative scroll-smooth selection:bg-write-blue/20"
+      >
+        {Object.entries(remoteCursors).map(([clientID, data]) => (
+          !data.isTyping && (
+            <div
+              key={clientID}
+              className="mouse-cursor animate-in fade-in duration-300"
+              style={{
+                left: `${data.mouse.x}%`,
+                top: `${data.mouse.y}px`,
+              }}
+            >
+              <svg className="mouse-cursor__icon" viewBox="0 0 24 24" fill={data.user.color || '#2563eb'}>
+                <path d="M5.653 3.123l15.773 10.516a1 1 0 01-.227 1.838l-4.73 1.455 3.332 5.044a1 1 0 11-1.666 1.1l-3.332-5.043-3.21 3.555a1 1 0 01-1.745-.631l-.195-17.824a1 1 0 011.054-.954z" />
+              </svg>
+              <div 
+                className="mouse-cursor-label"
+                style={{ backgroundColor: data.user.color || '#2563eb' }}
+              >
+                {data.user.name}
+              </div>
+            </div>
+          )
+        ))}
         {isAutoGenerating && (
           <div className="fixed inset-0 z-[2000] bg-write-bg/80 backdrop-blur-md flex items-center justify-center">
             <div className="bg-write-bg border border-write-border rounded-write-lg p-8 shadow-write-lg text-center max-w-[320px] w-full animate-in zoom-in-95 duration-300">

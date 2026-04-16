@@ -62,6 +62,7 @@ export default function WriteEditorPage() {
     isAutoSaving: false,
     lastSaved: null,
   });
+  const [activeUsers, setActiveUsers] = useState<any[]>([]);
   const autoGenerateCallbackRef = useRef<((content: string, topic: string) => void) | null>(null);
   const aiGeneratingCallbackRef = useRef<((isGenerating: boolean) => void) | null>(null);
 
@@ -499,6 +500,7 @@ export default function WriteEditorPage() {
         onShare={handleShareClick}
         collaboratorCount={collaboration.collaborators.filter(c => (c.role as string) !== 'pending' && (c.role as string) !== 'owner').length}
         pendingCount={collaboration.collaborators.filter(c => (c.role as string) === 'pending').length}
+        activeUsers={activeUsers}
         mode="editor"
         onBack={() => router.push('/write')}
       />
@@ -536,6 +538,7 @@ export default function WriteEditorPage() {
           myRole={collaboration.myRole as any}
           onRefreshUsage={fetchCustomerPlan}
           tokenUsage={tokenUsage}
+          onActiveUsersChange={setActiveUsers}
         />
 
         <WriteRightPanel
