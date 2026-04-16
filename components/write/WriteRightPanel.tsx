@@ -70,7 +70,10 @@ export default function WriteRightPanel({
   };
 
   return (
-    <div className="w-[280px] min-w-[280px] bg-write-bg border-l border-write-border flex flex-col h-full overflow-y-auto select-none scrollbar-thin scrollbar-thumb-write-border">
+    <div 
+      className="w-[280px] min-w-[280px] bg-write-bg border-l border-write-border flex flex-col h-full overflow-y-auto select-none scrollbar-thin scrollbar-thumb-write-border"
+      data-lenis-prevent="true"
+    >
       {/* Chi Character */}
       <div className="p-5 border-b border-write-border">
         <div className="text-[10px] uppercase font-bold text-write-text3 mb-4 tracking-wider">Asisten Chi</div>

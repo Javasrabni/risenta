@@ -110,7 +110,13 @@ export async function GET(
     
     const { userId, userType } = auth;
     
-    const doc = await Document.findOne({ _id: id }).lean();
+    const isShortId = id.length < 15;
+    let doc;
+    if (isShortId) {
+      doc = await Document.findOne({ joinId: id }).lean();
+    } else {
+      doc = await Document.findOne({ _id: id }).lean();
+    }
     
     if (!doc) {
       return NextResponse.json(
@@ -126,7 +132,7 @@ export async function GET(
     if (!isOwner) {
       // Check if user is an existing collaborator
       const existingCollab = await DocumentCollaborator.findOne({
-        documentId: id,
+        documentId: doc._id.toString(),
         userId,
         userType,
         isActive: true,
@@ -146,9 +152,9 @@ export async function GET(
           // Auto-add as collaborator with default role
           try {
             await DocumentCollaborator.findOneAndUpdate(
-              { documentId: id, userId, userType },
+              { documentId: doc._id.toString(), userId, userType },
               {
-                documentId: id,
+                documentId: doc._id.toString(),
                 userId,
                 userType,
                 userName: (auth as any).name || (auth.user as any)?.name || (auth.user as any)?.adm_usn || 'Anonymous',
@@ -173,12 +179,16 @@ export async function GET(
     return NextResponse.json({
       document: {
         id: doc._id.toString(),
+        joinId: doc.joinId,
         title: doc.title,
         content: doc.content,
         type: doc.type,
         wordCount: doc.wordCount,
         charCount: doc.charCount,
         pageSettings: doc.pageSettings,
+        todos: doc.todos || [],
+        chats: doc.chats || [],
+        citations: doc.citations || [],
         createdAt: doc.createdAt,
         updatedAt: doc.updatedAt,
         userId: doc.userId

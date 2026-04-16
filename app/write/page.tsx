@@ -421,6 +421,33 @@ export default function WriteDocumentsPage() {
               <span className="text-[20px]">+</span>
               Dokumen Baru
             </button>
+            
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const joinId = formData.get('joinId')?.toString().trim();
+                if (joinId) {
+                  router.push(`/write/${joinId}?join=true`);
+                }
+              }}
+              className="relative flex items-center w-[220px]"
+            >
+              <input
+                type="text"
+                name="joinId"
+                placeholder="ID Dokumen (Tempel di sini)"
+                className="w-full pl-3 pr-10 py-2.5 border border-write-border rounded-write-lg bg-write-bg text-[12px] font-medium text-write-text outline-none transition-all focus:border-write-orange focus:ring-2 focus:ring-write-orange/20 placeholder:text-write-text3"
+                autoComplete="off"
+              />
+              <button 
+                type="submit"
+                className="absolute right-2 w-6 h-6 flex items-center justify-center rounded-md bg-write-bg2 text-[12px] text-write-text3 hover:bg-write-orange hover:text-white transition-colors border-none cursor-pointer"
+                title="Gabung ke Dokumen"
+              >
+                ➜
+              </button>
+            </form>
           </div>
           <div className="flex items-center gap-3 md:flex-col md:items-stretch">
             <div className="relative w-full max-w-[280px] md:max-w-none">

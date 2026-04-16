@@ -1,5 +1,29 @@
 import mongoose, { Schema, Document as MongooseDocument } from "mongoose";
 
+export interface ITodo {
+  id: string;
+  text: string;
+  isDone: boolean;
+  assignedTo?: string;
+}
+
+export interface IChat {
+  id: string;
+  senderId: string;
+  senderName: string;
+  text: string;
+  timestamp: Date;
+}
+
+export interface ICitation {
+  id: string;
+  title: string;
+  authors: string;
+  year: string;
+  source: string;
+  url?: string;
+}
+
 export interface IPageSettings {
   size: 'a4' | 'a5' | 'letter' | 'legal' | 'custom';
   margins: {
@@ -31,10 +55,14 @@ export interface ICollaborationSettings {
 }
 
 export interface IDocument extends MongooseDocument {
+  joinId?: string;
   userId: string;
   userType: 'customer' | 'admin' | 'guest';
   title: string;
   content: string;
+  todos?: ITodo[];
+  chats?: IChat[];
+  citations?: ICitation[];
   type: 'essay' | 'article' | 'journal' | 'thesis';
   template?: 'blank' | 'essay' | 'thesis' | 'article' | 'journal' | 'research' | 'report';
   wordCount: number;
@@ -88,6 +116,11 @@ const CollaborationSettingsSchema = new Schema<ICollaborationSettings>({
 
 const DocumentSchema = new Schema<IDocument>(
   {
+    joinId: {
+      type: String,
+      sparse: true,
+      unique: true
+    },
     userId: { 
       type: String, 
       required: true,
@@ -155,6 +188,36 @@ const DocumentSchema = new Schema<IDocument>(
     yjsState: {
       type: Buffer,
       default: null
+    },
+    todos: {
+      type: [{
+        id: String,
+        text: String,
+        isDone: { type: Boolean, default: false },
+        assignedTo: String
+      }],
+      default: []
+    },
+    chats: {
+      type: [{
+        id: String,
+        senderId: String,
+        senderName: String,
+        text: String,
+        timestamp: { type: Date, default: Date.now }
+      }],
+      default: []
+    },
+    citations: {
+      type: [{
+        id: String,
+        title: String,
+        authors: String,
+        year: String,
+        source: String,
+        url: String
+      }],
+      default: []
     }
   },
   { 

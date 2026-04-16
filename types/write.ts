@@ -58,8 +58,25 @@ export interface AnalysisData {
   generatedAt: string;
 }
 
+export interface ITodo {
+  id: string;
+  text: string;
+  isDone: boolean;
+  assignedTo?: string;
+}
+
+export interface IChat {
+  id: string;
+  senderId: string;
+  senderName: string;
+  text: string;
+  timestamp: string | Date;
+  isDeleted?: boolean;
+}
+
 export interface Document {
   id: string;
+  joinId?: string;
   title: string;
   content: string;
   type: DocumentType;
@@ -68,6 +85,9 @@ export interface Document {
   charCount: number;
   pageSettings: PageSettings;
   analysisData?: AnalysisData;
+  todos?: ITodo[];
+  chats?: IChat[];
+  citations?: Citation[];
   createdAt: Date;
   updatedAt: Date;
   userId: string;

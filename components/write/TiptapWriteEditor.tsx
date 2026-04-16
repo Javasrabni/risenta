@@ -24,10 +24,11 @@ import TableHeader from '@tiptap/extension-table-header';
 import Link from '@tiptap/extension-link';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import { DEFAULT_PAGE_SETTINGS, Document, PAGE_SIZES } from '@/types/write';
+import { DEFAULT_PAGE_SETTINGS, Document, PAGE_SIZES, ITodo, IChat, Citation } from '@/types/write';
 import { calculateStats, debounce } from '@/lib/writeUtils';
 import { useComments } from '@/hooks/useComments';
 import CommentThread from './CommentThread';
+import WriteLeftPanel from './WriteLeftPanel';
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
@@ -37,7 +38,7 @@ import {
   Highlighter, Type, Palette,
   MessageSquare, Sparkles, Send, ChevronDown,
   Subscript as SubIcon, Superscript as SupIcon,
-  RemoveFormatting, Loader2,
+  RemoveFormatting, Loader2, Plus,
   Image as ImageIcon, Table as TableIcon, Link as LinkIcon,
   LetterText,
 } from 'lucide-react';
@@ -132,8 +133,106 @@ export default function TiptapWriteEditor({
 
   const [pageCount, setPageCount] = useState(1);
   const [remoteCursors, setRemoteCursors] = useState<Record<number, any>>({});
+  const [zoomLevel, setZoomLevel] = useState(1.0);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const workspaceRef = useRef<HTMLDivElement>(null);
+
+  // --- NEW: Y.js Arrays for Collaboration Features ---
+  const yTodos = useMemo(() => yDoc.getArray<ITodo>('todos'), [yDoc]);
+  const yChats = useMemo(() => yDoc.getArray<IChat>('chats'), [yDoc]);
+  const yCitations = useMemo(() => yDoc.getArray<Citation>('citations'), [yDoc]);
+
+  const [localTodos, setLocalTodos] = useState<ITodo[]>([]);
+  const [localChats, setLocalChats] = useState<IChat[]>([]);
+  const [localCitations, setLocalCitations] = useState<Citation[]>([]);
+
+  useEffect(() => {
+    const updateLocalState = () => {
+      setLocalTodos(yTodos.toArray());
+      setLocalChats(yChats.toArray());
+      setLocalCitations(yCitations.toArray());
+    };
+
+    yTodos.observe(updateLocalState);
+    yChats.observe(updateLocalState);
+    yCitations.observe(updateLocalState);
+
+    updateLocalState(); // Initial load
+
+    return () => {
+      yTodos.unobserve(updateLocalState);
+      yChats.unobserve(updateLocalState);
+      yCitations.unobserve(updateLocalState);
+    };
+  }, [yTodos, yChats, yCitations]);
+
+  useEffect(() => {
+    if (!provider) return;
+    const handleSync = (isSynced: boolean) => {
+      if (isSynced && activeDoc) {
+        // Only seed from DB if Yjs room is fresh (empty)
+        if (yTodos.length === 0 && activeDoc.todos && activeDoc.todos.length > 0) yTodos.push(activeDoc.todos);
+        if (yChats.length === 0 && activeDoc.chats && activeDoc.chats.length > 0) yChats.push(activeDoc.chats);
+        if (yCitations.length === 0 && activeDoc.citations && activeDoc.citations.length > 0) yCitations.push(activeDoc.citations);
+      }
+    };
+    provider.on('synced', handleSync);
+    return () => provider.off('synced', handleSync);
+  }, [provider, activeDoc, yTodos, yChats, yCitations]);
+
+  // Handlers for Panel
+  const handleAddTodo = useCallback((text: string) => {
+    yTodos.push([{ id: Date.now().toString(), text, isDone: false }]);
+  }, [yTodos]);
+
+  const handleToggleTodo = useCallback((id: string, isDone: boolean) => {
+    const i = yTodos.toArray().findIndex(t => t.id === id);
+    if (i !== -1) {
+      const todo = yTodos.get(i);
+      yTodos.delete(i, 1);
+      yTodos.insert(i, [{ ...todo, isDone }]);
+    }
+  }, [yTodos]);
+
+  const handleDeleteTodo = useCallback((id: string) => {
+    const i = yTodos.toArray().findIndex(t => t.id === id);
+    if (i !== -1) yTodos.delete(i, 1);
+  }, [yTodos]);
+
+  const handleSendChat = useCallback((text: string) => {
+    yChats.push([{ 
+      id: Date.now().toString(), 
+      senderId: userId || 'anon', 
+      senderName: userName || 'Anonymous', 
+      text, 
+      timestamp: new Date().toISOString() 
+    }]);
+  }, [yChats, userId, userName]);
+
+  const handleDeleteChat = useCallback((id: string) => {
+    const i = yChats.toArray().findIndex(c => c.id === id);
+    if (i !== -1) {
+      const chat = yChats.get(i);
+      yChats.delete(i, 1);
+      yChats.insert(i, [{ ...chat, text: 'Pesan telah dihapus', isDeleted: true }]);
+    }
+  }, [yChats]);
+
+  const handleAddCitation = useCallback((citation: Omit<Citation, 'id' | 'number'>) => {
+    yCitations.push([{ 
+      ...citation, 
+      id: Date.now().toString(), 
+      number: yCitations.length + 1 
+    }]);
+  }, [yCitations]);
+
+  const handleDeleteCitation = useCallback((id: string) => {
+    const i = yCitations.toArray().findIndex(c => c.id === id);
+    if (i !== -1) yCitations.delete(i, 1);
+  }, [yCitations]);
+
+  // handleInsertCitation will be attached below when `editor` is instantiated
+  // --- END NEW FEATURES ---
 
   const commentsHook = useComments({
     documentId: documentId || '',
@@ -149,9 +248,12 @@ export default function TiptapWriteEditor({
           content,
           wordCount: stats.words,
           charCount: stats.chars,
+          todos: yTodos.toArray(),
+          chats: yChats.toArray(),
+          citations: yCitations.toArray(),
         });
       }, 300),
-    [activeDoc, updateDocument]
+    [activeDoc, updateDocument, yTodos, yChats, yCitations]
   );
 
   const editor = useEditor({
@@ -221,6 +323,11 @@ export default function TiptapWriteEditor({
       }
     },
   });
+
+  const handleInsertCitation = useCallback((citation: Citation) => {
+    if (!editor) return;
+    editor.chain().focus().insertContent(`[${citation.number}]`).run();
+  }, [editor]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -643,8 +750,24 @@ export default function TiptapWriteEditor({
   const HIGHLIGHT_COLORS = ['transparent', '#fef08a', '#bbf7d0', '#bfdbfe', '#e9d5ff', '#fecaca', '#fed7aa', '#d1fae5'];
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 bg-write-bg overflow-hidden font-sans">
-      {/* Formatting Toolbar */}
+    <div className="flex-1 flex flex-row h-full overflow-hidden min-w-0">
+      <WriteLeftPanel 
+        tokenUsage={tokenUsage as any}
+        todos={localTodos}
+        chats={localChats}
+        citations={localCitations}
+        onAddTodo={handleAddTodo}
+        onToggleTodo={handleToggleTodo}
+        onDeleteTodo={handleDeleteTodo}
+        onSendChat={handleSendChat}
+        onDeleteChat={handleDeleteChat}
+        onAddCitation={handleAddCitation}
+        onDeleteCitation={handleDeleteCitation}
+        onInsertCitation={handleInsertCitation}
+        currentUserId={userId}
+      />
+      <div className="flex-1 flex flex-col min-w-0 h-full bg-write-bg overflow-hidden font-[inter]">
+        {/* Formatting Toolbar */}
       <div className="h-9 border-b border-write-border flex items-center px-2.5 gap-1 bg-write-bg select-none shrink-0 overflow-x-auto no-scrollbar" role="toolbar">
         <div className="flex items-center gap-0.5">
           <button type="button" className="h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 text-write-text3 hover:text-write-text disabled:opacity-30" onClick={() => editor?.chain().focus().undo().run()} disabled={!editor?.can().undo()} title="Undo"><Undo2 size={16} /></button>
@@ -775,7 +898,8 @@ export default function TiptapWriteEditor({
       <div 
         ref={workspaceRef}
         onMouseMove={handleMouseMove}
-        className="flex-1 overflow-y-auto bg-write-bg2 flex flex-col items-center pt-8 pb-32 relative scroll-smooth selection:bg-write-blue/20"
+        className="flex-1 min-h-0 overflow-y-auto bg-write-bg2 flex flex-col items-center pt-8 pb-32 relative scroll-smooth selection:bg-write-blue/20"
+        data-lenis-prevent="true"
       >
         {Object.entries(remoteCursors).map(([clientID, data]) => (
           !data.isTyping && (
@@ -813,7 +937,12 @@ export default function TiptapWriteEditor({
           </div>
         )}
 
-        <div className="relative flex flex-col items-center gap-8 w-fit mx-auto">
+        <div 
+          className="relative flex flex-col items-center gap-8 w-fit mx-auto transition-all duration-200 ease-in-out"
+          style={{ 
+            zoom: zoomLevel,
+          }}
+        >
           <div className={`bg-write-bg shadow-write flex flex-col transition-all duration-300 relative outline-none page-${pageSettings.size}`} ref={containerRef} style={{ ...pageStyle, minHeight: pageStyle.minHeight, height: 'auto' }}>
             <EditorContent editor={editor} className="w-full" />
 
@@ -883,9 +1012,16 @@ export default function TiptapWriteEditor({
 
         <div className="flex items-center gap-2 overflow-x-auto pb-0.5 no-scrollbar">
           <button className="h-7 px-3 py-1.25 rounded-full text-[11px] font-bold border bg-write-orange/10 text-write-orange border-write-orange/20 hover:bg-write-orange hover:text-white transition-all active:scale-95 flex items-center gap-1.5" onClick={() => handleAutoGenerate(aiPrompt || activeDoc?.title || '')} disabled={isAutoGenerating}><Sparkles size={12} /> Auto Generate</button>
-          <button className="h-7 px-3 py-1.25 rounded-full text-[11px] font-medium border border-write-border bg-write-bg2 text-write-text3 hover:bg-white hover:text-write-text transition-all active:scale-95" onClick={() => setAiPrompt('Rapihkan tata letak')}>🎨 Rapihkan tata letak</button>
-          <button className="h-7 px-3 py-1.25 rounded-full text-[11px] font-medium border border-write-border bg-write-bg2 text-write-text3 hover:bg-white hover:text-write-text transition-all active:scale-95" onClick={() => setAiPrompt('Buatkan Daftar Pustaka')}>📚 Daftar Pustaka</button>
+          <button className="h-7 px-3 py-1.25 rounded-full text-[11px] font-medium border border-write-border bg-write-bg2 text-write-text3 hover:bg-white hover:text-write-text transition-all active:scale-95" onClick={() => setAiPrompt('Rapihkan tata letak')}> Rapihkan tata letak</button>
+          <button className="h-7 px-3 py-1.25 rounded-full text-[11px] font-medium border border-write-border bg-write-bg2 text-write-text3 hover:bg-white hover:text-write-text transition-all active:scale-95" onClick={() => setAiPrompt('Buatkan Daftar Pustaka')}> Daftar Pustaka</button>
           
+          <div className="flex items-center bg-write-bg2 border border-write-border rounded-full px-2 gap-2 h-7 ml-2">
+            <button onClick={() => setZoomLevel(Math.max(0.25, zoomLevel - 0.1))} className="text-write-text3 hover:text-write-text active:scale-90 transition-transform"><Minus size={12} /></button>
+            <span className="text-[9px] font-bold text-write-text min-w-[30px] text-center">{Math.round(zoomLevel * 100)}%</span>
+            <button onClick={() => setZoomLevel(Math.min(3.0, zoomLevel + 0.1))} className="text-write-text3 hover:text-write-text active:scale-90 transition-transform"><Plus size={12} /></button>
+            <button onClick={() => setZoomLevel(1.0)} className="text-[9px] font-bold text-write-blue hover:text-write-blue2 border-l border-write-border pl-2 pr-1">FIT</button>
+          </div>
+
           {tokenUsage && (
             <div className="ml-auto flex items-center gap-2">
               <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold border flex items-center gap-1.5 bg-write-blue/10 text-write-blue border-write-blue/20`}>
@@ -895,6 +1031,7 @@ export default function TiptapWriteEditor({
               <div className="px-2.5 py-1 rounded-full text-[10px] font-bold border bg-write-bg2 text-write-text3 border-write-border shadow-sm">🏆 {tokenUsage.planName}</div>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>

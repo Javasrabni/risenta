@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     const { userId, userType } = auth;
     
     const body = await req.json();
-    const { id, title, content, type, template, wordCount, charCount, pageSettings, analysisData } = body;
+    const { id, title, content, type, template, wordCount, charCount, pageSettings, analysisData, todos, chats, citations } = body;
     
     let document;
     
@@ -145,24 +145,39 @@ export async function POST(req: NextRequest) {
         }
       }
       
+      const updatePayload: any = {
+        title,
+        content,
+        type,
+        ...(template !== undefined && { template }),
+        wordCount,
+        charCount,
+        pageSettings,
+        ...(analysisData !== undefined && { analysisData }),
+        updatedAt: new Date()
+      };
+
+      if (todos !== undefined) updatePayload.todos = todos;
+      if (chats !== undefined) updatePayload.chats = chats;
+      if (citations !== undefined) updatePayload.citations = citations;
+
       document = await Document.findByIdAndUpdate(
         id,
-        {
-          title,
-          content,
-          type,
-          ...(template !== undefined && { template }),
-          wordCount,
-          charCount,
-          pageSettings,
-          ...(analysisData !== undefined && { analysisData }),
-          updatedAt: new Date()
-        },
+        updatePayload,
         { new: true }
       );
     } else {
       // Create new document
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const numbers = '0123456789';
+      let l = '';
+      let n = '';
+      for(let i=0; i<3; i++) l += letters.charAt(Math.floor(Math.random() * letters.length));
+      for(let i=0; i<3; i++) n += numbers.charAt(Math.floor(Math.random() * numbers.length));
+      const joinId = `${l}-${n}`;
+
       document = await Document.create({
+        joinId,
         userId,
         userType,
         title: title || 'Dokumen Tanpa Judul',
@@ -181,6 +196,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       document: {
         id: document._id.toString(),
+        joinId: document.joinId,
         title: document.title,
         content: document.content,
         type: document.type,
@@ -189,6 +205,9 @@ export async function POST(req: NextRequest) {
         charCount: document.charCount,
         pageSettings: document.pageSettings,
         analysisData: document.analysisData,
+        todos: document.todos || [],
+        chats: document.chats || [],
+        citations: document.citations || [],
         createdAt: document.createdAt,
         updatedAt: document.updatedAt,
         userId: document.userId
