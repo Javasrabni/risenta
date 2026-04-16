@@ -294,16 +294,16 @@ export default function WriteTopBar({
         <div className="flex items-center mx-2 -space-x-2">
           {activeUsers.map((u, i) => (
             <div 
-              key={u.socketId || i}
-              title={u.userName || `Guest ${u.userId?.substring(0,4) || ''}`}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold border-2 border-write-bg"
+              key={u.socketId || u.userId || u.id || i}
+              title={u.userName || u.name || `Guest ${u.userId?.substring(0,4) || ''}`}
+              className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold border-2 border-write-bg shadow-sm"
               style={{
-                background: u.userColor || `hsl(${(i * 50) % 360}, 70%, 50%)`,
+                background: u.userColor || u.color || `hsl(${(i * 50) % 360}, 70%, 50%)`,
                 color: 'white',
                 zIndex: activeUsers.length - i
               }}
             >
-              {(u.userName || 'Tamu').charAt(0).toUpperCase()}
+              {(u.userName || u.name || 'Tamu').charAt(0).toUpperCase()}
             </div>
           ))}
         </div>

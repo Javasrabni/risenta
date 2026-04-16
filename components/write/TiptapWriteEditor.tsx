@@ -217,7 +217,7 @@ export default function TiptapWriteEditor({
         if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         typingTimeoutRef.current = setTimeout(() => {
           provider.awareness.setLocalStateField('isTyping', false);
-        }, 3000);
+        }, 1500);
       }
     },
   });
@@ -273,8 +273,13 @@ export default function TiptapWriteEditor({
 
       // Call onActiveUsersChange if provided
       if (onActiveUsersChange) {
-        const activeUsersList = Array.from(states.values()).map(s => s.user).filter(Boolean);
-        onActiveUsersChange(activeUsersList);
+        const uniqueUsers = new Map();
+        states.forEach((state, clientID) => {
+          if (clientID !== provider.awareness.clientID && state.user) {
+            uniqueUsers.set(state.user.name, state.user);
+          }
+        });
+        onActiveUsersChange(Array.from(uniqueUsers.values()));
       }
     };
 
