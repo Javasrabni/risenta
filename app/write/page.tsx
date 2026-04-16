@@ -344,11 +344,11 @@ export default function WriteDocumentsPage() {
   // ── Loading State ──
   if (isLoading) {
     return (
-      <div className="write-container documents-dashboard">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div className="save-dot saving" style={{ width: '24px', height: '24px', margin: '0 auto 16px' }} />
-            <p style={{ color: 'var(--text3)', fontSize: '14px' }}>Memuat dokumen...</p>
+      <div className="h-screen flex flex-col overflow-hidden bg-write-bg text-write-text">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="w-6 h-6 rounded-full bg-write-yellow animate-pulse mx-auto mb-4" />
+            <p className="text-write-text3 text-[14px]">Memuat dokumen...</p>
           </div>
         </div>
       </div>
@@ -356,34 +356,38 @@ export default function WriteDocumentsPage() {
   }
 
   return (
-    <div className="write-container documents-dashboard">
+    <div className="h-screen flex flex-col overflow-hidden bg-write-bg text-write-text">
       {/* Top Bar */}
-      <div className="topbar">
-        <div className="logo">
-          <div className="logo-dot" />
+      <div className="h-12 border-b border-write-border flex items-center px-4 gap-2.5 shrink-0 bg-write-bg">
+        <div className="text-[15px] font-semibold text-write-text tracking-tight flex items-center gap-1.5 whitespace-nowrap">
+          <div className="w-2 h-2 rounded-full bg-write-orange" />
           <span>write.risentta.com</span>
         </div>
 
-        <div className="sep" />
+        <div className="w-px h-[18px] bg-write-border mx-2.5" />
 
-        <h1 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text)', margin: 0 }}>
+        <h1 className="text-[15px] font-bold text-write-text m-0">
           Dokumen Saya
         </h1>
 
-        <div style={{ flex: 1 }} />
+        <div className="flex-1" />
 
-        <button className="btn btn-icon" onClick={toggleDarkMode} title={darkMode ? 'Mode Terang' : 'Mode Gelap'}>
+        <button 
+          className="w-7 h-7 inline-flex items-center justify-center p-0 rounded-write text-[14px] font-medium cursor-pointer border border-transparent bg-transparent text-write-text transition-all duration-150 hover:bg-write-bg2 hover:border-write-border" 
+          onClick={toggleDarkMode} 
+          title={darkMode ? 'Mode Terang' : 'Mode Gelap'}
+        >
           <span>{darkMode ? '☀️' : '🌙'}</span>
         </button>
 
-        <div className="sep" />
+        <div className="w-px h-[18px] bg-write-border mx-2.5" />
 
         {/* User Info */}
         {userData ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '11px' }}>
-              <span style={{ fontWeight: 700, color: 'var(--text)' }}>{userData.name}</span>
-              <span style={{ color: isAdmin ? '#f59e0b' : 'var(--text3)', fontSize: '9.5px', fontWeight: 500 }}>
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col items-end text-[11px]">
+              <span className="font-bold text-write-text">{userData.name}</span>
+              <span className={`text-[9.5px] font-medium ${isAdmin ? 'text-[#f59e0b]' : 'text-write-text3'}`}>
                 {isAdmin ? '⚡ Admin' : tokenUsage.planName}
               </span>
             </div>
@@ -391,14 +395,14 @@ export default function WriteDocumentsPage() {
               src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=${isAdmin ? 'f59e0b' : '2563eb'}&color=fff&rounded=true&font-size=0.4`}
               width={28}
               height={28}
-              style={{ borderRadius: '50%' }}
+              className="rounded-full"
               alt={userData.name}
             />
           </div>
         ) : guestData ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text3)' }}>{guestData.name}</span>
-            <Link href="/write/login" style={{ fontSize: '11px', color: 'var(--blue)', textDecoration: 'none', fontWeight: 600 }}>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-write-text3">{guestData.name}</span>
+            <Link href="/write/login" className="text-[11px] text-write-blue no-underline font-semibold">
               Login
             </Link>
           </div>
@@ -406,25 +410,31 @@ export default function WriteDocumentsPage() {
       </div>
 
       {/* Dashboard Content */}
-      <div className="dashboard-content">
+      <div className="flex-1 overflow-y-auto p-8 lg:p-6 md:p-4 bg-write-bg2">
         {/* Dashboard Header */}
-        <div className="dashboard-header">
-          <div className="dashboard-header-left">
-            <button className="dashboard-new-btn" onClick={() => setShowTemplateModal(true)}>
-              <span style={{ fontSize: '20px' }}>+</span>
+        <div className="flex items-center justify-between mb-8 gap-4 flex-wrap md:flex-col md:items-stretch">
+          <div className="flex items-center gap-3">
+            <button 
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-write-lg bg-write-accent text-white font-medium shadow-write transition-all hover:bg-write-accent2 hover:-translate-y-px hover:shadow-write-lg" 
+              onClick={() => setShowTemplateModal(true)}
+            >
+              <span className="text-[20px]">+</span>
               Dokumen Baru
             </button>
           </div>
-          <div className="dashboard-header-right">
-            <input
-              type="text"
-              className="dashboard-search"
-              placeholder="🔍 Cari dokumen..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
+          <div className="flex items-center gap-3 md:flex-col md:items-stretch">
+            <div className="relative w-full max-w-[280px] md:max-w-none">
+              <input
+                type="text"
+                className="w-full pl-10 pr-4 py-2 border border-write-border rounded-write bg-write-bg text-[13px] outline-none transition-all focus:border-write-blue focus:ring-2 focus:ring-write-blue-bg"
+                placeholder="Cari dokumen..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-write-text3 text-[14px]">🔍</span>
+            </div>
             <select
-              className="dashboard-sort"
+              className="px-3 py-2 border border-write-border rounded-write bg-write-bg text-[12px] outline-none cursor-pointer focus:border-write-blue"
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
             >
@@ -437,34 +447,37 @@ export default function WriteDocumentsPage() {
 
         {/* Documents Grid */}
         {filteredDocs.length === 0 ? (
-          <div className="dashboard-empty">
-            <div style={{ fontSize: '64px', marginBottom: '16px' }}>📝</div>
-            <h2 style={{ color: 'var(--text)', marginBottom: '8px', fontSize: '18px' }}>
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="text-[64px] mb-4">📝</div>
+            <h2 className="text-write-text mb-2 text-[18px] font-bold">
               {searchQuery ? 'Tidak ada dokumen yang cocok' : 'Belum ada dokumen'}
             </h2>
-            <p style={{ color: 'var(--text3)', fontSize: '14px', marginBottom: '24px' }}>
+            <p className="text-write-text3 text-[14px] mb-6">
               {searchQuery
                 ? 'Coba kata kunci lain'
                 : 'Mulai menulis sekarang dengan membuat dokumen baru'}
             </p>
             {!searchQuery && (
-              <button className="btn btn-primary" onClick={() => setShowTemplateModal(true)}>
+              <button 
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-write text-[12px] font-medium cursor-pointer border border-[#18181b] bg-[#18181b] text-white transition-all duration-120 hover:bg-[#27272a] hover:border-[#27272a]" 
+                onClick={() => setShowTemplateModal(true)}
+              >
                 + Buat Dokumen Baru
               </button>
             )}
           </div>
         ) : (
-          <div className="documents-grid">
+          <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(280px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(240px,1fr))]">
             {filteredDocs.map(doc => (
               <div
                 key={doc.id}
-                className="doc-card"
+                className="bg-write-bg border border-write-border rounded-write-lg p-5 cursor-pointer transition-all hover:shadow-write-lg hover:border-write-border2 hover:-translate-y-0.5 group"
                 onClick={() => router.push(`/write/${doc.id}`)}
               >
-                <div className="doc-card-header">
-                  <span className="doc-card-icon">{getTemplateIcon(doc.template)}</span>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[24px]">{getTemplateIcon(doc.template)}</span>
                   <button
-                    className="doc-card-delete"
+                    className="w-6 h-6 flex items-center justify-center text-write-text3 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-write-red-bg hover:text-write-red rounded"
                     onClick={e => {
                       e.stopPropagation();
                       deleteDocument(doc.id);
@@ -474,9 +487,13 @@ export default function WriteDocumentsPage() {
                     ✕
                   </button>
                 </div>
-                <h3 className="doc-card-title">{doc.title || 'Dokumen Tanpa Judul'}</h3>
-                <p className="doc-card-snippet">{getSnippet(doc.content)}</p>
-                <div className="doc-card-meta">
+                <h3 className="font-semibold text-[15px] text-write-text mb-2 group-hover:text-write-blue transition-colors line-clamp-1">
+                  {doc.title || 'Dokumen Tanpa Judul'}
+                </h3>
+                <p className="text-[12px] text-write-text2 line-clamp-3 mb-4 leading-relaxed">
+                  {getSnippet(doc.content)}
+                </p>
+                <div className="flex items-center gap-2 text-[10px] text-write-text3 font-medium uppercase tracking-wider">
                   <span>{formatNumber(doc.wordCount)} kata</span>
                   <span>•</span>
                   <span>{formatDate(doc.updatedAt)}</span>

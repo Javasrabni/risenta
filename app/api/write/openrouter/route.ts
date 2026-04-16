@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkAIUsage, decrementAIUsage, getAuthFromCookie } from '@/lib/aiUsage';
 import RisentaAdm from '@/app/models/risentaAdm';
+import { cookies } from 'next/headers';
+import Customer from '@/app/models/customer';
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -9,11 +11,24 @@ export async function POST(req: NextRequest) {
   try {
     const { prompt, type, topic, length, currentContent, templatePrompt } = await req.json();
 
-    // Check authentication (customer or admin)
-    const cookieHeader = req.headers.get('cookie');
-    const auth = getAuthFromCookie(cookieHeader);
+    const cookieStore = await cookies();
+    const customerSession = cookieStore.get('customer_session')?.value;
+    const customerId = cookieStore.get('customer_id')?.value;
+    const adminToken = cookieStore.get('session_token')?.value;
+    const guestId = req.headers.get('x-guest-id');
 
-    if (!auth) {
+    let auth: { type: 'customer'; customerID: string } | { type: 'admin'; sessionToken: string } | null = null;
+
+    if (customerSession && customerId && customerSession.startsWith(`customer_${customerId}_`)) {
+      auth = { type: 'customer', customerID: customerId };
+    } else if (adminToken) {
+      auth = { type: 'admin', sessionToken: adminToken };
+    }
+
+    // Allow guest users with limited access
+    const isGuest = !auth && !!guestId;
+
+    if (!auth && !isGuest) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized. Silakan login terlebih dahulu.' },
         { status: 401 }
@@ -26,7 +41,14 @@ export async function POST(req: NextRequest) {
     let isAdmin = false;
     let customerID: string | null = null;
 
-    if (auth.type === 'admin') {
+    if (isGuest) {
+      if (type === 'auto-generate') {
+        return NextResponse.json(
+          { success: false, error: 'Login atau daftar untuk menggunakan Auto-Generate.' },
+          { status: 403 }
+        );
+      }
+    } else if (auth && auth.type === 'admin') {
       // Verify admin and allow unlimited access
       const admin = await RisentaAdm.findOne({ token: auth.sessionToken });
       if (!admin) {

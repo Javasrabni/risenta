@@ -62,23 +62,23 @@ export default function ShareModal({
   };
   
   return (
-    <div className="share-modal-overlay" onClick={onClose}>
-      <div className="share-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Bagikan Dokumen</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] animate-in fade-in duration-200" onClick={onClose}>
+      <div className="bg-write-bg rounded-xl w-full max-w-[480px] max-h-[90vh] overflow-hidden shadow-write-lg animate-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-4 px-5 border-b border-write-border">
+          <h2 className="m-0 text-[18px] font-semibold text-write-text">Bagikan Dokumen</h2>
+          <button className="w-8 h-8 flex items-center justify-center border-none bg-transparent rounded-md text-[20px] text-write-text cursor-pointer transition-colors hover:bg-write-bg2" onClick={onClose}>×</button>
         </div>
         
-        <div className="modal-tabs">
+        <div className="flex gap-1 p-0 px-5 border-b border-write-border">
           <button
-            className={`tab ${activeTab === 'share' ? 'active' : ''}`}
+            className={`px-4 py-3 border-none bg-transparent cursor-pointer text-[14px] relative transition-colors ${activeTab === 'share' ? 'text-write-blue after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-write-blue' : 'text-write-text2'}`}
             onClick={() => setActiveTab('share')}
           >
             Undang Orang
           </button>
           {isOwner && (
             <button
-              className={`tab ${activeTab === 'settings' ? 'active' : ''}`}
+              className={`px-4 py-3 border-none bg-transparent cursor-pointer text-[14px] relative transition-colors ${activeTab === 'settings' ? 'text-write-blue after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-write-blue' : 'text-write-text2'}`}
               onClick={() => setActiveTab('settings')}
             >
               Pengaturan
@@ -87,38 +87,39 @@ export default function ShareModal({
         </div>
         
         {activeTab === 'share' ? (
-          <div className="tab-content">
-            <div className="share-link-section" style={{ borderTop: 'none', paddingTop: 0, paddingBottom: 20 }}>
-              <label>Link Publik Kolaborasi</label>
-              <div className="link-input-group">
+          <div className="p-5">
+            <div className="pb-5">
+              <label className="block text-[13px] font-medium mb-2 text-write-text">Link Publik Kolaborasi</label>
+              <div className="flex gap-2">
                 <input
                   type="text"
+                  className="flex-1 p-2.5 px-3 border border-write-border rounded-md text-[14px] bg-write-bg2 text-write-text outline-none focus:border-write-blue"
                   value={shareLink}
                   readOnly
                 />
-                <button className="btn btn-secondary" onClick={copyLink}>
+                <button className="p-2 px-4 rounded-md text-[14px] cursor-pointer bg-write-bg2 text-write-text border border-write-border hover:bg-write-bg3 transition-colors shrink-0" onClick={copyLink}>
                   Salin
                 </button>
               </div>
-              <p className="setting-desc" style={{ marginTop: '8px', paddingLeft: 0 }}>
+              <p className="mt-2 text-[12px] text-write-text2">
                 Bagikan link ini kepada rekan Anda. Mereka akan diminta untuk bergabung saat membukanya.
               </p>
             </div>
             
             {isOwner && (
-              <div className="collaborators-list">
+              <div className="flex flex-col">
                 {pendingCollaborators.length > 0 && (
-                  <div style={{ marginBottom: '20px' }}>
-                    <h3 style={{ fontSize: '14px', marginBottom: '10px', color: 'var(--red)' }}>Menunggu Persetujuan ({pendingCollaborators.length})</h3>
+                  <div className="mb-5">
+                    <h3 className="text-[14px] font-bold mb-2.5 text-red-500">Menunggu Persetujuan ({pendingCollaborators.length})</h3>
                     {pendingCollaborators.map(c => (
-                      <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', borderBottom: '1px solid var(--border)' }}>
-                        <div>
-                          <p style={{ margin: 0, fontSize: '13px', fontWeight: 500 }}>{c.userName || `Pengguna ${c.userId.substring(0, 6)}`}</p>
-                          <p style={{ margin: 0, fontSize: '12px', color: 'var(--text2)', textTransform: 'capitalize' }}>{c.role}</p>
+                      <div key={c.id} className="flex justify-between items-center p-2.5 border-b border-write-border">
+                        <div className="text-left">
+                          <p className="m-0 text-[13px] font-medium text-write-text">{c.userName || `Pengguna ${c.userId.substring(0, 6)}`}</p>
+                          <p className="m-0 text-[12px] text-write-text2 capitalize">{c.role}</p>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button onClick={() => onUpdateRole(c.id, localSettings.defaultRole || 'viewer')} className="btn btn-primary" style={{ padding: '6px 10px', fontSize: '12px' }}>Terima</button>
-                          <button onClick={() => onRemove(c.id)} className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '12px', color: 'var(--red)', border: '1px solid var(--red-bg)' }}>Tolak</button>
+                        <div className="flex gap-2">
+                          <button onClick={() => onUpdateRole(c.id, localSettings.defaultRole || 'viewer')} className="p-2 px-3 rounded-md text-[12px] font-semibold bg-write-blue text-white hover:bg-write-blue2 transition-colors">Terima</button>
+                          <button onClick={() => onRemove(c.id)} className="p-2 px-3 rounded-md text-[12px] font-semibold bg-write-bg2 text-red-500 border border-red-100 hover:bg-red-50 transition-colors">Tolak</button>
                         </div>
                       </div>
                     ))}
@@ -126,32 +127,32 @@ export default function ShareModal({
                 )}
                 
                 <div>
-                  <h3 style={{ fontSize: '14px', marginBottom: '10px' }}>Anggota Tim Aktif ({activeCollaborators.length})</h3>
+                  <h3 className="text-[14px] font-bold mb-2.5 text-write-text">Anggota Tim Aktif ({activeCollaborators.length})</h3>
                   {activeCollaborators.length === 0 ? (
-                    <p style={{ fontSize: '13px', color: 'var(--text2)' }}>Belum ada anggota yang bergabung</p>
+                    <p className="text-[13px] text-write-text2">Belum ada anggota yang bergabung</p>
                   ) : (
                     activeCollaborators.map(c => {
                       const isMe = c.userId === currentUserId;
                       return (
-                        <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', borderBottom: '1px solid var(--border)' }}>
-                          <div>
-                            <p style={{ margin: 0, fontSize: '13px', fontWeight: 500 }}>
+                        <div key={c.id} className="flex justify-between items-center p-2.5 border-b border-write-border">
+                          <div className="text-left">
+                            <p className="m-0 text-[13px] font-medium text-write-text">
                               {isMe ? 'Anda' : (c.userName || (c.role === 'owner' ? 'Pemilik' : `Pengguna ${c.userId.substring(0, 6)}`))}
                               {isMe && c.role === 'owner' && ' (Pemilik)'}
                             </p>
-                            <p style={{ margin: 0, fontSize: '12px', color: 'var(--text2)', textTransform: 'capitalize' }}>{c.role}</p>
+                            <p className="m-0 text-[12px] text-write-text2 capitalize">{c.role}</p>
                           </div>
                           {(isOwner && !isMe) && (
-                            <div style={{ display: 'flex', gap: '8px' }}>
+                            <div className="flex items-center gap-2">
                               <select 
+                                className="p-1 px-2 text-[12px] border border-write-border rounded bg-write-bg text-write-text outline-none focus:border-write-blue"
                                 value={c.role} 
                                 onChange={(e) => onUpdateRole(c.id, e.target.value)}
-                                style={{ padding: '4px', fontSize: '12px', border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--bg)' }}
                               >
                                 <option value="viewer">Viewer</option>
                                 <option value="editor">Editor</option>
                               </select>
-                              <button onClick={() => onRemove(c.id)} style={{ background: 'none', border: 'none', color: 'var(--red)', cursor: 'pointer' }}>×</button>
+                              <button onClick={() => onRemove(c.id)} className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors">×</button>
                             </div>
                           )}
                         </div>
@@ -164,46 +165,50 @@ export default function ShareModal({
             
           </div>
         ) : (
-          <div className="tab-content settings-tab">
-            <div className="setting-item">
-              <label className="toggle-label">
+          <div className="p-5 flex flex-col gap-5">
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
                   type="checkbox"
+                  className="w-4 h-4 rounded border-write-border text-write-blue focus:ring-write-blue"
                   checked={localSettings.isCollaborative}
                   onChange={(e) => handleSettingsChange('isCollaborative', e.target.checked)}
                 />
-                <span className="toggle-text">Aktifkan kolaborasi</span>
+                <span className="text-[14px] font-medium text-write-text">Aktifkan kolaborasi</span>
               </label>
-              <p className="setting-desc">Izinkan orang lain mengakses dokumen ini</p>
+              <p className="m-0 text-[12px] text-write-text2 pl-6.5">Izinkan orang lain mengakses dokumen ini</p>
             </div>
             
-            <div className="setting-item">
-              <label className="toggle-label">
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
                   type="checkbox"
+                  className="w-4 h-4 rounded border-write-border text-write-blue focus:ring-write-blue"
                   checked={localSettings.allowComments}
                   onChange={(e) => handleSettingsChange('allowComments', e.target.checked)}
                 />
-                <span className="toggle-text">Izinkan komentar</span>
+                <span className="text-[14px] font-medium text-write-text">Izinkan komentar</span>
               </label>
-              <p className="setting-desc">Kolaborator dapat menambahkan komentar</p>
+              <p className="m-0 text-[12px] text-write-text2 pl-6.5">Kolaborator dapat menambahkan komentar</p>
             </div>
             
-            <div className="setting-item">
-              <label className="toggle-label">
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
                   type="checkbox"
+                  className="w-4 h-4 rounded border-write-border text-write-blue focus:ring-write-blue"
                   checked={localSettings.allowSuggestions}
                   onChange={(e) => handleSettingsChange('allowSuggestions', e.target.checked)}
                 />
-                <span className="toggle-text">Izinkan saran</span>
+                <span className="text-[14px] font-medium text-write-text">Izinkan saran</span>
               </label>
-              <p className="setting-desc">Kolaborator dapat mengusulkan perubahan</p>
+              <p className="m-0 text-[12px] text-write-text2 pl-6.5">Kolaborator dapat mengusulkan perubahan</p>
             </div>
             
-            <div className="setting-item">
-              <label>Default Role</label>
+            <div className="flex flex-col gap-2 text-left">
+              <label className="text-[13px] font-bold text-write-text">Default Role</label>
               <select
+                className="w-full p-2.5 px-3 border border-write-border rounded-md text-[14px] bg-write-bg2 text-write-text outline-none focus:border-write-blue"
                 value={localSettings.defaultRole}
                 onChange={(e) => handleSettingsChange('defaultRole', e.target.value)}
               >
@@ -213,10 +218,11 @@ export default function ShareModal({
               </select>
             </div>
             
-            <div className="setting-item">
-              <label>Maksimum Kolaborator</label>
+            <div className="flex flex-col gap-2 text-left">
+              <label className="text-[13px] font-bold text-write-text">Maksimum Kolaborator</label>
               <input
                 type="number"
+                className="w-24 p-2.5 px-3 border border-write-border rounded-md text-[14px] bg-write-bg2 text-write-text outline-none focus:border-write-blue"
                 min={1}
                 max={50}
                 value={localSettings.maxCollaborators}
@@ -226,232 +232,6 @@ export default function ShareModal({
           </div>
         )}
       </div>
-      
-      <style jsx>{`
-        .share-modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-        }
-        
-        .share-modal {
-          background: var(--bg);
-          border-radius: 12px;
-          width: 100%;
-          max-width: 480px;
-          max-height: 90vh;
-          overflow: hidden;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-        
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 16px 20px;
-          border-bottom: 1px solid var(--border);
-        }
-        
-        .modal-header h2 {
-          margin: 0;
-          font-size: 18px;
-          font-weight: 600;
-        }
-        
-        .close-btn {
-          width: 32px;
-          height: 32px;
-          border: none;
-          background: none;
-          font-size: 20px;
-          cursor: pointer;
-          border-radius: 6px;
-          color: var(--text);
-        }
-        
-        .close-btn:hover {
-          background: var(--bg2);
-        }
-        
-        .modal-tabs {
-          display: flex;
-          gap: 4px;
-          padding: 0 20px;
-          border-bottom: 1px solid var(--border);
-        }
-        
-        .tab {
-          padding: 12px 16px;
-          border: none;
-          background: none;
-          color: var(--text2);
-          cursor: pointer;
-          font-size: 14px;
-          position: relative;
-        }
-        
-        .tab.active {
-          color: var(--blue);
-        }
-        
-        .tab.active::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: var(--blue);
-        }
-        
-        .tab-content {
-          padding: 20px;
-        }
-        
-        .invite-form {
-          margin-bottom: 24px;
-        }
-        
-        .input-group {
-          display: flex;
-          gap: 8px;
-        }
-        
-        .input-group input {
-          flex: 1;
-          padding: 10px 12px;
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          font-size: 14px;
-          background: var(--bg2);
-          color: var(--text);
-        }
-        
-        .input-group select {
-          padding: 10px;
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          font-size: 14px;
-          background: var(--bg2);
-          color: var(--text);
-        }
-        
-        .btn {
-          padding: 10px 16px;
-          border-radius: 6px;
-          font-size: 14px;
-          cursor: pointer;
-          border: none;
-          transition: opacity 0.2s;
-        }
-        
-        .btn-primary {
-          background: var(--blue);
-          color: white;
-        }
-        
-        .btn-secondary {
-          background: var(--bg2);
-          color: var(--text);
-          border: 1px solid var(--border);
-        }
-        
-        .btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        
-        .success-message {
-          margin-top: 8px;
-          padding: 8px 12px;
-          background: #dcfce7;
-          color: #166534;
-          border-radius: 6px;
-          font-size: 13px;
-        }
-        
-        .share-link-section {
-          border-top: 1px solid var(--border);
-          padding-top: 20px;
-        }
-        
-        .share-link-section label {
-          display: block;
-          font-size: 13px;
-          font-weight: 500;
-          margin-bottom: 8px;
-          color: var(--text);
-        }
-        
-        .link-input-group {
-          display: flex;
-          gap: 8px;
-        }
-        
-        .link-input-group input {
-          flex: 1;
-          padding: 10px 12px;
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          font-size: 14px;
-          background: var(--bg2);
-          color: var(--text);
-        }
-        
-        .settings-tab {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-        
-        .setting-item {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        
-        .setting-item label {
-          font-size: 13px;
-          font-weight: 500;
-          color: var(--text);
-        }
-        
-        .toggle-label {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          cursor: pointer;
-        }
-        
-        .toggle-text {
-          font-size: 14px;
-        }
-        
-        .setting-desc {
-          margin: 0;
-          font-size: 12px;
-          color: var(--text2);
-          padding-left: 26px;
-        }
-        
-        .setting-item select,
-        .setting-item input[type="number"] {
-          padding: 8px 12px;
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          font-size: 14px;
-          background: var(--bg2);
-          color: var(--text);
-          width: fit-content;
-        }
-      `}</style>
     </div>
   );
 }

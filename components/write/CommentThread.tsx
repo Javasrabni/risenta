@@ -53,31 +53,31 @@ export default function CommentThread({
   };
   
   return (
-    <div className="comment-thread">
-      <div className="thread-header">
-        <h3>Komentar ({comments.length})</h3>
+    <div className="p-4 bg-write-bg2 rounded-lg min-w-[280px] max-w-[320px]">
+      <div className="mb-4">
+        <h3 className="m-0 text-[14px] font-semibold text-write-text">Komentar ({comments.length})</h3>
       </div>
       
       {comments.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">💬</div>
-          <p>Belum ada komentar</p>
-          {canComment && <p className="hint">Pilih teks untuk menambahkan komentar</p>}
+        <div className="text-center py-8 px-4 text-write-text2">
+          <div className="text-[32px] mb-2">💬</div>
+          <p className="m-0 text-[13px]">Belum ada komentar</p>
+          {canComment && <p className="text-[12px] opacity-70 mt-1">Pilih teks untuk menambahkan komentar</p>}
         </div>
       ) : (
-        <div className="comments-list">
+        <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto text-left">
           {comments.map((comment) => (
             <div
               key={comment.id}
-              className={`comment-item ${comment.status === 'resolved' ? 'resolved' : ''}`}
+              className={`p-3 bg-write-bg rounded-lg border-l-4 ${comment.status === 'resolved' ? 'border-l-green-500 opacity-70' : 'border-l-write-blue'}`}
             >
-              <div className="comment-header">
-                <div className="user-info">
-                  <div className="user-avatar">
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-write-blue text-white flex items-center justify-center text-[11px] font-semibold text-center">
                     {comment.userName?.charAt(0).toUpperCase() || '?'}
                   </div>
-                  <span className="user-name">{comment.userName}</span>
-                  <span className="comment-date">
+                  <span className="text-[12px] font-semibold text-write-text">{comment.userName}</span>
+                  <span className="text-[11px] text-write-text2">
                     {new Date(comment.createdAt).toLocaleDateString('id-ID', {
                       day: 'numeric',
                       month: 'short',
@@ -86,11 +86,11 @@ export default function CommentThread({
                     })}
                   </span>
                 </div>
-                <div className="comment-actions">
-                  <span className="status-icon">{getStatusIcon(comment.status)}</span>
+                <div className="flex gap-2 items-center">
+                  <span className="text-[14px]">{getStatusIcon(comment.status)}</span>
                   {comment.userId === currentUserId && comment.status === 'open' && (
                     <button
-                      className="resolve-btn"
+                      className="w-6 h-6 flex items-center justify-center border-none bg-transparent text-green-500 cursor-pointer rounded transition-colors hover:bg-write-bg2 text-[16px]"
                       onClick={() => onResolve(comment.id)}
                       title="Tandai selesai"
                     >
@@ -101,19 +101,19 @@ export default function CommentThread({
               </div>
               
               {comment.selectionRange?.selectedText && (
-                <div className="quoted-text">
+                <div className="text-[12px] text-write-text2 bg-write-bg2 p-2 rounded border-l-2 border-write-border mb-2 italic">
                   &ldquo;{comment.selectionRange.selectedText.substring(0, 100)}
                   {comment.selectionRange.selectedText.length > 100 ? '...' : ''}&rdquo;
                 </div>
               )}
               
-              <div className="comment-content">{comment.content}</div>
+              <div className="text-[13px] leading-relaxed text-write-text">{comment.content}</div>
               
               {/* Replies */}
               {comment.replies && comment.replies.length > 0 && (
-                <div className="replies-section">
+                <div className="mt-3 pt-3 border-t border-write-border">
                   <button
-                    className="toggle-replies"
+                    className="text-[12px] text-write-blue bg-transparent border-none cursor-pointer flex items-center gap-1 hover:underline"
                     onClick={() => toggleThread(comment.threadId || comment.id)}
                   >
                     {expandedThreads.has(comment.threadId || comment.id) ? '▾' : '▸'}
@@ -121,19 +121,19 @@ export default function CommentThread({
                   </button>
                   
                   {expandedThreads.has(comment.threadId || comment.id) && (
-                    <div className="replies-list">
+                    <div className="mt-2 flex flex-col gap-2">
                       {comment.replies.map((reply) => (
-                        <div key={reply.id} className="reply-item">
-                          <div className="reply-header">
-                            <span className="user-name">{reply.userName}</span>
-                            <span className="reply-date">
+                        <div key={reply.id} className="p-2 bg-write-bg2 rounded-md ml-4 text-left">
+                          <div className="flex gap-2 mb-1">
+                            <span className="text-[11px] font-semibold text-write-text">{reply.userName}</span>
+                            <span className="text-[10px] text-write-text2">
                               {new Date(reply.createdAt).toLocaleDateString('id-ID', {
                                 day: 'numeric',
                                 month: 'short',
                               })}
                             </span>
                           </div>
-                          <div className="reply-content">{reply.content}</div>
+                          <div className="text-[12px] text-write-text">{reply.content}</div>
                         </div>
                       ))}
                     </div>
@@ -143,24 +143,25 @@ export default function CommentThread({
               
               {/* Reply input */}
               {canComment && comment.status === 'open' && (
-                <div className="reply-section">
+                <div className="mt-3">
                   {replyingTo === comment.id ? (
-                    <div className="reply-input">
+                    <div className="flex flex-col gap-2">
                       <textarea
+                        className="w-full p-2 border border-write-border rounded-md text-[13px] bg-write-bg2 text-write-text outline-none focus:border-write-blue resize-none"
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                         placeholder="Balas komentar..."
                         rows={2}
                       />
-                      <div className="reply-actions">
+                      <div className="flex gap-2 justify-end">
                         <button
-                          className="btn btn-sm"
+                          className="px-2.5 py-1 rounded-md text-[11px] font-semibold cursor-pointer border border-write-border bg-write-bg text-write-text hover:bg-write-bg3"
                           onClick={() => setReplyingTo(null)}
                         >
                           Batal
                         </button>
                         <button
-                          className="btn btn-sm btn-primary"
+                          className="px-2.5 py-1 rounded-md text-[11px] font-semibold cursor-pointer border-none transition-all bg-write-blue text-white hover:bg-write-blue2 shadow-sm disabled:opacity-50"
                           onClick={() => handleReply(comment.id)}
                           disabled={!replyContent.trim()}
                         >
@@ -170,7 +171,7 @@ export default function CommentThread({
                     </div>
                   ) : (
                     <button
-                      className="reply-btn"
+                      className="text-[12px] text-write-blue bg-transparent border-none cursor-pointer p-0 hover:underline"
                       onClick={() => setReplyingTo(comment.id)}
                     >
                       Balas
@@ -182,253 +183,6 @@ export default function CommentThread({
           ))}
         </div>
       )}
-      
-      <style jsx>{`
-        .comment-thread {
-          padding: 16px;
-          background: var(--bg2);
-          border-radius: 8px;
-          min-width: 280px;
-          max-width: 320px;
-        }
-        
-        .thread-header {
-          margin-bottom: 16px;
-        }
-        
-        .thread-header h3 {
-          margin: 0;
-          font-size: 14px;
-          font-weight: 600;
-        }
-        
-        .empty-state {
-          text-align: center;
-          padding: 32px 16px;
-          color: var(--text2);
-        }
-        
-        .empty-icon {
-          font-size: 32px;
-          margin-bottom: 8px;
-        }
-        
-        .empty-state p {
-          margin: 0;
-          font-size: 13px;
-        }
-        
-        .hint {
-          font-size: 12px;
-          opacity: 0.7;
-          margin-top: 4px;
-        }
-        
-        .comments-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          max-height: 400px;
-          overflow-y: auto;
-        }
-        
-        .comment-item {
-          padding: 12px;
-          background: var(--bg);
-          border-radius: 8px;
-          border-left: 3px solid var(--blue);
-        }
-        
-        .comment-item.resolved {
-          border-left-color: #22c55e;
-          opacity: 0.7;
-        }
-        
-        .comment-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 8px;
-        }
-        
-        .user-info {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        
-        .user-avatar {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          background: var(--blue);
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 11px;
-          font-weight: 600;
-        }
-        
-        .user-name {
-          font-size: 12px;
-          font-weight: 600;
-        }
-        
-        .comment-date {
-          font-size: 11px;
-          color: var(--text2);
-        }
-        
-        .comment-actions {
-          display: flex;
-          gap: 8px;
-          align-items: center;
-        }
-        
-        .status-icon {
-          font-size: 14px;
-        }
-        
-        .resolve-btn {
-          width: 24px;
-          height: 24px;
-          border: none;
-          background: none;
-          color: var(--green);
-          cursor: pointer;
-          border-radius: 4px;
-          font-size: 16px;
-        }
-        
-        .resolve-btn:hover {
-          background: var(--bg2);
-        }
-        
-        .quoted-text {
-          font-size: 12px;
-          color: var(--text2);
-          background: var(--bg2);
-          padding: 8px;
-          border-radius: 4px;
-          margin-bottom: 8px;
-          font-style: italic;
-          border-left: 2px solid var(--border);
-        }
-        
-        .comment-content {
-          font-size: 13px;
-          line-height: 1.5;
-          color: var(--text);
-        }
-        
-        .replies-section {
-          margin-top: 12px;
-          padding-top: 12px;
-          border-top: 1px solid var(--border);
-        }
-        
-        .toggle-replies {
-          font-size: 12px;
-          color: var(--blue);
-          background: none;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-        
-        .replies-list {
-          margin-top: 8px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        
-        .reply-item {
-          padding: 8px;
-          background: var(--bg2);
-          border-radius: 6px;
-          margin-left: 16px;
-        }
-        
-        .reply-header {
-          display: flex;
-          gap: 8px;
-          margin-bottom: 4px;
-        }
-        
-        .reply-header .user-name {
-          font-size: 11px;
-        }
-        
-        .reply-date {
-          font-size: 10px;
-          color: var(--text2);
-        }
-        
-        .reply-content {
-          font-size: 12px;
-        }
-        
-        .reply-section {
-          margin-top: 12px;
-        }
-        
-        .reply-btn {
-          font-size: 12px;
-          color: var(--blue);
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-        }
-        
-        .reply-btn:hover {
-          text-decoration: underline;
-        }
-        
-        .reply-input {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        
-        .reply-input textarea {
-          padding: 8px;
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          font-size: 13px;
-          background: var(--bg2);
-          color: var(--text);
-          resize: vertical;
-        }
-        
-        .reply-actions {
-          display: flex;
-          gap: 8px;
-          justify-content: flex-end;
-        }
-        
-        .btn {
-          padding: 6px 12px;
-          border-radius: 4px;
-          font-size: 12px;
-          cursor: pointer;
-          border: none;
-        }
-        
-        .btn-sm {
-          padding: 4px 10px;
-          font-size: 11px;
-        }
-        
-        .btn-primary {
-          background: var(--blue);
-          color: white;
-        }
-      `}</style>
     </div>
   );
 }

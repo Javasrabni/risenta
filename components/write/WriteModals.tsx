@@ -182,31 +182,31 @@ export default function WriteModals({
     <>
       {/* Auto Generate Modal */}
       {showAutoModal && (
-        <div className="modal-overlay" onClick={() => setShowAutoModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Auto-Generate Artikel</h2>
-              <button className="close-btn" onClick={() => setShowAutoModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] animate-in fade-in duration-200" onClick={() => setShowAutoModal(false)}>
+          <div className="bg-write-bg rounded-xl w-full max-w-[550px] max-h-[90vh] overflow-hidden shadow-write-lg animate-in zoom-in duration-200 flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 px-6 border-b border-write-border bg-write-bg2">
+              <h2 className="m-0 text-[18px] font-semibold text-write-text">Auto-Generate Artikel</h2>
+              <button className="w-8 h-8 flex items-center justify-center border-none bg-transparent rounded-md text-[20px] text-write-text cursor-pointer transition-colors hover:bg-write-bg3" onClick={() => setShowAutoModal(false)}>
                 ×
               </button>
             </div>
 
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Topik Artikel</label>
+            <div className="p-6 overflow-y-auto text-left">
+              <div className="mb-5 last:mb-0">
+                <label className="block text-[13px] font-bold text-write-text2 mb-2">Topik Artikel</label>
                 <input
                   type="text"
-                  className="form-input"
+                  className="w-full p-2.5 px-3 border border-write-border rounded-md text-[14px] bg-write-bg2 text-write-text outline-none focus:border-write-blue transition-all"
                   placeholder="Contoh: Dampak AI terhadap Pendidikan"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                 />
               </div>
 
-              <div className="form-group">
-                <label>Provider AI</label>
+              <div className="mb-5 last:mb-0">
+                <label className="block text-[13px] font-bold text-write-text2 mb-2">Provider AI</label>
                 <select
-                  className="form-select"
+                  className="w-full p-2.5 px-3 border border-write-border rounded-md text-[14px] bg-write-bg2 text-write-text outline-none focus:border-write-blue transition-all cursor-pointer"
                   value={aiProvider}
                   onChange={(e) => setAiProvider(e.target.value as 'gemini' | 'openrouter')}
                 >
@@ -215,10 +215,10 @@ export default function WriteModals({
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Jenis Dokumen</label>
+              <div className="mb-5 last:mb-0">
+                <label className="block text-[13px] font-bold text-write-text2 mb-2">Jenis Dokumen</label>
                 <select
-                  className="form-select"
+                  className="w-full p-2.5 px-3 border border-write-border rounded-md text-[14px] bg-write-bg2 text-write-text outline-none focus:border-write-blue transition-all cursor-pointer"
                   value={docType}
                   onChange={(e) => setDocType(e.target.value as DocumentType)}
                 >
@@ -229,12 +229,13 @@ export default function WriteModals({
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Panjang Artikel</label>
-                <div className="radio-group">
-                  <label className="radio-label">
+              <div className="mb-5 last:mb-0">
+                <label className="block text-[13px] font-bold text-write-text2 mb-2">Panjang Artikel</label>
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2.5 p-3 rounded-md bg-write-bg2 border border-write-border cursor-pointer transition-all hover:bg-write-bg3 hover:border-write-border2 text-[13px] text-write-text">
                     <input
                       type="radio"
+                      className="w-4 h-4 text-write-blue focus:ring-write-blue border-write-border"
                       name="length"
                       value="short"
                       checked={length === 'short'}
@@ -242,9 +243,10 @@ export default function WriteModals({
                     />
                     Pendek (1500-2000 kata)
                   </label>
-                  <label className="radio-label">
+                  <label className="flex items-center gap-2.5 p-3 rounded-md bg-write-bg2 border border-write-border cursor-pointer transition-all hover:bg-write-bg3 hover:border-write-border2 text-[13px] text-write-text">
                     <input
                       type="radio"
+                      className="w-4 h-4 text-write-blue focus:ring-write-blue border-write-border"
                       name="length"
                       value="medium"
                       checked={length === 'medium'}
@@ -252,9 +254,10 @@ export default function WriteModals({
                     />
                     Sedang (2500-3500 kata)
                   </label>
-                  <label className="radio-label">
+                  <label className="flex items-center gap-2.5 p-3 rounded-md bg-write-bg2 border border-write-border cursor-pointer transition-all hover:bg-write-bg3 hover:border-write-border2 text-[13px] text-write-text">
                     <input
                       type="radio"
+                      className="w-4 h-4 text-write-blue focus:ring-write-blue border-write-border"
                       name="length"
                       value="long"
                       checked={length === 'long'}
@@ -266,12 +269,12 @@ export default function WriteModals({
               </div>
             </div>
 
-            <div className="modal-footer">
-              <button className="btn" onClick={() => setShowAutoModal(false)}>
+            <div className="p-4 px-6 border-t border-write-border flex justify-end gap-3 bg-write-bg2">
+              <button className="p-2.5 px-5 rounded-md text-[14px] font-semibold cursor-pointer border border-write-border bg-write-bg text-write-text transition-all hover:bg-write-bg3" onClick={() => setShowAutoModal(false)}>
                 Batal
               </button>
               <button
-                className="btn btn-primary"
+                className="p-2.5 px-5 rounded-md text-[14px] font-semibold cursor-pointer border-none transition-all flex items-center gap-2 bg-write-blue text-white hover:bg-write-blue2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleAutoGenerate}
                 disabled={isGenerating || !topic.trim()}
               >
@@ -284,38 +287,44 @@ export default function WriteModals({
 
       {/* Upgrade Modal */}
       {showUpgradeModal && (
-        <div className="modal-overlay" onClick={() => setShowUpgradeModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>✨ Upgrade ke Pro</h2>
-              <button className="close-btn" onClick={() => setShowUpgradeModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] animate-in fade-in duration-200" onClick={() => setShowUpgradeModal(false)}>
+          <div className="bg-write-bg rounded-xl w-full max-w-[650px] max-h-[90vh] overflow-hidden shadow-write-lg animate-in zoom-in duration-200 flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 px-6 border-b border-write-border bg-write-bg2">
+              <h2 className="m-0 text-[18px] font-bold text-write-text">✨ Upgrade ke Pro</h2>
+              <button className="w-8 h-8 flex items-center justify-center border-none bg-transparent rounded-md text-[20px] text-write-text cursor-pointer transition-colors hover:bg-write-bg3" onClick={() => setShowUpgradeModal(false)}>
                 ×
               </button>
             </div>
 
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Pilih Plan</label>
-                <div className="plan-options">
+            <div className="p-6 overflow-y-auto text-left">
+              <div className="mb-5 last:mb-0">
+                <label className="block text-[13px] font-bold text-write-text2 mb-4">Pilih Plan Terbaik Untukmu</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {availablePlans.length > 0 ? (
                     availablePlans.map((plan) => (
                       <div
                         key={plan.planId}
-                        className={`plan-option ${plan.planId === 'weekly-25k' ? 'plan-recommended' : ''}`}
+                        className={`p-5 rounded-write border-2 transition-all cursor-pointer relative hover:shadow-md ${plan.planId === 'weekly-25k' ? 'border-write-blue bg-blue-50/10' : 'border-write-border bg-write-bg hover:border-write-blue'}`}
                         onClick={() => handleUpgrade(plan.planId)}
                       >
-                        {plan.planId === 'weekly-25k' && <div className="plan-badge">Recommended</div>}
-                        <div className="plan-name">{plan.name}</div>
-                        <div className="plan-price">Rp {plan.price.toLocaleString('id-ID')}/{plan.durationDays} hari</div>
-                        <ul className="plan-features">
-                          <li>Auto-generate: {plan.limits.autoGenerate === -1 ? 'Unlimited' : plan.limits.autoGenerate}x</li>
-                          <li>Prompt AI: {plan.limits.prompt === -1 ? 'Unlimited' : plan.limits.prompt}x</li>
-                          <li>Semua fitur AI</li>
+                        {plan.planId === 'weekly-25k' && <div className="absolute top-0 right-0 bg-write-blue text-white text-[10px] px-2 py-1 rounded-bl-write font-bold uppercase">Recommended</div>}
+                        <div className="text-[16px] font-black text-write-text mb-1">{plan.name}</div>
+                        <div className="text-[14px] font-bold text-write-blue mb-4">Rp {plan.price.toLocaleString('id-ID')}/{plan.durationDays} hari</div>
+                        <ul className="flex flex-col gap-2 list-none p-0">
+                          <li className="text-[12px] text-write-text2 flex items-center gap-2">
+                             <span className="text-green-500 font-black">✓</span> Auto-generate: {plan.limits.autoGenerate === -1 ? 'Unlimited' : plan.limits.autoGenerate}x
+                          </li>
+                          <li className="text-[12px] text-write-text2 flex items-center gap-2">
+                             <span className="text-green-500 font-black">✓</span> Prompt AI: {plan.limits.prompt === -1 ? 'Unlimited' : plan.limits.prompt}x
+                          </li>
+                          <li className="text-[12px] text-write-text2 flex items-center gap-2">
+                             <span className="text-green-500 font-black">✓</span> Semua fitur AI Premium
+                          </li>
                         </ul>
                       </div>
                     ))
                   ) : (
-                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text2)' }}>
+                    <div className="col-span-2 text-center py-10 text-write-text3">
                       Memuat plan...
                     </div>
                   )}
@@ -323,8 +332,8 @@ export default function WriteModals({
               </div>
             </div>
 
-            <div className="modal-footer">
-              <button className="btn" onClick={() => setShowUpgradeModal(false)}>
+            <div className="p-4 px-6 border-t border-write-border flex justify-end gap-3 bg-write-bg2">
+              <button className="p-2.5 px-5 rounded-md text-[14px] font-semibold cursor-pointer border border-write-border bg-write-bg text-write-text transition-all hover:bg-write-bg3" onClick={() => setShowUpgradeModal(false)}>
                 Nanti Saja
               </button>
             </div>
@@ -334,53 +343,53 @@ export default function WriteModals({
 
       {/* Citation Modal */}
       {showCitationModal && (
-        <div className="modal-overlay" onClick={() => setShowCitationModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Tambah Sitasi</h2>
-              <button className="close-btn" onClick={() => setShowCitationModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] animate-in fade-in duration-200" onClick={() => setShowCitationModal(false)}>
+          <div className="bg-write-bg rounded-xl w-full max-w-[500px] max-h-[90vh] overflow-hidden shadow-write-lg animate-in zoom-in duration-200 flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 px-6 border-b border-write-border bg-write-bg2">
+              <h2 className="m-0 text-[18px] font-semibold text-write-text">Tambah Sitasi</h2>
+              <button className="w-8 h-8 flex items-center justify-center border-none bg-transparent rounded-md text-[20px] text-write-text cursor-pointer transition-colors hover:bg-write-bg3" onClick={() => setShowCitationModal(false)}>
                 ×
               </button>
             </div>
 
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Author *</label>
+            <div className="p-6 overflow-y-auto text-left">
+              <div className="mb-5 last:mb-0">
+                <label className="block text-[13px] font-bold text-write-text2 mb-2">Author *</label>
                 <input
                   type="text"
-                  className="form-input"
+                  className="w-full p-2.5 px-3 border border-write-border rounded-md text-[14px] bg-write-bg2 text-write-text outline-none focus:border-write-blue transition-all"
                   placeholder="Nama Penulis"
                   value={citationAuthor}
                   onChange={(e) => setCitationAuthor(e.target.value)}
                 />
               </div>
 
-              <div className="form-group">
-                <label>Tahun *</label>
+              <div className="mb-5 last:mb-0">
+                <label className="block text-[13px] font-bold text-write-text2 mb-2">Tahun *</label>
                 <input
                   type="text"
-                  className="form-input"
+                  className="w-full p-2.5 px-3 border border-write-border rounded-md text-[14px] bg-write-bg2 text-write-text outline-none focus:border-write-blue transition-all"
                   placeholder="2024"
                   value={citationYear}
                   onChange={(e) => setCitationYear(e.target.value)}
                 />
               </div>
 
-              <div className="form-group">
-                <label>Sumber</label>
+              <div className="mb-5 last:mb-0">
+                <label className="block text-[13px] font-bold text-write-text2 mb-2">Sumber</label>
                 <input
                   type="text"
-                  className="form-input"
+                  className="w-full p-2.5 px-3 border border-write-border rounded-md text-[14px] bg-write-bg2 text-write-text outline-none focus:border-write-blue transition-all"
                   placeholder="Judul buku/jurnal"
                   value={citationSource}
                   onChange={(e) => setCitationSource(e.target.value)}
                 />
               </div>
 
-              <div className="form-group">
-                <label>Teks Kutipan (opsional)</label>
+              <div className="mb-5 last:mb-0">
+                <label className="block text-[13px] font-bold text-write-text2 mb-2">Teks Kutipan (opsional)</label>
                 <textarea
-                  className="form-textarea"
+                  className="w-full p-2.5 px-3 border border-write-border rounded-md text-[14px] bg-write-bg2 text-write-text outline-none focus:border-write-blue transition-all resize-none"
                   placeholder="Teks yang dikutip..."
                   value={citationText}
                   onChange={(e) => setCitationText(e.target.value)}
@@ -389,11 +398,11 @@ export default function WriteModals({
               </div>
             </div>
 
-            <div className="modal-footer">
-              <button className="btn" onClick={() => setShowCitationModal(false)}>
+            <div className="p-4 px-6 border-t border-write-border flex justify-end gap-3 bg-write-bg2">
+              <button className="p-2.5 px-5 rounded-md text-[14px] font-semibold cursor-pointer border border-write-border bg-write-bg text-write-text transition-all hover:bg-write-bg3" onClick={() => setShowCitationModal(false)}>
                 Batal
               </button>
-              <button className="btn btn-primary" onClick={handleInsertCitation}>
+              <button className="p-2.5 px-5 rounded-md text-[14px] font-bold bg-write-blue text-white hover:bg-write-blue2 shadow-sm transition-all" onClick={handleInsertCitation}>
                 📚 Insert Sitasi
               </button>
             </div>
@@ -403,73 +412,61 @@ export default function WriteModals({
 
       {/* Settings Modal */}
       {showSettingsModal && (
-        <div className="modal-overlay" onClick={() => setShowSettingsModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>⚙️ Pengaturan</h2>
-              <button className="close-btn" onClick={() => setShowSettingsModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] animate-in fade-in duration-200" onClick={() => setShowSettingsModal(false)}>
+          <div className="bg-write-bg rounded-xl w-full max-w-[450px] max-h-[90vh] overflow-hidden shadow-write-lg animate-in zoom-in duration-200 flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 px-6 border-b border-write-border bg-write-bg2">
+              <h2 className="m-0 text-[18px] font-semibold text-write-text">⚙️ Pengaturan</h2>
+              <button className="w-8 h-8 flex items-center justify-center border-none bg-transparent rounded-md text-[20px] text-write-text cursor-pointer transition-colors hover:bg-write-bg3" onClick={() => setShowSettingsModal(false)}>
                 ×
               </button>
             </div>
 
-            <div className="modal-body">
+            <div className="p-6 overflow-y-auto text-left">
               {/* Dark Mode Toggle */}
-              <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <label style={{ margin: 0 }}>🌙 Mode Gelap</label>
-                  <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Tampilan lebih nyaman di malam hari</div>
+              <div className="flex items-center justify-between mb-5 last:mb-0">
+                <div className="flex flex-col gap-0.5">
+                  <label className="block text-[14px] font-bold text-write-text m-0">🌙 Mode Gelap</label>
+                  <div className="text-[11px] text-write-text3">Tampilan lebih nyaman di malam hari</div>
                 </div>
                 <button
                   onClick={toggleDarkMode}
-                  className="btn"
-                  style={{
-                    background: darkMode ? 'var(--orange)' : 'var(--bg2)',
-                    color: darkMode ? 'white' : 'var(--text)',
-                  }}
+                  className={`p-2 px-4 rounded-md text-[13px] font-bold transition-all border-none cursor-pointer ${darkMode ? 'bg-write-orange text-white' : 'bg-write-bg2 text-write-text hover:bg-write-bg3'}`}
                 >
                   {darkMode ? 'Aktif' : 'Nonaktif'}
                 </button>
               </div>
 
               {/* Ghost Text Toggle */}
-              <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <label style={{ margin: 0 }}>👻 Saran AI (Ghost Text)</label>
-                  <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Tampilkan saran penulisan saat mengetik</div>
+              <div className="flex items-center justify-between mb-5 last:mb-0">
+                <div className="flex flex-col gap-0.5">
+                  <label className="block text-[14px] font-bold text-write-text m-0">👻 Saran AI (Ghost Text)</label>
+                  <div className="text-[11px] text-write-text3">Tampilkan saran penulisan saat mengetik</div>
                 </div>
                 <button
                   onClick={() => setGhostEnabled(!ghostEnabled)}
-                  className="btn"
-                  style={{
-                    background: ghostEnabled ? 'var(--green)' : 'var(--bg2)',
-                    color: ghostEnabled ? 'white' : 'var(--text)',
-                  }}
+                  className={`p-2 px-4 rounded-md text-[13px] font-bold transition-all border-none cursor-pointer ${ghostEnabled ? 'bg-green-500 text-white' : 'bg-write-bg2 text-write-text hover:bg-write-bg3'}`}
                 >
                   {ghostEnabled ? 'Aktif' : 'Nonaktif'}
                 </button>
               </div>
 
               {/* SFX Toggle */}
-              <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <label style={{ margin: 0 }}>🔊 Efek Suara</label>
-                  <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Suara untuk milestone dan notifikasi</div>
+              <div className="flex items-center justify-between mb-5 last:mb-0">
+                <div className="flex flex-col gap-0.5">
+                  <label className="block text-[14px] font-bold text-write-text m-0">🔊 Efek Suara</label>
+                  <div className="text-[11px] text-write-text3">Suara untuk milestone dan notifikasi</div>
                 </div>
                 <button
                   onClick={() => setSfxEnabled(!sfxEnabled)}
-                  className="btn"
-                  style={{
-                    background: sfxEnabled ? 'var(--blue)' : 'var(--bg2)',
-                    color: sfxEnabled ? 'white' : 'var(--text)',
-                  }}
+                  className={`p-2 px-4 rounded-md text-[13px] font-bold transition-all border-none cursor-pointer ${sfxEnabled ? 'bg-write-blue text-white' : 'bg-write-bg2 text-write-text hover:bg-write-bg3'}`}
                 >
                   {sfxEnabled ? 'Aktif' : 'Nonaktif'}
                 </button>
               </div>
             </div>
 
-            <div className="modal-footer">
-              <button className="btn btn-primary" onClick={() => setShowSettingsModal(false)}>
+            <div className="p-4 px-6 border-t border-write-border flex justify-end gap-3 bg-write-bg2">
+              <button className="p-2.5 px-6 rounded-md text-[14px] font-bold bg-write-blue text-white hover:bg-write-blue2 shadow-sm transition-all cursor-pointer" onClick={() => setShowSettingsModal(false)}>
                 Simpan
               </button>
             </div>

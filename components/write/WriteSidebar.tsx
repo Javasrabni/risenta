@@ -82,98 +82,95 @@ export default function WriteSidebar({
   };
 
   return (
-    <div className="sidebar">
-      <div className="sidebar-section">
-        <div className="sidebar-label">
+    <div className="w-[260px] min-w-[260px] bg-write-bg border-r border-write-border flex flex-col h-full overflow-hidden select-none">
+      <div className="p-4 border-b border-write-border">
+        <div className="text-[10px] uppercase font-bold text-write-text3 mb-3 tracking-wider flex items-center gap-2">
           Plan: {tokenUsage.planName}
-          {tokenUsage.isExpired && <span className="plan-expired-badge">EXPIRED</span>}
+          {tokenUsage.isExpired && <span className="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded ml-auto font-black">EXPIRED</span>}
         </div>
 
         {/* AI Usage Card - Merged */}
-        <div className="token-card">
-          <div className="token-header">
-            <span className="token-label-small">Sisa Usage AI</span>
-            <span className="token-value">{tokenUsage.autoGenerateRemaining === -1 && tokenUsage.promptRemaining === -1 ? '∞' : totalRemaining}</span>
-            <span className="token-separator">/</span>
-            <span className="token-limit">{tokenUsage.autoGenerateTotal === -1 && tokenUsage.promptTotal === -1 ? '∞' : totalQuota}</span>
-            <span className="token-percentage">({Math.round(100 - totalProgress)}%)</span>
+        <div className="bg-write-bg2 border border-write-border rounded-write p-3 cursor-default transition-all duration-120 hover:border-write-border2">
+          <div className="flex items-center gap-1 mb-2">
+            <span className="text-[11px] text-write-text2 font-medium flex-1 text-left">Sisa Usage AI</span>
+            <span className="text-[13px] font-bold text-write-text">{tokenUsage.autoGenerateRemaining === -1 && tokenUsage.promptRemaining === -1 ? '∞' : totalRemaining}</span>
+            <span className="text-[11px] text-write-text3">/</span>
+            <span className="text-[11px] text-write-text2">{tokenUsage.autoGenerateTotal === -1 && tokenUsage.promptTotal === -1 ? '∞' : totalQuota}</span>
+            <span className="text-[10px] text-write-text3 ml-1">({Math.round(100 - totalProgress)}%)</span>
           </div>
-          <div className="token-bar-wrap">
-            <div className="token-track">
-              <div
-                className="token-fill"
-                style={{
-                  width: `${100 - totalProgress}%`,
-                  background: totalProgress > 90 ? 'var(--red)' : 'var(--green)'
-                }}
-              />
-            </div>
+          <div className="w-full h-1.5 bg-write-bg rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${totalProgress > 90 ? 'bg-red-500' : 'bg-green-500'}`}
+              style={{
+                width: `${100 - totalProgress}%`,
+              }}
+            />
           </div>
-          <div className="token-details" style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '11px' }}>
+          <div className="flex gap-4 mt-2 text-[11px]">
             <div>
-              <span style={{ color: 'var(--text3)' }}>Auto: </span>
-              <span style={{ fontWeight: 600 }}>
+              <span className="text-write-text3">Auto: </span>
+              <span className="font-semibold text-write-text">
                 {tokenUsage.autoGenerateRemaining === -1 ? '∞' : tokenUsage.autoGenerateRemaining}
               </span>
-              <span style={{ color: 'var(--text3)' }}>/{tokenUsage.autoGenerateTotal === -1 ? '∞' : tokenUsage.autoGenerateTotal}</span>
+              <span className="text-write-text3">/{tokenUsage.autoGenerateTotal === -1 ? '∞' : tokenUsage.autoGenerateTotal}</span>
             </div>
             <div>
-              <span style={{ color: 'var(--text3)' }}>Prompt: </span>
-              <span style={{ fontWeight: 600 }}>
+              <span className="text-write-text3">Prompt: </span>
+              <span className="font-semibold text-write-text">
                 {tokenUsage.promptRemaining === -1 ? '∞' : tokenUsage.promptRemaining}
               </span>
-              <span style={{ color: 'var(--text3)' }}>/{tokenUsage.promptTotal === -1 ? '∞' : tokenUsage.promptTotal}</span>
+              <span className="text-write-text3">/{tokenUsage.promptTotal === -1 ? '∞' : tokenUsage.promptTotal}</span>
             </div>
           </div>
         </div>
 
-        <div className="progress-bar-wrap" style={{ marginTop: '16px' }}>
-          <div className="progress-label">
-            <span>Target Harian</span>
-            <span>
+        <div className="mt-4">
+          <div className="flex justify-between text-[11px] mb-1.5">
+            <span className="font-medium text-write-text2">Target Harian</span>
+            <span className="font-bold text-write-text">
               {formatNumber(dailyTarget.current)}/{formatNumber(dailyTarget.words)}
             </span>
           </div>
-          <div className="progress-track">
-            <div className="progress-fill" style={{ width: `${dailyProgress}%` }} />
+          <div className="w-full h-1.5 bg-write-bg2 border border-write-border rounded-full overflow-hidden">
+            <div className="h-full bg-write-orange rounded-full transition-all duration-300" style={{ width: `${dailyProgress}%` }} />
           </div>
         </div>
 
         {isFreePlan && (
-          <div className="target-card" onClick={() => setShowUpgradeModal(true)}>
+          <div className="mt-3 p-2.5 px-3 bg-write-orange/10 border border-write-orange/20 rounded-write flex items-center justify-between text-[12px] font-bold text-write-orange cursor-pointer transition-all duration-120 hover:bg-write-orange/20 hover:border-write-orange/30 shadow-sm" onClick={() => setShowUpgradeModal(true)}>
             <span>Upgrade Plan</span>
             <span>✨</span>
           </div>
         )}
       </div>
 
-      <div className="sidebar-section" style={{ flex: 1, overflow: 'hidden' }}>
-        <div className="sidebar-label">Dokumen Saya {documents.length > 0 && `(${documents.length})`}</div>
-         <div className="new-doc-btn" onClick={showTemplateSelector}>
+      <div className="p-4 flex-1 flex flex-col overflow-hidden">
+        <div className="text-[10px] uppercase font-bold text-write-text3 mb-3 tracking-wider">Dokumen Saya {documents.length > 0 && `(${documents.length})`}</div>
+         <div className="w-full p-2.5 rounded-write bg-write-blue text-white text-[13px] font-bold text-center cursor-pointer transition-all duration-120 shadow-sm hover:bg-write-blue2 mb-4" onClick={showTemplateSelector}>
           + Dokumen Baru
         </div>
-        <div className="doc-list">
+        <div className="flex-1 overflow-y-auto pr-1 -mr-1 scrollbar-thin scrollbar-thumb-write-border">
           {documents.map(doc => (
             <div
               key={doc.id}
-              className={`doc-item ${doc.id === activeDocId ? 'active' : ''}`}
+              className={`flex items-center gap-3 p-3 rounded-write cursor-pointer transition-all duration-120 mb-1 relative border ${doc.id === activeDocId ? 'bg-write-bg2 border-write-border shadow-sm active' : 'border-transparent hover:bg-write-bg2 hover:border-write-border'}`}
               onClick={() => setActiveDocId(doc.id)}
               onMouseEnter={() => setHoveredDocId(doc.id)}
               onMouseLeave={() => setHoveredDocId(null)}
             >
-              <div className="doc-icon">📄</div>
-              <div className="doc-info">
-                <div className="doc-name">{doc.title}</div>
-                <div className="doc-meta">
+              <div className="text-[18px]">📄</div>
+              <div className="flex-1 min-w-0 text-left">
+                <div className="text-[13px] font-medium text-write-text truncate">{doc.title}</div>
+                <div className="text-[10px] text-write-text3 truncate mt-0.5">
                   {formatNumber(doc.wordCount)} kata • {formatDate(doc.updatedAt)}
                 </div>
               </div>
               
               {/* 3-dot menu button - visible on hover or when menu is open */}
               {(hoveredDocId === doc.id || menuOpenDocId === doc.id) && (
-                <div className="doc-menu-container" ref={menuOpenDocId === doc.id ? menuRef : null}>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center" ref={menuOpenDocId === doc.id ? menuRef : null}>
                   <button
-                    className="doc-menu-btn"
+                    className="w-6 h-6 flex items-center justify-center rounded-sm text-write-text3 hover:bg-write-bg3 hover:text-write-text transition-all"
                     onClick={(e) => {
                       e.stopPropagation();
                       setMenuOpenDocId(menuOpenDocId === doc.id ? null : doc.id);
@@ -189,9 +186,9 @@ export default function WriteSidebar({
                   
                   {/* Dropdown menu */}
                   {menuOpenDocId === doc.id && (
-                    <div className="doc-dropdown-menu">
+                    <div className="absolute right-0 top-full mt-1 w-44 bg-write-bg border border-write-border rounded-write shadow-write-lg py-1 z-[60] animate-in fade-in zoom-in duration-100">
                       <button
-                        className="doc-dropdown-item delete"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-red-500 hover:bg-red-50 transition-all text-left"
                         onClick={(e) => handleDelete(e, doc.id)}
                       >
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">

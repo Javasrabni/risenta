@@ -38,52 +38,52 @@ export default function TemplateSelector({ isOpen, onClose, onSelect }: Template
   };
 
   return (
-    <div className="template-modal-overlay" onClick={handleClose}>
-      <div className="template-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="template-modal-header">
-          <h2>Pilih Template Dokumen</h2>
-          <button className="template-modal-close" onClick={handleClose}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={handleClose}>
+      <div className="bg-write-bg rounded-xl shadow-write-lg w-full max-w-[850px] max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-5 border-b border-write-border bg-write-bg2">
+          <h2 className="m-0 text-[18px] font-bold text-write-text">Pilih Template Dokumen</h2>
+          <button className="w-8 h-8 flex items-center justify-center rounded-md border-none bg-transparent text-write-text3 hover:bg-write-bg3 hover:text-write-text cursor-pointer transition-colors" onClick={handleClose}>
             <X size={20} />
           </button>
         </div>
 
-        <div className="template-modal-content">
-          <div className="template-grid">
+        <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden text-left">
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-3 p-6 overflow-y-auto border-r border-write-border">
             {templates.map((template) => (
               <div
                 key={template.id}
-                className={`template-card ${selectedTemplate === template.id ? 'selected' : ''}`}
+                className={`p-4 rounded-write border-2 transition-all cursor-pointer flex flex-col gap-2 hover:border-write-blue hover:shadow-md ${selectedTemplate === template.id ? 'border-write-blue bg-blue-50/10' : 'border-write-border bg-write-bg'}`}
                 onClick={() => handleSelect(template.id)}
                 onMouseEnter={() => setHoveredTemplate(template.id)}
                 onMouseLeave={() => setHoveredTemplate(null)}
               >
-                <div className="template-card-icon">{template.icon}</div>
-                <div className="template-card-name">{template.name}</div>
-                <div className="template-card-desc">{template.description}</div>
+                <div className="text-2xl">{template.icon}</div>
+                <div className="text-[14px] font-bold text-write-text">{template.name}</div>
+                <div className="text-[11px] text-write-text3 leading-tight">{template.description}</div>
               </div>
             ))}
           </div>
 
           {displayTemplate && (
-            <div className="template-preview">
-              <h3>{DOCUMENT_TEMPLATES[displayTemplate].name}</h3>
-              <p className="template-preview-desc">
+            <div className="w-full md:w-[320px] p-6 bg-write-bg2 overflow-y-auto flex flex-col gap-4 text-left">
+              <h3 className="m-0 text-[16px] font-black text-write-text">{DOCUMENT_TEMPLATES[displayTemplate].name}</h3>
+              <p className="text-[12px] text-write-text2 leading-relaxed m-0 pb-4 border-b border-write-border">
                 {DOCUMENT_TEMPLATES[displayTemplate].description}
               </p>
               
-              <div className="template-sections">
-                <h4>Struktur Dokumen:</h4>
-                <ul>
+              <div className="flex flex-col gap-2">
+                <h4 className="m-0 text-[11px] uppercase tracking-wider font-bold text-write-text3">Struktur Dokumen:</h4>
+                <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
                   {DOCUMENT_TEMPLATES[displayTemplate].sections.map((section) => (
-                    <li key={section.id}>
-                      <strong>{section.title}</strong>
+                    <li key={section.id} className="text-[12px] text-write-text flex flex-col gap-0.5">
+                      <strong className="text-write-text font-bold">{section.title}</strong>
                       {section.description && (
-                        <span className="section-desc"> — {section.description}</span>
+                        <span className="text-[11px] text-write-text2 font-normal"> — {section.description}</span>
                       )}
                     </li>
                   ))}
                   {DOCUMENT_TEMPLATES[displayTemplate].sections.length === 0 && (
-                    <li className="no-sections">Dokumen kosong — bebas menulis</li>
+                    <li className="italic text-write-text3 text-[12px]">Dokumen kosong — bebas menulis</li>
                   )}
                 </ul>
               </div>
@@ -91,12 +91,12 @@ export default function TemplateSelector({ isOpen, onClose, onSelect }: Template
           )}
         </div>
 
-        <div className="template-modal-footer">
-          <button className="btn-secondary" onClick={handleClose}>
+        <div className="p-4 px-6 border-t border-write-border bg-write-bg2 flex justify-end gap-3">
+          <button className="px-6 py-2.5 rounded-md text-[14px] font-semibold border border-write-border bg-write-bg text-write-text hover:bg-write-bg3 transition-all cursor-pointer" onClick={handleClose}>
             Batal
           </button>
           <button 
-            className="btn-primary" 
+            className="px-6 py-2.5 rounded-md text-[14px] font-bold bg-write-blue text-white hover:bg-write-blue2 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" 
             onClick={handleConfirm}
             disabled={!selectedTemplate}
           >

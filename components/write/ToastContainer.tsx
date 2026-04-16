@@ -30,12 +30,21 @@ export default function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="toast-container">
+    <div className="fixed bottom-5 right-5 z-[2000] flex flex-col gap-2">
       {toasts.map(toast => (
-        <div key={toast.id} className={`toast toast-${toast.type}`}>
-          {toast.type === 'success' && '✓ '}
-          {toast.type === 'error' && '✗ '}
-          {toast.type === 'info' && 'ℹ '}
+        <div 
+          key={toast.id} 
+          className={`p-3 px-4 rounded-write-lg text-[13px] shadow-write-lg animate-in slide-in-from-right duration-300 min-w-[200px] flex items-center gap-2 font-semibold text-left ${
+            toast.type === 'success' ? 'bg-write-green-bg text-write-green border border-write-green-border' :
+            toast.type === 'error' ? 'bg-write-red-bg text-write-red border border-write-red-border' :
+            'bg-write-blue-bg text-write-blue border border-write-blue-border'
+          }`}
+        >
+          <span>
+            {toast.type === 'success' && '✓'}
+            {toast.type === 'error' && '✗'}
+            {toast.type === 'info' && 'ℹ'}
+          </span>
           {toast.message}
         </div>
       ))}

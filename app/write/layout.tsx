@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import '@/styles/write.css';
 
 export const metadata: Metadata = {
   title: 'Write - Asisten Penulisan Akademis | Risenta',

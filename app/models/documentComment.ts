@@ -107,8 +107,7 @@ const DocumentCommentSchema = new Schema<IDocumentComment>(
 DocumentCommentSchema.index({ documentId: 1, status: 1, createdAt: -1 });
 // Index untuk threaded comments
 DocumentCommentSchema.index({ documentId: 1, threadId: 1 });
-// Index untuk parent-child replies
-DocumentCommentSchema.index({ parentId: 1 });
+// Index untuk parent-child replies is already defined via index: true in the schema
 
 const DocumentComment = mongoose.models.DocumentComment || 
   mongoose.model<IDocumentComment>("DocumentComment", DocumentCommentSchema);

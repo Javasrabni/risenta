@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkAIUsage, decrementAIUsage, getAuthFromCookie } from '@/lib/aiUsage';
 import RisentaAdm from '@/app/models/risentaAdm';
+import { cookies } from 'next/headers';
+import Customer from '@/app/models/customer';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
@@ -12,11 +14,19 @@ export async function POST(req: NextRequest) {
     const reqBody = await req.json();
     const { prompt, type, topic, length, currentContent, content, templatePrompt } = reqBody;
 
-    // Check authentication (customer, admin, or guest)
-    const cookieHeader = req.headers.get('cookie');
+    const cookieStore = await cookies();
+    const customerSession = cookieStore.get('customer_session')?.value;
+    const customerId = cookieStore.get('customer_id')?.value;
+    const adminToken = cookieStore.get('session_token')?.value;
     const guestId = req.headers.get('x-guest-id');
-    
-    const auth = getAuthFromCookie(cookieHeader);
+
+    let auth: { type: 'customer'; customerID: string } | { type: 'admin'; sessionToken: string } | null = null;
+
+    if (customerSession && customerId && customerSession.startsWith(`customer_${customerId}_`)) {
+      auth = { type: 'customer', customerID: customerId };
+    } else if (adminToken) {
+      auth = { type: 'admin', sessionToken: adminToken };
+    }
 
     // Allow guest users with limited access
     const isGuest = !auth && !!guestId;

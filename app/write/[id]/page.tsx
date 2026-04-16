@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import WriteTopBar from '@/components/write/WriteTopBar';
-import TiptapWriteEditor from '@/components/write/TiptapWriteEditor';
+import dynamic from 'next/dynamic';
+const TiptapWriteEditor = dynamic(() => import('@/components/write/TiptapWriteEditor'), { ssr: false });
 import WriteRightPanel from '@/components/write/WriteRightPanel';
 import WriteModals from '@/components/write/WriteModals';
 import ToastContainer from '@/components/write/ToastContainer';
@@ -63,6 +64,27 @@ export default function WriteEditorPage() {
   });
   const autoGenerateCallbackRef = useRef<((content: string, topic: string) => void) | null>(null);
   const aiGeneratingCallbackRef = useRef<((isGenerating: boolean) => void) | null>(null);
+
+  // ── Apply Dark Mode ──
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Only load from localStorage on initial mount
+    const savedTheme = localStorage.getItem('write-dark-mode');
+    if (savedTheme === 'true') {
+      setDarkMode(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.document || !window.document.documentElement) return;
+
+    if (darkMode) {
+      window.document.documentElement.classList.add('dark');
+    } else {
+      window.document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   // ── Auth Check ──
   useEffect(() => {
@@ -421,10 +443,10 @@ export default function WriteEditorPage() {
   // ── Loading / Not Found States ──
   if (isLoading || isAuthenticated === null) {
     return (
-      <div className="write-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div className="save-dot saving" style={{ width: '24px', height: '24px', margin: '0 auto 16px' }} />
-          <p style={{ color: 'var(--text3)', fontSize: '14px' }}>Memuat dokumen...</p>
+      <div className="flex flex-col h-screen overflow-hidden bg-write-bg items-center justify-center">
+        <div className="text-center">
+          <div className="w-6 h-6 border-2 border-write-orange border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-write-text3 text-[14px]">Memuat dokumen...</p>
         </div>
       </div>
     );
@@ -432,14 +454,17 @@ export default function WriteEditorPage() {
 
   if (documentNotFound) {
     return (
-      <div className="write-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '48px', marginBottom: '16px' }}>📄</p>
-          <h2 style={{ color: 'var(--text)', marginBottom: '8px' }}>Dokumen tidak ditemukan</h2>
-          <p style={{ color: 'var(--text3)', fontSize: '14px', marginBottom: '24px' }}>
+      <div className="flex flex-col h-screen overflow-hidden bg-write-bg items-center justify-center">
+        <div className="text-center">
+          <p className="text-[48px] mb-4">📄</p>
+          <h2 className="text-write-text mb-2 text-[20px] font-bold">Dokumen tidak ditemukan</h2>
+          <p className="text-write-text3 text-[14px] mb-6">
             Dokumen ini mungkin telah dihapus atau Anda tidak memiliki akses.
           </p>
-          <button className="btn btn-primary" onClick={() => router.push('/write')}>
+          <button 
+            className="px-6 py-2.5 rounded-md text-[14px] font-bold bg-write-blue text-white hover:bg-write-blue2 transition-all shadow-sm cursor-pointer" 
+            onClick={() => router.push('/write')}
+          >
             ← Kembali ke Dokumen
           </button>
         </div>
@@ -449,14 +474,14 @@ export default function WriteEditorPage() {
 
   if (!document) {
     return (
-      <div className="write-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <div className="save-dot saving" style={{ width: '24px', height: '24px' }} />
+      <div className="flex flex-col h-screen overflow-hidden bg-write-bg items-center justify-center">
+        <div className="w-6 h-6 border-2 border-write-orange border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="write-container">
+    <div className="flex flex-col h-screen overflow-hidden bg-write-bg">
       <WriteTopBar
         activeDoc={document}
         updateDocument={updateDocument}
@@ -493,7 +518,7 @@ export default function WriteEditorPage() {
         />
       )}
 
-      <div className="main">
+      <div className="flex flex-1 overflow-hidden relative">
         <TiptapWriteEditor
           activeDoc={document}
           updateDocument={updateDocument}

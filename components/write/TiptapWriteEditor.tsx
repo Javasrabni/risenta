@@ -39,7 +39,7 @@ import {
   Subscript as SubIcon, Superscript as SupIcon,
   RemoveFormatting, Loader2,
   Image as ImageIcon, Table as TableIcon, Link as LinkIcon,
-  Columns, LetterText,
+  LetterText,
 } from 'lucide-react';
 
 interface TiptapWriteEditorProps {
@@ -60,7 +60,7 @@ interface TiptapWriteEditorProps {
   onRefreshUsage?: () => void;
   tokenUsage?: { promptRemaining: number; promptTotal: number; autoGenerateRemaining: number; autoGenerateTotal: number; planName: string };
 }
-// Stable user color palette
+
 const COLLAB_COLORS = [
   '#2563eb', '#dc2626', '#16a34a', '#9333ea',
   '#ea580c', '#0891b2', '#db2777', '#65a30d',
@@ -89,11 +89,9 @@ export default function TiptapWriteEditor({
   onToggleComments,
   onAutoGenerate,
   onSetAIGenerating,
-  myRole,
   onRefreshUsage,
   tokenUsage,
 }: TiptapWriteEditorProps) {
-  // ── Yjs doc and provider are completely stable per component mount ──
   const [yDoc] = useState(() => new Y.Doc());
 
   const [provider] = useState(() => {
@@ -101,7 +99,7 @@ export default function TiptapWriteEditor({
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const endpoint = `${protocol}//${window.location.host}/api/write/collaboration/yjs`;
     return new WebsocketProvider(endpoint, documentId || 'default', yDoc, {
-      connect: false, // Wait until useEffect to actually connect
+      connect: false,
     });
   });
 
@@ -112,17 +110,13 @@ export default function TiptapWriteEditor({
   const [selectionState, setSelectionState] = useState<{ from: number; to: number; text: string } | null>(null);
   const [syncStatus, setSyncStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
 
-  // AI Prompt bar state
   const [aiPrompt, setAiPrompt] = useState('');
   const [isAIGenerating, setIsAIGenerating] = useState(false);
-  const [aiGenerationProgress, setAiGenerationProgress] = useState('');
   const aiPromptRef = useRef<HTMLInputElement>(null);
 
-  // Auto-generate state
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
   const [autoGenProgress, setAutoGenProgress] = useState({ label: '', percent: 0 });
 
-  // Font size state
   const [currentFontSize, setCurrentFontSize] = useState('14');
   const [showFontSizeDropdown, setShowFontSizeDropdown] = useState(false);
   const [showHeadingDropdown, setShowHeadingDropdown] = useState(false);
@@ -134,7 +128,6 @@ export default function TiptapWriteEditor({
   const [currentLineSpacing, setCurrentLineSpacing] = useState('1.5');
   const [currentFontFamily, setCurrentFontFamily] = useState('sans');
 
-  // Multi-page tracking
   const [pageCount, setPageCount] = useState(1);
 
   const commentsHook = useComments({
@@ -156,85 +149,76 @@ export default function TiptapWriteEditor({
     [activeDoc, updateDocument]
   );
 
-  // ── Tiptap Editor with Yjs Collaboration ──
   const editor = useEditor({
-      extensions: [
-        StarterKit.configure({
-          // Disable history — Collaboration has its own undo manager
-          history: false,
-        }),
-        Placeholder.configure({ placeholder: 'Mulai menulis di sini...' }),
-        Collaboration.configure({
-          document: yDoc,
-          field: 'default',
-        }),
-        CollaborationCursor.configure({
-          provider: provider,
-          user: {
-            name: userName || 'Anonymous',
-            color: getUserColorFromId(userId || 'anon'),
-            userType: userType || 'guest',
-          },
-        }),
-        Underline,
-        TextAlign.configure({
-          types: ['heading', 'paragraph'],
-        }),
-        Highlight.configure({ multicolor: true }),
-        TextStyle,
-        Color,
-        Subscript,
-        Superscript,
-        TaskList,
-        TaskItem.configure({ nested: true }),
-        FontFamily,
-        Image.configure({
-          HTMLAttributes: { class: 'editor-image' },
-          allowBase64: true,
-        }),
-        Table.configure({
-          resizable: true,
-          HTMLAttributes: { class: 'editor-table' },
-        }),
-        TableRow,
-        TableCell,
-        TableHeader,
-        Link.configure({
-          openOnClick: false,
-          HTMLAttributes: { class: 'editor-link' },
-        }),
-      ],
-      immediatelyRender: false,
-      editorProps: {
-        attributes: {
-          class: 'write-editor tiptap-editor',
-          spellcheck: 'true',
+    extensions: [
+      StarterKit.configure({
+        history: false,
+      }),
+      Placeholder.configure({ placeholder: 'Mulai menulis di sini...' }),
+      Collaboration.configure({
+        document: yDoc,
+        field: 'default',
+      }),
+      CollaborationCursor.configure({
+        provider: provider,
+        user: {
+          name: userName || 'Anonymous',
+          color: getUserColorFromId(userId || 'anon'),
+          userType: userType || 'guest',
         },
+      }),
+      Underline,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      Highlight.configure({ multicolor: true }),
+      TextStyle,
+      Color,
+      Subscript,
+      Superscript,
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      FontFamily,
+      Image.configure({
+        HTMLAttributes: { class: 'max-w-full h-auto rounded-write' },
+        allowBase64: true,
+      }),
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: { class: 'border-collapse border border-write-border w-full my-4' },
+      }),
+      TableRow,
+      TableCell,
+      TableHeader,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: { class: 'text-write-blue underline cursor-pointer hover:text-write-blue2 transition-colors' },
+      }),
+    ],
+    immediatelyRender: false,
+    editorProps: {
+      attributes: {
+        class: 'outline-none p-0 w-full h-full text-[14px] leading-[1.5] text-write-text selection:bg-write-blue/20 prose prose-sm max-w-none',
+        spellcheck: 'true',
       },
-      onUpdate: ({ editor: e }) => {
-        const html = e.getHTML();
-        debouncedPersist(html);
-      },
-    });
+    },
+    onUpdate: ({ editor: e }) => {
+      const html = e.getHTML();
+      debouncedPersist(html);
+    },
+  });
 
-  // ── y-websocket connection lifecycle ──
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!documentId) return;
 
-    // Boot the y-websocket server-side handler
     fetch('/api/write/collaboration/yjs').catch(() => undefined);
 
     yProviderRef.current = provider;
-
-    // Connect the socket securely now that we're mounted
     provider.connect();
 
     const handleStatus = (event: { status: 'connecting' | 'connected' | 'disconnected' }) => {
       setSyncStatus(event.status);
-      if (event.status === 'connected') {
-        console.log('[Yjs] Connected to room:', documentId);
-      }
     };
 
     provider.on('status', handleStatus);
@@ -245,7 +229,6 @@ export default function TiptapWriteEditor({
     };
   }, [documentId, provider]);
 
-  // ── Awareness updates (runs without disconnecting the socket) ──
   useEffect(() => {
     if (!provider) return;
     provider.awareness.setLocalStateField('user', {
@@ -255,21 +238,11 @@ export default function TiptapWriteEditor({
     });
   }, [provider, userName, userId, userType]);
 
-  // ── Cleanup on unmount ──
-  useEffect(() => {
-    return () => {
-      yProviderRef.current?.destroy();
-      yDoc.destroy();
-    };
-  }, [yDoc]);
-
   const hasSeeded = useRef(false);
 
-  // ── Smart Data Seeding Strategy ──
   useEffect(() => {
     if (!editor || !activeDoc || hasSeeded.current) return;
     
-    // If not collaborative at all, seed immediately
     if (!isCollaborative) {
       const target = activeDoc.content || '<p><br></p>';
       if (editor.getHTML() !== target) {
@@ -279,21 +252,15 @@ export default function TiptapWriteEditor({
       return;
     }
 
-    // If collaborative, wait until sync is established to avoid overwriting remote data.
     if (isCollaborative && provider) {
       const handleSync = (isSynced: boolean) => {
         if (isSynced && !hasSeeded.current) {
-          // Native way to check if Yjs document is literally empty (no history or remote content)
           const yXml = provider.doc.getXmlFragment('default');
           if (yXml.length === 0 && editor.getText().trim() === '') {
-            // CRITICAL: emitUpdate MUST be false to prevent cursor reset on remote clients.
-            // Yjs Collaboration extension will handle broadcasting the change via CRDT sync.
-            // CRITICAL: emitUpdate=false to prevent cursor reset on remote clients.
-            // Yjs Collaboration extension handles broadcasting via CRDT sync.
             editor.commands.setContent(activeDoc.content || '<p><br></p>', false);
           }
           hasSeeded.current = true;
-          provider.off('sync', handleSync); // Destroy listener immediately
+          provider.off('sync', handleSync);
         }
       };
 
@@ -303,16 +270,14 @@ export default function TiptapWriteEditor({
         provider.on('sync', handleSync);
       }
     }
-    // We intentionally OMIT activeDoc.content from deps to absolutely prevent reactivity loops!
   }, [editor, activeDoc?.id, isCollaborative, provider]);
 
-  // ── Selection tracking for inline AI / comments ──
   useEffect(() => {
     if (!editor) return;
     const handleSelectionUpdate = () => {
       const { from, to } = editor.state.selection;
       if (from === to) {
-        setSelectionState((prev) => (prev === null ? null : null));
+        setSelectionState(null);
         return;
       }
       const text = editor.state.doc.textBetween(from, to, ' ');
@@ -324,7 +289,6 @@ export default function TiptapWriteEditor({
     };
   }, [editor]);
 
-  // ── Auto-generate callback bridge ──
   useEffect(() => {
     if (!editor || !onAutoGenerate) return;
     onAutoGenerate((content) => {
@@ -343,7 +307,6 @@ export default function TiptapWriteEditor({
     onSetAIGenerating(setIsAIProcessing);
   }, [onSetAIGenerating]);
 
-  // ── Inline AI actions ──
   const handleInlineAI = useCallback(async (action: 'improve' | 'paraphrase' | 'summarize' | 'expand' | 'shorten') => {
     if (!editor || !selectionState) return;
     setIsAIProcessing(true);
@@ -367,12 +330,10 @@ export default function TiptapWriteEditor({
     } finally {
       setIsAIProcessing(false);
     }
-  }, [editor, selectionState, aiProvider]);
+  }, [editor, selectionState, aiProvider, userId, userName, userType]);
 
-  // ── Parse margin commands (e.g. "4x4x3x3") ──
   const parseMarginKeywords = useCallback((prompt: string): { top: number; right: number; bottom: number; left: number } | null => {
     const lowerPrompt = prompt.toLowerCase();
-    // Pattern: "4x4x4x4" (top, left, bottom, right)
     const xMatch = lowerPrompt.match(/(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)/);
     if (xMatch) {
       return { top: parseFloat(xMatch[1]), left: parseFloat(xMatch[2]), bottom: parseFloat(xMatch[3]), right: parseFloat(xMatch[4]) };
@@ -380,12 +341,10 @@ export default function TiptapWriteEditor({
     return null;
   }, []);
 
-  // ── AI Canvas Generate (bottom prompt bar) ──
   const handleAICanvasGenerate = useCallback(async () => {
     if (!editor || !aiPrompt.trim()) return;
     const prompt = aiPrompt.trim();
 
-    // Handle margin commands locally (no API call needed)
     if (prompt.toLowerCase().includes('margin')) {
       const margins = parseMarginKeywords(prompt);
       if (margins && activeDoc) {
@@ -420,19 +379,15 @@ export default function TiptapWriteEditor({
       });
       const data = await response.json();
 
-      // Handle quota exceeded
       if (!data.success && response.status === 403) {
-        const event = new CustomEvent('showUpgradeModal');
-        window.dispatchEvent(event);
+        window.dispatchEvent(new CustomEvent('showUpgradeModal'));
         return;
       }
 
       if (data.success && data.content) {
-        // Append generated content at the end
         editor.commands.focus('end');
         editor.commands.insertContent(data.content);
         setAiPrompt('');
-        // Update stats
         const html = editor.getHTML();
         if (activeDoc) {
           const stats = calculateStats(html);
@@ -445,9 +400,8 @@ export default function TiptapWriteEditor({
     } finally {
       setIsAIGenerating(false);
     }
-  }, [editor, aiPrompt, aiProvider, activeDoc, updateDocument, parseMarginKeywords, onRefreshUsage]);
+  }, [editor, aiPrompt, aiProvider, activeDoc, updateDocument, parseMarginKeywords, onRefreshUsage, userId, userName, userType]);
 
-  // ── Auto-Generate Full Document ──
   const handleAutoGenerate = useCallback(async (topic: string) => {
     if (!editor || !topic.trim() || isAutoGenerating) return;
     setIsAutoGenerating(true);
@@ -463,7 +417,6 @@ export default function TiptapWriteEditor({
     ];
 
     try {
-      // Animate progress steps
       for (const step of steps.slice(0, 3)) {
         setAutoGenProgress(step);
         await new Promise(r => setTimeout(r, 800));
@@ -485,13 +438,11 @@ export default function TiptapWriteEditor({
         }),
       });
 
-      // Continue animation while waiting
       setAutoGenProgress(steps[3]);
       const data = await response.json();
 
       if (!data.success && response.status === 403) {
-        const event = new CustomEvent('showUpgradeModal');
-        window.dispatchEvent(event);
+        window.dispatchEvent(new CustomEvent('showUpgradeModal'));
         setIsAutoGenerating(false);
         return;
       }
@@ -500,7 +451,6 @@ export default function TiptapWriteEditor({
         setAutoGenProgress(steps[4]);
         await new Promise(r => setTimeout(r, 500));
 
-        // Typing animation — insert content progressively
         const content = data.content;
         const chunks = content.split(/(?=<h[1-6])|(?=<p>)/gi).filter(Boolean);
         
@@ -513,14 +463,12 @@ export default function TiptapWriteEditor({
             label: `✍️ Menulis... (${Math.round(((i + 1) / chunks.length) * 100)}%)`,
             percent: 40 + Math.round((i / chunks.length) * 55),
           });
-          // Small delay between chunks for typing effect
           await new Promise(r => setTimeout(r, 50));
         }
 
         setAutoGenProgress(steps[6]);
         await new Promise(r => setTimeout(r, 400));
 
-        // Update stats
         const html = editor.getHTML();
         if (activeDoc) {
           const stats = calculateStats(html);
@@ -539,9 +487,8 @@ export default function TiptapWriteEditor({
       setIsAutoGenerating(false);
       setAutoGenProgress({ label: '', percent: 0 });
     }
-  }, [editor, aiProvider, activeDoc, updateDocument, isAutoGenerating, onRefreshUsage]);
+  }, [editor, aiProvider, activeDoc, updateDocument, isAutoGenerating, onRefreshUsage, userId, userName, userType]);
 
-  // ── Multi-page: Track content height and calculate page count ──
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -550,7 +497,6 @@ export default function TiptapWriteEditor({
         const contentHeight = entry.contentRect.height;
         const ps = activeDoc?.pageSettings || DEFAULT_PAGE_SETTINGS;
         const sizeP = PAGE_SIZES[ps.size] || PAGE_SIZES.a4;
-        // Convert cm to px (approx 37.8px per cm)
         const pageHeightPx = (ps.size === 'custom' ? (ps.customHeight || sizeP.height) : sizeP.height) * 37.8;
         const marginTopPx = ps.margins.top * 37.8;
         const marginBottomPx = ps.margins.bottom * 37.8;
@@ -565,7 +511,6 @@ export default function TiptapWriteEditor({
     return () => observer.disconnect();
   }, [activeDoc?.pageSettings]);
 
-  // ── Comment actions ──
   const handleAddComment = useCallback(async () => {
     if (!selectionState || !commentDraft.trim()) return;
     await commentsHook.addComment(commentDraft, {
@@ -576,7 +521,6 @@ export default function TiptapWriteEditor({
     setCommentDraft('');
   }, [selectionState, commentDraft, commentsHook]);
 
-  // ── Toolbar helpers ──
   const isActive = useCallback((nameOrAttrs: string | Record<string, unknown>, attrs?: Record<string, unknown>) => {
     if (typeof nameOrAttrs === 'string') {
       return editor?.isActive(nameOrAttrs, attrs) ?? false;
@@ -584,7 +528,6 @@ export default function TiptapWriteEditor({
     return editor?.isActive(nameOrAttrs) ?? false;
   }, [editor]);
 
-  // ── Page dimensions ──
   const pageSettings = activeDoc?.pageSettings || DEFAULT_PAGE_SETTINGS;
   const sizePreset = PAGE_SIZES[pageSettings.size] || PAGE_SIZES.a4;
   const paperWidth = pageSettings.size === 'custom' ? (pageSettings.customWidth || sizePreset.width) : sizePreset.width;
@@ -600,759 +543,234 @@ export default function TiptapWriteEditor({
   };
 
   const FONT_SIZES = ['10', '11', '12', '14', '16', '18', '20', '24', '28', '32', '36', '48'];
-  const TEXT_COLORS = [
-    '#000000', '#434343', '#666666', '#999999',
-    '#dc2626', '#ea580c', '#ca8a04', '#16a34a',
-    '#0891b2', '#2563eb', '#7c3aed', '#db2777',
-  ];
-  const HIGHLIGHT_COLORS = [
-    'transparent', '#fef08a', '#bbf7d0', '#bfdbfe',
-    '#e9d5ff', '#fecaca', '#fed7aa', '#d1fae5',
-  ];
+  const TEXT_COLORS = ['#000000', '#434343', '#666666', '#999999', '#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#0891b2', '#2563eb', '#7c3aed', '#db2777'];
+  const HIGHLIGHT_COLORS = ['transparent', '#fef08a', '#bbf7d0', '#bfdbfe', '#e9d5ff', '#fecaca', '#fed7aa', '#d1fae5'];
 
   return (
-    <div className="editor-panel">
-      {/* ── Google Docs-like Toolbar ── */}
-      <div className="gdocs-toolbar" role="toolbar" aria-label="Formatting toolbar">
-        {/* Undo / Redo */}
-        <div className="toolbar-group">
-          <button
-            type="button"
-            className="toolbar-btn"
-            onClick={() => editor?.chain().focus().undo().run()}
-            disabled={!editor?.can().undo()}
-            title="Undo (Ctrl+Z)"
-          >
-            <Undo2 size={16} />
-          </button>
-          <button
-            type="button"
-            className="toolbar-btn"
-            onClick={() => editor?.chain().focus().redo().run()}
-            disabled={!editor?.can().redo()}
-            title="Redo (Ctrl+Y)"
-          >
-            <Redo2 size={16} />
-          </button>
+    <div className="flex-1 flex flex-col min-w-0 bg-write-bg overflow-hidden font-sans">
+      {/* Formatting Toolbar */}
+      <div className="h-9 border-b border-write-border flex items-center px-2.5 gap-1 bg-write-bg select-none shrink-0 overflow-x-auto no-scrollbar" role="toolbar">
+        <div className="flex items-center gap-0.5">
+          <button type="button" className="h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 text-write-text3 hover:text-write-text disabled:opacity-30" onClick={() => editor?.chain().focus().undo().run()} disabled={!editor?.can().undo()} title="Undo"><Undo2 size={16} /></button>
+          <button type="button" className="h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 text-write-text3 hover:text-write-text disabled:opacity-30" onClick={() => editor?.chain().focus().redo().run()} disabled={!editor?.can().redo()} title="Redo"><Redo2 size={16} /></button>
         </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Heading Dropdown */}
-        <div className="toolbar-group" style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className="toolbar-btn toolbar-dropdown-btn"
-            onClick={() => setShowHeadingDropdown(!showHeadingDropdown)}
-            title="Paragraph style"
-          >
-            <Type size={14} />
-            <span className="toolbar-dropdown-label">
-              {isActive('heading', { level: 1 }) ? 'Heading 1' :
-               isActive('heading', { level: 2 }) ? 'Heading 2' :
-               isActive('heading', { level: 3 }) ? 'Heading 3' : 'Normal'}
-            </span>
-            <ChevronDown size={12} />
+        <div className="w-px h-5 bg-write-border mx-1" />
+        <div className="relative">
+          <button type="button" className="h-7 px-2 flex items-center gap-1.5 rounded-write hover:bg-write-bg2 text-write-text3 hover:text-write-text" onClick={() => setShowHeadingDropdown(!showHeadingDropdown)}>
+            <Type size={14} /><span className="text-[11px] font-medium">{isActive('heading', { level: 1 }) ? 'H1' : isActive('heading', { level: 2 }) ? 'H2' : isActive('heading', { level: 3 }) ? 'H3' : 'Text'}</span><ChevronDown size={10} />
           </button>
           {showHeadingDropdown && (
-            <div className="toolbar-dropdown-menu" onMouseLeave={() => setShowHeadingDropdown(false)}>
-              <button type="button" onClick={() => { editor?.chain().focus().setParagraph().run(); setShowHeadingDropdown(false); }}>
-                Normal text
-              </button>
-              <button type="button" onClick={() => { editor?.chain().focus().toggleHeading({ level: 1 }).run(); setShowHeadingDropdown(false); }} style={{ fontSize: 20, fontWeight: 700 }}>
-                Heading 1
-              </button>
-              <button type="button" onClick={() => { editor?.chain().focus().toggleHeading({ level: 2 }).run(); setShowHeadingDropdown(false); }} style={{ fontSize: 16, fontWeight: 600 }}>
-                Heading 2
-              </button>
-              <button type="button" onClick={() => { editor?.chain().focus().toggleHeading({ level: 3 }).run(); setShowHeadingDropdown(false); }} style={{ fontSize: 14, fontWeight: 600 }}>
-                Heading 3
-              </button>
+            <div className="absolute top-full left-0 mt-1 min-w-[140px] bg-write-bg border border-write-border rounded-write shadow-write-lg z-[100] py-1 animate-in zoom-in-95" onMouseLeave={() => setShowHeadingDropdown(false)}>
+              <button className="w-full px-3 py-1.5 text-left text-[13px] hover:bg-write-bg2" onClick={() => { editor?.chain().focus().setParagraph().run(); setShowHeadingDropdown(false); }}>Normal</button>
+              <button className="w-full px-3 py-1.5 text-left text-[13px] font-bold hover:bg-write-bg2" onClick={() => { editor?.chain().focus().toggleHeading({ level: 1 }).run(); setShowHeadingDropdown(false); }}>Heading 1</button>
+              <button className="w-full px-3 py-1.5 text-left text-[13px] font-semibold hover:bg-write-bg2" onClick={() => { editor?.chain().focus().toggleHeading({ level: 2 }).run(); setShowHeadingDropdown(false); }}>Heading 2</button>
             </div>
           )}
         </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Font Size */}
-        <div className="toolbar-group" style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className="toolbar-btn toolbar-fontsize-btn"
-            onClick={() => setShowFontSizeDropdown(!showFontSizeDropdown)}
-            title="Font size"
-          >
-            <span>{currentFontSize}</span>
-            <ChevronDown size={10} />
+        <div className="w-px h-5 bg-write-border mx-1" />
+        <div className="relative">
+          <button type="button" className="h-7 px-1.5 flex items-center gap-1 rounded-write hover:bg-write-bg2 text-write-text3 hover:text-write-text" onClick={() => setShowFontSizeDropdown(!showFontSizeDropdown)}>
+            <span className="text-[11px] font-bold">{currentFontSize}</span><ChevronDown size={10} />
           </button>
           {showFontSizeDropdown && (
-            <div className="toolbar-dropdown-menu toolbar-fontsize-menu" onMouseLeave={() => setShowFontSizeDropdown(false)}>
-              {FONT_SIZES.map(size => (
-                <button
-                  key={size}
-                  type="button"
-                  className={currentFontSize === size ? 'active' : ''}
-                  onClick={() => {
-                    setCurrentFontSize(size);
-                    // Apply font size via inline style through TextStyle
-                    editor?.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
-                    setShowFontSizeDropdown(false);
-                  }}
-                >
-                  {size}
-                </button>
-              ))}
+            <div className="absolute top-full left-0 mt-1 min-w-[60px] max-h-[200px] overflow-y-auto bg-write-bg border border-write-border rounded-write shadow-write-lg z-[100] py-1" onMouseLeave={() => setShowFontSizeDropdown(false)}>
+              {FONT_SIZES.map(s => <button key={s} className="w-full px-2 py-1 text-[11px] hover:bg-write-bg2" onClick={() => { setCurrentFontSize(s); editor?.chain().focus().setMark('textStyle', { fontSize: `${s}px` }).run(); setShowFontSizeDropdown(false); }}>{s}</button>)}
             </div>
           )}
         </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Text Formatting */}
-        <div className="toolbar-group">
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('bold') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleBold().run()}
-            title="Bold (Ctrl+B)"
-          >
-            <Bold size={16} />
-          </button>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('italic') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleItalic().run()}
-            title="Italic (Ctrl+I)"
-          >
-            <Italic size={16} />
-          </button>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('underline') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleUnderline().run()}
-            title="Underline (Ctrl+U)"
-          >
-            <UnderlineIcon size={16} />
-          </button>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('strike') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleStrike().run()}
-            title="Strikethrough"
-          >
-            <Strikethrough size={16} />
-          </button>
+        <div className="w-px h-5 bg-write-border mx-1" />
+        <div className="flex items-center gap-0.5">
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive('bold') ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().toggleBold().run()}><Bold size={16} /></button>
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive('italic') ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().toggleItalic().run()}><Italic size={16} /></button>
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive('underline') ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().toggleUnderline().run()}><UnderlineIcon size={16} /></button>
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive('strike') ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().toggleStrike().run()}><Strikethrough size={16} /></button>
         </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Text Color */}
-        <div className="toolbar-group" style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className="toolbar-btn"
-            onClick={() => { setShowColorPicker(!showColorPicker); setShowHighlightPicker(false); }}
-            title="Text color"
-          >
-            <Palette size={16} />
-          </button>
+        <div className="w-px h-5 bg-write-border mx-1" />
+        <div className="relative">
+          <button type="button" className="h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 text-write-text3" onClick={() => setShowColorPicker(!showColorPicker)}><Palette size={16} /></button>
           {showColorPicker && (
-            <div className="toolbar-color-picker" onMouseLeave={() => setShowColorPicker(false)}>
-              {TEXT_COLORS.map(color => (
-                <button
-                  key={color}
-                  type="button"
-                  className="color-swatch"
-                  style={{ background: color }}
-                  onClick={() => {
-                    editor?.chain().focus().setColor(color).run();
-                    setShowColorPicker(false);
-                  }}
-                />
-              ))}
+            <div className="absolute top-full left-0 mt-1 p-2 bg-write-bg border border-write-border rounded-write shadow-write-lg z-[100] grid grid-cols-4 gap-1.5" onMouseLeave={() => setShowColorPicker(false)}>
+              {TEXT_COLORS.map(c => <button key={c} className="w-5 h-5 rounded-sm border border-black/5" style={{ background: c }} onClick={() => { editor?.chain().focus().setColor(c).run(); setShowColorPicker(false); }} />)}
             </div>
           )}
         </div>
-
-        {/* Highlight Color */}
-        <div className="toolbar-group" style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('highlight') ? 'active' : ''}`}
-            onClick={() => { setShowHighlightPicker(!showHighlightPicker); setShowColorPicker(false); }}
-            title="Highlight"
-          >
-            <Highlighter size={16} />
-          </button>
+        <div className="relative">
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive('highlight') ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => setShowHighlightPicker(!showHighlightPicker)}><Highlighter size={16} /></button>
           {showHighlightPicker && (
-            <div className="toolbar-color-picker" onMouseLeave={() => setShowHighlightPicker(false)}>
-              {HIGHLIGHT_COLORS.map(color => (
-                <button
-                  key={color}
-                  type="button"
-                  className="color-swatch"
-                  style={{ background: color === 'transparent' ? '#f3f4f6' : color, border: color === 'transparent' ? '2px dashed #d1d5db' : 'none' }}
-                  onClick={() => {
-                    if (color === 'transparent') {
-                      editor?.chain().focus().unsetHighlight().run();
-                    } else {
-                      editor?.chain().focus().toggleHighlight({ color }).run();
-                    }
-                    setShowHighlightPicker(false);
-                  }}
-                />
-              ))}
+            <div className="absolute top-full left-0 mt-1 p-2 bg-write-bg border border-write-border rounded-write shadow-write-lg z-[100] grid grid-cols-4 gap-1.5" onMouseLeave={() => setShowHighlightPicker(false)}>
+              {HIGHLIGHT_COLORS.map(c => <button key={c} className="w-5 h-5 rounded-sm border border-black/5" style={{ background: c === 'transparent' ? '#fff' : c }} onClick={() => { c === 'transparent' ? editor?.chain().focus().unsetHighlight().run() : editor?.chain().focus().toggleHighlight({ color: c }).run(); setShowHighlightPicker(false); }} />)}
             </div>
           )}
         </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Sub / Superscript */}
-        <div className="toolbar-group">
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('subscript') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleSubscript().run()}
-            title="Subscript"
-          >
-            <SubIcon size={16} />
-          </button>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('superscript') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleSuperscript().run()}
-            title="Superscript"
-          >
-            <SupIcon size={16} />
-          </button>
+        <div className="w-px h-5 bg-write-border mx-1" />
+        <div className="flex items-center gap-0.5">
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive({ textAlign: 'left' }) ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().setTextAlign('left').run()}><AlignLeft size={16} /></button>
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive({ textAlign: 'center' }) ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().setTextAlign('center').run()}><AlignCenter size={16} /></button>
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive({ textAlign: 'right' }) ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().setTextAlign('right').run()}><AlignRight size={16} /></button>
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive({ textAlign: 'justify' }) ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().setTextAlign('justify').run()}><AlignJustify size={16} /></button>
         </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Alignment */}
-        <div className="toolbar-group">
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive({ textAlign: 'left' }) ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().setTextAlign('left').run()}
-            title="Align left"
-          >
-            <AlignLeft size={16} />
-          </button>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive({ textAlign: 'center' }) ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().setTextAlign('center').run()}
-            title="Align center"
-          >
-            <AlignCenter size={16} />
-          </button>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive({ textAlign: 'right' }) ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().setTextAlign('right').run()}
-            title="Align right"
-          >
-            <AlignRight size={16} />
-          </button>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive({ textAlign: 'justify' }) ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().setTextAlign('justify').run()}
-            title="Justify"
-          >
-            <AlignJustify size={16} />
-          </button>
+        <div className="w-px h-5 bg-write-border mx-1" />
+        <div className="flex items-center gap-0.5">
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive('bulletList') ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().toggleBulletList().run()}><List size={16} /></button>
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive('orderedList') ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().toggleOrderedList().run()}><ListOrdered size={16} /></button>
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive('taskList') ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => editor?.chain().focus().toggleTaskList().run()}><CheckSquare size={16} /></button>
         </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Lists */}
-        <div className="toolbar-group">
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('bulletList') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleBulletList().run()}
-            title="Bullet list"
-          >
-            <List size={16} />
-          </button>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('orderedList') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-            title="Numbered list"
-          >
-            <ListOrdered size={16} />
-          </button>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('taskList') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleTaskList().run()}
-            title="Checklist"
-          >
-            <CheckSquare size={16} />
-          </button>
-        </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Block Elements */}
-        <div className="toolbar-group">
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('blockquote') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleBlockquote().run()}
-            title="Block quote"
-          >
-            <Quote size={16} />
-          </button>
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('codeBlock') ? 'active' : ''}`}
-            onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
-            title="Code block"
-          >
-            <Code size={16} />
-          </button>
-          <button
-            type="button"
-            className="toolbar-btn"
-            onClick={() => editor?.chain().focus().setHorizontalRule().run()}
-            title="Horizontal rule"
-          >
-            <Minus size={16} />
-          </button>
-        </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Insert: Table, Image, Link */}
-        <div className="toolbar-group">
-          {/* Insert Table */}
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              className="toolbar-btn"
-              onClick={() => { setShowTableMenu(!showTableMenu); setShowLineSpacingMenu(false); setShowFontFamilyMenu(false); }}
-              title="Insert Table"
-            >
-              <TableIcon size={16} />
-            </button>
+        <div className="w-px h-5 bg-write-border mx-1" />
+        <div className="flex items-center gap-0.5">
+          <div className="relative">
+            <button type="button" className="h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 text-write-text3" onClick={() => setShowTableMenu(!showTableMenu)}><TableIcon size={16} /></button>
             {showTableMenu && (
-              <div className="toolbar-table-menu" onMouseLeave={() => setShowTableMenu(false)}>
-                <button onClick={() => { editor?.chain().focus().insertTable({ rows: 2, cols: 2, withHeaderRow: true }).run(); setShowTableMenu(false); }}>
-                  2 × 2 Table
-                </button>
-                <button onClick={() => { editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(); setShowTableMenu(false); }}>
-                  3 × 3 Table
-                </button>
-                <button onClick={() => { editor?.chain().focus().insertTable({ rows: 4, cols: 4, withHeaderRow: true }).run(); setShowTableMenu(false); }}>
-                  4 × 4 Table
-                </button>
-                <button onClick={() => { editor?.chain().focus().insertTable({ rows: 5, cols: 5, withHeaderRow: true }).run(); setShowTableMenu(false); }}>
-                  5 × 5 Table
-                </button>
+              <div className="absolute top-full left-0 mt-1 min-w-[140px] bg-write-bg border border-write-border rounded-write shadow-write-lg z-[100] py-1 animate-in zoom-in-95" onMouseLeave={() => setShowTableMenu(false)}>
+                <button className="w-full px-3 py-1.5 text-left text-[12px] hover:bg-write-bg2" onClick={() => { editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(); setShowTableMenu(false); }}>Insert Table (3x3)</button>
                 {editor?.isActive('table') && (
                   <>
-                    <div style={{ height: '1px', background: 'var(--border)', margin: '4px 0' }} />
-                    <button onClick={() => { editor?.chain().focus().addColumnAfter().run(); setShowTableMenu(false); }}>
-                      + Add Column
-                    </button>
-                    <button onClick={() => { editor?.chain().focus().addRowAfter().run(); setShowTableMenu(false); }}>
-                      + Add Row
-                    </button>
-                    <button onClick={() => { editor?.chain().focus().deleteColumn().run(); setShowTableMenu(false); }} style={{ color: 'var(--red)' }}>
-                      − Delete Column
-                    </button>
-                    <button onClick={() => { editor?.chain().focus().deleteRow().run(); setShowTableMenu(false); }} style={{ color: 'var(--red)' }}>
-                      − Delete Row
-                    </button>
-                    <button onClick={() => { editor?.chain().focus().deleteTable().run(); setShowTableMenu(false); }} style={{ color: 'var(--red)' }}>
-                      ✕ Delete Table
-                    </button>
+                    <button className="w-full px-3 py-1.5 text-left text-[12px] hover:bg-write-bg2" onClick={() => { editor?.chain().focus().addColumnAfter().run(); setShowTableMenu(false); }}>Add Column</button>
+                    <button className="w-full px-3 py-1.5 text-left text-[12px] hover:bg-write-bg2" onClick={() => { editor?.chain().focus().addRowAfter().run(); setShowTableMenu(false); }}>Add Row</button>
+                    <button className="w-full px-3 py-1.5 text-left text-[12px] hover:bg-write-bg2 text-write-red" onClick={() => { editor?.chain().focus().deleteTable().run(); setShowTableMenu(false); }}>Delete Table</button>
                   </>
                 )}
               </div>
             )}
           </div>
-
-          {/* Insert Image */}
-          <button
-            type="button"
-            className="toolbar-btn"
-            onClick={() => {
-              const url = prompt('Masukkan URL gambar:');
-              if (url) {
-                editor?.chain().focus().setImage({ src: url }).run();
-              }
-            }}
-            title="Insert Image"
-          >
-            <ImageIcon size={16} />
+          <button type="button" className="h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 text-write-text3" onClick={() => { const u = prompt('URL:'); if (u) editor?.chain().focus().setImage({ src: u }).run(); }}><ImageIcon size={16} /></button>
+          <button type="button" className={`h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 ${isActive('link') ? 'bg-write-bg2 text-write-blue' : 'text-write-text3'}`} onClick={() => { if (isActive('link')) return editor?.chain().focus().unsetLink().run(); const u = prompt('URL:'); if (u) editor?.chain().focus().setLink({ href: u }).run(); }}><LinkIcon size={16} /></button>
+        </div>
+        <div className="w-px h-5 bg-write-border mx-1" />
+        <div className="relative">
+          <button type="button" className="h-7 px-1.5 flex items-center gap-1 rounded-write hover:bg-write-bg2 text-write-text3" onClick={() => setShowLineSpacingMenu(!showLineSpacingMenu)}>
+            <LetterText size={14} /><span className="text-[10px] font-bold">{currentLineSpacing}</span>
           </button>
-
-          {/* Insert/Toggle Link */}
-          <button
-            type="button"
-            className={`toolbar-btn ${isActive('link') ? 'active' : ''}`}
-            onClick={() => {
-              if (isActive('link')) {
-                editor?.chain().focus().unsetLink().run();
-                return;
-              }
-              const url = prompt('Masukkan URL:');
-              if (url) {
-                editor?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-              }
-            }}
-            title={isActive('link') ? 'Remove Link' : 'Insert Link'}
-          >
-            <LinkIcon size={16} />
+          {showLineSpacingMenu && (
+            <div className="absolute top-full left-0 mt-1 min-w-[80px] bg-write-bg border border-write-border rounded-write shadow-write-lg z-[100] py-1" onMouseLeave={() => setShowLineSpacingMenu(false)}>
+              {['1', '1.15', '1.5', '2'].map(s => <button key={s} className="w-full px-2 py-1 text-[11px] hover:bg-write-bg2" onClick={() => { setCurrentLineSpacing(s); (document.querySelector('.ProseMirror') as HTMLElement).style.lineHeight = s; setShowLineSpacingMenu(false); }}>{s}x</button>)}
+            </div>
+          )}
+        </div>
+        <div className="relative">
+          <button type="button" className="h-7 px-1.5 flex items-center gap-1 rounded-write hover:bg-write-bg2 text-write-text3" onClick={() => setShowFontFamilyMenu(!showFontFamilyMenu)}>
+            <span className="text-[10px] font-bold uppercase">{currentFontFamily}</span><ChevronDown size={10} />
           </button>
+          {showFontFamilyMenu && (
+            <div className="absolute top-full left-0 mt-1 min-w-[120px] bg-write-bg border border-write-border rounded-write shadow-write-lg z-[100] py-1 font-sans" onMouseLeave={() => setShowFontFamilyMenu(false)}>
+              <button className="w-full px-3 py-1.5 text-left text-[12px] hover:bg-write-bg2 font-sans" onClick={() => { editor?.chain().focus().setFontFamily('Inter, sans-serif').run(); setCurrentFontFamily('sans'); setShowFontFamilyMenu(false); }}>Sans (Inter)</button>
+              <button className="w-full px-3 py-1.5 text-left text-[12px] hover:bg-write-bg2 font-serif" onClick={() => { editor?.chain().focus().setFontFamily('Lora, serif').run(); setCurrentFontFamily('serif'); setShowFontFamilyMenu(false); }}>Serif (Lora)</button>
+            </div>
+          )}
         </div>
+        <div className="w-px h-5 bg-write-border mx-1" />
+        <button type="button" className="h-7 w-7 flex items-center justify-center rounded-write hover:bg-write-bg2 text-write-text3" onClick={() => editor?.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear Formatting"><RemoveFormatting size={16} /></button>
 
-        <div className="toolbar-divider" />
-
-        {/* Line Spacing */}
-        <div className="toolbar-group">
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              className="toolbar-btn"
-              onClick={() => { setShowLineSpacingMenu(!showLineSpacingMenu); setShowTableMenu(false); setShowFontFamilyMenu(false); }}
-              title="Line Spacing"
-              style={{ display: 'flex', alignItems: 'center', gap: '2px', width: 'auto', padding: '0 6px' }}
-            >
-              <LetterText size={14} />
-              <span style={{ fontSize: '10px' }}>{currentLineSpacing}</span>
-            </button>
-            {showLineSpacingMenu && (
-              <div className="toolbar-linespacing-menu" onMouseLeave={() => setShowLineSpacingMenu(false)}>
-                {['1', '1.15', '1.5', '2', '2.5', '3'].map(spacing => (
-                  <button
-                    key={spacing}
-                    className={currentLineSpacing === spacing ? 'active' : ''}
-                    onClick={() => {
-                      setCurrentLineSpacing(spacing);
-                      // Apply via CSS attribute
-                      const editorEl = document.querySelector('.tiptap-editor') as HTMLElement;
-                      if (editorEl) editorEl.style.lineHeight = spacing;
-                      setShowLineSpacingMenu(false);
-                    }}
-                  >
-                    {spacing}× Spasi
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Font Family */}
-        <div className="toolbar-group">
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              className="toolbar-btn"
-              onClick={() => { setShowFontFamilyMenu(!showFontFamilyMenu); setShowTableMenu(false); setShowLineSpacingMenu(false); }}
-              title="Font Family"
-              style={{ display: 'flex', alignItems: 'center', gap: '2px', width: 'auto', padding: '0 6px', fontSize: '11px', minWidth: '56px' }}
-            >
-              <span>{currentFontFamily === 'serif' ? 'Serif' : currentFontFamily === 'mono' ? 'Mono' : 'Sans'}</span>
-              <ChevronDown size={10} />
-            </button>
-            {showFontFamilyMenu && (
-              <div className="toolbar-fontfamily-menu" onMouseLeave={() => setShowFontFamilyMenu(false)}>
-                <button
-                  className={currentFontFamily === 'sans' ? 'active' : ''}
-                  style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
-                  onClick={() => {
-                    editor?.chain().focus().setFontFamily('Inter, system-ui, sans-serif').run();
-                    setCurrentFontFamily('sans');
-                    setShowFontFamilyMenu(false);
-                  }}
-                >
-                  Sans (Inter)
-                </button>
-                <button
-                  className={currentFontFamily === 'serif' ? 'active' : ''}
-                  style={{ fontFamily: 'Lora, Georgia, serif' }}
-                  onClick={() => {
-                    editor?.chain().focus().setFontFamily('Lora, Georgia, serif').run();
-                    setCurrentFontFamily('serif');
-                    setShowFontFamilyMenu(false);
-                  }}
-                >
-                  Serif (Lora)
-                </button>
-                <button
-                  className={currentFontFamily === 'mono' ? 'active' : ''}
-                  style={{ fontFamily: 'Fira Code, monospace' }}
-                  onClick={() => {
-                    editor?.chain().focus().setFontFamily('Fira Code, monospace').run();
-                    setCurrentFontFamily('mono');
-                    setShowFontFamilyMenu(false);
-                  }}
-                >
-                  Mono (Fira Code)
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="toolbar-divider" />
-
-        {/* Clear Formatting */}
-        <div className="toolbar-group">
-          <button
-            type="button"
-            className="toolbar-btn"
-            onClick={() => editor?.chain().focus().unsetAllMarks().clearNodes().run()}
-            title="Clear formatting"
-          >
-            <RemoveFormatting size={16} />
-          </button>
-        </div>
-
-        {/* Right side: Comments toggle & Sync Status */}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="ml-auto flex items-center gap-3">
           {isCollaborative && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '11px',
-                padding: '4px 8px',
-                borderRadius: '12px',
-                backgroundColor: syncStatus === 'connected' ? '#dcfce7' : syncStatus === 'connecting' ? '#fef08a' : '#fee2e2',
-                color: syncStatus === 'connected' ? '#166534' : syncStatus === 'connecting' ? '#854d0e' : '#991b1b',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}
-              title={`Connection Status: ${syncStatus}`}
-            >
-              <div
-                style={{
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  backgroundColor: syncStatus === 'connected' ? '#22c55e' : syncStatus === 'connecting' ? '#eab308' : '#ef4444',
-                  animation: syncStatus === 'connecting' ? 'pulse 1s infinite' : 'none'
-                }}
-              />
+            <div className={`flex items-center gap-1.5 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest border ${syncStatus === 'connected' ? 'bg-green-50 text-green-600 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${syncStatus === 'connected' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`} />
               {syncStatus}
             </div>
           )}
-
           {onToggleComments && (
-            <button
-              type="button"
-              className={`toolbar-btn ${showComments ? 'active' : ''}`}
-              onClick={onToggleComments}
-              title={showComments ? 'Sembunyikan Komentar' : 'Komentar'}
-            >
-              <MessageSquare size={16} />
-              <span className="toolbar-btn-label">Komentar</span>
+            <button type="button" className={`h-7 px-2.5 flex items-center gap-1.5 rounded-write hover:bg-write-bg2 text-write-text3 ${showComments ? 'bg-write-bg2 text-write-blue font-bold' : ''}`} onClick={onToggleComments}>
+              <MessageSquare size={14} /><span className="text-[11px] hidden sm:inline">Komentar</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* ── Editor Canvas Area ── */}
-      <div className="editor-scroll">
-        {/* Auto-Generate Overlay */}
+      {/* Main Editor Area */}
+      <div className="flex-1 overflow-y-auto bg-write-bg2 flex flex-col items-center pt-8 pb-32 relative scroll-smooth selection:bg-write-blue/20">
         {isAutoGenerating && (
-          <div className="autogen-overlay">
-            <div className="autogen-card">
-              <div className="autogen-spinner" />
-              <h3 className="autogen-title">🤖 Chi Auto-Generate</h3>
-              <p className="autogen-step">{autoGenProgress.label}</p>
-              <div className="autogen-progress-track">
-                <div className="autogen-progress-bar" style={{ width: `${autoGenProgress.percent}%` }} />
+          <div className="fixed inset-0 z-[2000] bg-write-bg/80 backdrop-blur-md flex items-center justify-center">
+            <div className="bg-write-bg border border-write-border rounded-write-lg p-8 shadow-write-lg text-center max-w-[320px] w-full animate-in zoom-in-95 duration-300">
+              <div className="w-10 h-10 border-4 border-write-orange/20 border-t-write-orange rounded-full animate-spin mx-auto mb-5" />
+              <h3 className="text-write-text font-bold text-[18px] mb-2 tracking-tight">🤖 Chi Auto-Generate</h3>
+              <p className="text-write-text3 text-[14px] mb-5 font-medium">{autoGenProgress.label}</p>
+              <div className="h-2.5 bg-write-bg2 rounded-full overflow-hidden mb-3">
+                <div className="h-full bg-write-orange transition-all duration-300" style={{ width: `${autoGenProgress.percent}%` }} />
               </div>
-              <span className="autogen-percent">{autoGenProgress.percent}%</span>
+              <span className="text-[12px] font-bold text-write-orange">{autoGenProgress.percent}%</span>
             </div>
           </div>
         )}
 
-        <div className="pages-wrapper">
-          <div
-            className={`page page-${pageSettings.size}`}
-            ref={containerRef}
-            style={{ ...pageStyle, position: 'relative' }}
-          >
-            <EditorContent editor={editor} className="editor-content" />
+        <div className="relative flex flex-col items-center gap-8 w-fit mx-auto">
+          <div className={`bg-write-bg shadow-write flex flex-col transition-all duration-300 relative outline-none page-${pageSettings.size}`} ref={containerRef} style={{ ...pageStyle, minHeight: pageStyle.minHeight, height: 'auto' }}>
+            <EditorContent editor={editor} className="w-full" />
 
-            {/* Bubble Menu for Inline AI */}
             {editor && (
-              <BubbleMenu
-                editor={editor}
-                className="bubble-ai-menu"
-              >
-                <button type="button" onClick={() => handleInlineAI('improve')} disabled={isAIProcessing}>
-                  <Sparkles size={13} /> Improve
-                </button>
-                <button type="button" onClick={() => handleInlineAI('paraphrase')} disabled={isAIProcessing}>
-                  Paraphrase
-                </button>
-                <button type="button" onClick={() => handleInlineAI('summarize')} disabled={isAIProcessing}>
-                  Summarize
-                </button>
-                <button type="button" onClick={() => handleInlineAI('expand')} disabled={isAIProcessing}>
-                  Expand
-                </button>
-                <button type="button" onClick={() => handleInlineAI('shorten')} disabled={isAIProcessing}>
-                  Shorten
-                </button>
+              <BubbleMenu editor={editor} className="flex items-center gap-1 p-1 bg-write-bg border border-write-border rounded-write shadow-write-lg animate-in zoom-in-95 duration-200">
+                <div className="flex items-center gap-0.5 border-r border-write-border pr-1 mr-1">
+                  <button type="button" className="h-7 px-2 flex items-center gap-1.5 text-[11px] font-bold text-write-blue hover:bg-write-bg2 rounded-write transition-colors disabled:opacity-50" onClick={() => handleInlineAI('improve')} disabled={isAIProcessing}><Sparkles size={12} /> Improve</button>
+                </div>
+                <div className="flex items-center gap-0.5">
+                  <button type="button" className="h-7 px-2 text-[11px] font-medium text-write-text hover:bg-write-bg2 rounded-write" onClick={() => handleInlineAI('paraphrase')} disabled={isAIProcessing}>Paraphrase</button>
+                  <button type="button" className="h-7 px-2 text-[11px] font-medium text-write-text hover:bg-write-bg2 rounded-write" onClick={() => handleInlineAI('summarize')} disabled={isAIProcessing}>Summarize</button>
+                  <button type="button" className="h-7 px-2 text-[11px] font-medium text-write-text hover:bg-write-bg2 rounded-write" onClick={() => handleInlineAI('expand')} disabled={isAIProcessing}>Expand</button>
+                </div>
                 {canComment && selectionState && (
-                  <button type="button" onClick={() => setCommentDraft(selectionState.text)} disabled={isAIProcessing}>
-                    <MessageSquare size={13} /> Comment
-                  </button>
+                  <div className="flex items-center gap-0.5 border-l border-write-border pl-1 ml-1">
+                    <button type="button" className="h-7 px-2 flex items-center gap-1.5 text-[11px] font-medium text-write-orange hover:bg-write-bg2 rounded-write" onClick={() => setCommentDraft(selectionState.text)} disabled={isAIProcessing}><MessageSquare size={12} /> Comment</button>
+                  </div>
                 )}
-                {isAIProcessing && <Loader2 size={14} className="ai-spinner" />}
+                {isAIProcessing && <Loader2 size={12} className="animate-spin text-write-blue ml-1" />}
               </BubbleMenu>
             )}
 
-            {/* Comment Draft Panel (when user selects text + clicks Comment) */}
             {canComment && commentDraft && selectionState && (
-              <div className="comment-draft-panel">
-                <textarea
-                  value={commentDraft}
-                  onChange={(e) => setCommentDraft(e.target.value)}
-                  rows={3}
-                  placeholder="Tulis komentar..."
-                />
-                <div className="comment-draft-actions">
-                  <button type="button" className="btn btn-sm" onClick={() => setCommentDraft('')}>Batal</button>
-                  <button type="button" className="btn btn-sm btn-primary" onClick={handleAddComment}>Simpan</button>
+              <div className="absolute top-0 right-[-340px] w-[320px] bg-write-bg border border-write-border rounded-write-lg shadow-write-lg p-4 animate-in slide-in-from-left-4 duration-300 z-50">
+                <div className="text-[11px] font-bold text-write-text3 mb-2 uppercase tracking-wider">Draft Komentar</div>
+                <div className="text-[12px] text-write-text bg-write-bg2 p-2 rounded-write border border-write-border mb-3 italic line-clamp-3">"{selectionState.text}"</div>
+                <textarea className="w-full bg-write-bg border border-write-border rounded-write p-2 text-[13px] text-write-text outline-none focus:border-write-blue min-h-[80px] resize-none" value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} placeholder="Tulis komentar..." autoFocus />
+                <div className="flex items-center justify-end gap-2 mt-3">
+                  <button type="button" className="px-3 py-1.5 text-[12px] font-bold text-write-text3 hover:text-write-text" onClick={() => setCommentDraft('')}>Batal</button>
+                  <button type="button" className="px-4 py-1.5 text-[12px] font-bold bg-write-blue text-white rounded-write hover:bg-write-blue2 shadow-sm" onClick={handleAddComment}>Kirim</button>
                 </div>
               </div>
             )}
 
-            {/* Comments Panel */}
             {showComments && canComment && (
-              <div className="comments-panel-float">
-                <CommentThread
-                  comments={commentsHook.comments}
-                  currentUserId={userId || ''}
-                  onAddComment={() => {}}
-                  onReply={commentsHook.addReply}
-                  onResolve={commentsHook.resolveComment}
-                  canComment={canComment}
-                />
+              <div className="absolute top-0 right-[-340px] w-[320px] h-full pointer-events-none z-40">
+                <div className="sticky top-4 pointer-events-auto">
+                  <CommentThread comments={commentsHook.comments} currentUserId={userId || ''} onAddComment={() => {}} onReply={commentsHook.addReply} onResolve={commentsHook.resolveComment} canComment={canComment} />
+                </div>
               </div>
             )}
           </div>
 
-          {/* Visual Page Break Lines — OUTSIDE the page div to avoid Tiptap DOM conflicts */}
           {pageCount > 1 && Array.from({ length: pageCount - 1 }, (_, i) => {
             const ps = activeDoc?.pageSettings || DEFAULT_PAGE_SETTINGS;
             const sizeP = PAGE_SIZES[ps.size] || PAGE_SIZES.a4;
             const pageHeightPx = (ps.size === 'custom' ? (ps.customHeight || sizeP.height) : sizeP.height) * 37.8;
             const usableHeight = pageHeightPx - (ps.margins.top * 37.8) - (ps.margins.bottom * 37.8);
             return (
-              <div key={`pb-${i}`} className="page-break-indicator" style={{ top: `${(i + 1) * usableHeight + (ps.margins.top * 37.8)}px`, position: 'absolute', left: 0, right: 0 }}>
-                <span className="page-break-label">— Halaman {i + 2} —</span>
+              <div key={`pb-${i}`} className="absolute left-0 right-0 border-t border-write-border border-dashed pointer-events-none select-none flex items-center justify-center h-px" style={{ top: `${(i + 1) * usableHeight + (ps.margins.top * 37.8)}px` }}>
+                <span className="bg-write-bg2 px-3 py-1 text-[10px] font-bold text-write-text3 rounded-full border border-write-border -translate-y-1/2">Halaman {i + 2}</span>
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* ── Canvas Prompt Bar with Chi AI ── */}
-      <div className="canvas-prompt-bar">
-        <div className="canvas-prompt-row">
-          <div className="canvas-prompt-input-wrap">
-            <input
-              ref={aiPromptRef}
-              type="text"
-              className="canvas-prompt-input"
-              placeholder="Buntu? Ketik instruksi ke Chi — mis: 'buatkan paragraf selanjutnya tentang dampak AI'"
-              value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleAICanvasGenerate();
-                }
-              }}
-              disabled={isAIGenerating}
-            />
-            <button
-              type="button"
-              className="canvas-prompt-send"
-              onClick={handleAICanvasGenerate}
-              disabled={isAIGenerating || !aiPrompt.trim()}
-              title="Generate dengan AI"
-            >
-              {isAIGenerating ? <Loader2 size={16} className="ai-spinner" /> : <Send size={16} />}
-            </button>
+      {/* AI Prompt Bottom Bar */}
+      <div className="border-t border-write-border bg-write-bg p-3 px-6 shrink-0 z-10 flex flex-col gap-2.5">
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 flex items-center">
+            <input ref={aiPromptRef} type="text" className="w-full h-10 pl-4 pr-11 text-[13px] border border-write-border rounded-write-lg bg-write-bg2 text-write-text outline-none transition-all duration-200 focus:border-write-orange focus:ring-2 focus:ring-write-orange/10 focus:bg-write-bg placeholder:text-write-text3" placeholder="Tulis instruksi ke Chi... mis: 'buatkan paragraf penutup'" value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAICanvasGenerate()} disabled={isAIGenerating} />
+            <button type="button" className="absolute right-2 w-7 h-7 flex items-center justify-center rounded-write bg-write-orange text-white border-none transition-all duration-200 hover:bg-write-orange2 disabled:opacity-50 shadow-sm" onClick={handleAICanvasGenerate} disabled={isAIGenerating || !aiPrompt.trim()}><Send size={16} /></button>
           </div>
-          {isAIGenerating && (
-            <span style={{ fontSize: '11px', color: 'var(--text3)', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Loader2 size={12} className="ai-spinner" /> Chi menulis...
-            </span>
-          )}
+          {isAIGenerating && <span className="text-[11px] text-write-text3 whitespace-nowrap flex items-center gap-1 font-medium animate-pulse"><Loader2 size={12} className="animate-spin text-write-orange" /> Chi menulis...</span>}
         </div>
 
-        {/* Suggestion Chips */}
-        <div className="canvas-prompt-suggestions">
-          <button
-            className="canvas-prompt-chip autogen-chip"
-            onClick={() => {
-              const topic = aiPrompt.trim() || activeDoc?.title || '';
-              if (topic && topic !== 'Dokumen Tanpa Judul') {
-                handleAutoGenerate(topic);
-              } else {
-                setAiPrompt('');
-                aiPromptRef.current?.focus();
-                aiPromptRef.current?.setAttribute('placeholder', 'Ketik topik untuk Auto-Generate (mis: "Dampak AI terhadap pendidikan")');
-              }
-            }}
-            disabled={isAutoGenerating}
-          >
-            <span className="chip-icon">🚀</span> Auto Generate
-          </button>
-          <button className="canvas-prompt-chip" onClick={() => setAiPrompt('Rapihkan tata letak')}>
-            <span className="chip-icon">📐</span> Rapihkan tata letak
-          </button>
-          <button className="canvas-prompt-chip" onClick={() => setAiPrompt('Atur margin 4x4x3x3')}>
-            <span className="chip-icon">📏</span> Atur margin
-          </button>
-          <button className="canvas-prompt-chip" onClick={() => setAiPrompt('Buatkan Daftar Pustaka')}>
-            <span className="chip-icon">📚</span> Daftar Pustaka
-          </button>
-          <button className="canvas-prompt-chip" onClick={() => setAiPrompt('Buatkan Footnote')}>
-            <span className="chip-icon">📝</span> Footnote
-          </button>
-          <button className="canvas-prompt-chip" onClick={() => setAiPrompt('Buat kesimpulan')}>
-            <span className="chip-icon">✨</span> Buat Kesimpulan
-          </button>
-          {pageCount > 1 && (
-            <span className="canvas-prompt-chip" style={{ cursor: 'default', opacity: 0.7 }}>
-              📄 {pageCount} halaman
-            </span>
-          )}
-
-          {/* AI Usage Display */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-0.5 no-scrollbar">
+          <button className="h-7 px-3 py-1.25 rounded-full text-[11px] font-bold border bg-write-orange/10 text-write-orange border-write-orange/20 hover:bg-write-orange hover:text-white transition-all active:scale-95 flex items-center gap-1.5" onClick={() => handleAutoGenerate(aiPrompt || activeDoc?.title || '')} disabled={isAutoGenerating}><Sparkles size={12} /> Auto Generate</button>
+          <button className="h-7 px-3 py-1.25 rounded-full text-[11px] font-medium border border-write-border bg-write-bg2 text-write-text3 hover:bg-white hover:text-write-text transition-all active:scale-95" onClick={() => setAiPrompt('Rapihkan tata letak')}>🎨 Rapihkan tata letak</button>
+          <button className="h-7 px-3 py-1.25 rounded-full text-[11px] font-medium border border-write-border bg-write-bg2 text-write-text3 hover:bg-white hover:text-write-text transition-all active:scale-95" onClick={() => setAiPrompt('Buatkan Daftar Pustaka')}>📚 Daftar Pustaka</button>
+          
           {tokenUsage && (
-            <div className="canvas-prompt-usage">
-              <span className={`usage-badge ${tokenUsage.promptRemaining <= 1 ? 'low' : ''}`}>
-                ✏️ {tokenUsage.promptRemaining === -1 ? '∞' : tokenUsage.promptRemaining}/{tokenUsage.promptTotal === -1 ? '∞' : tokenUsage.promptTotal} Prompt
-              </span>
-              <span className={`usage-badge ${tokenUsage.autoGenerateRemaining <= 0 ? 'low' : ''}`}>
-                🚀 {tokenUsage.autoGenerateRemaining === -1 ? '∞' : tokenUsage.autoGenerateRemaining}/{tokenUsage.autoGenerateTotal === -1 ? '∞' : tokenUsage.autoGenerateTotal} Auto
-              </span>
-              <span className="usage-badge">
-                📋 {tokenUsage.planName}
-              </span>
+            <div className="ml-auto flex items-center gap-2">
+              <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold border flex items-center gap-1.5 bg-write-blue/10 text-write-blue border-write-blue/20`}>
+                <div className="w-1.5 h-1.5 rounded-full bg-write-blue" />
+                {tokenUsage.promptRemaining}/{tokenUsage.promptTotal} Prompt
+              </div>
+              <div className="px-2.5 py-1 rounded-full text-[10px] font-bold border bg-write-bg2 text-write-text3 border-write-border shadow-sm">🏆 {tokenUsage.planName}</div>
             </div>
           )}
         </div>

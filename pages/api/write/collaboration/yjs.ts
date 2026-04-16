@@ -80,6 +80,7 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
       let shared = docs.get(room);
 
       if (!shared) {
+        // console.log(`[Yjs WS] Creating new room: ${room}`);
         const doc = new Y.Doc();
         const awareness = new awarenessProtocol.Awareness(doc);
         shared = {
@@ -94,13 +95,16 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
           encoding.writeVarUint(encoder, 0); // sync message type
           syncProtocol.writeUpdate(encoder, update);
           const message = encoding.toUint8Array(encoder);
+          // console.log(`[Yjs WS] Broadcasting update to ${shared!.conns.size} clients in room ${room}.`);
           for (const client of shared!.conns) {
-            if (client.readyState === WebSocket.OPEN) {
+            if (client.readyState === 1 /* WebSocket.OPEN */) {
               try {
                 client.send(message);
               } catch {
                 // Ignore
               }
+            } else {
+              // console.log(`[Yjs WS] Client readyState: ${client.readyState}`);
             }
           }
         });
@@ -123,9 +127,10 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
             encoding.writeVarUint(enc, 1); // awareness message type
             encoding.writeVarUint8Array(enc, awarenessProtocol.encodeAwarenessUpdate(awareness, changedClients));
             const payload = encoding.toUint8Array(enc);
-
+            
+            // console.log(`[Yjs WS] Broadcasting awareness to ${shared!.conns.size} clients in room ${room}.`);
             for (const client of shared!.conns) {
-              if (client.readyState === WebSocket.OPEN) {
+              if (client.readyState === 1 /* WebSocket.OPEN */) {
                 try {
                   client.send(payload);
                 } catch {
@@ -139,6 +144,7 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
       }
 
       shared.conns.add(conn);
+      console.log(`[Yjs WS] Client joined room ${room}. Total clients: ${shared.conns.size}`);
       shared.connControlledIds.set(conn, new Set());
       extConn.sessionSocketId = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 
@@ -195,7 +201,6 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
           }
 
           const decoder = decoding.createDecoder(data);
-          const reply = encoding.createEncoder();
 
           while (decoding.hasContent(decoder)) {
             const type = decoding.readVarUint(decoder);
@@ -208,8 +213,12 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
                   { $set: { lastSeenAt: new Date(), isActive: true } }
                 ).catch(() => undefined);
               }
+              const reply = encoding.createEncoder();
               encoding.writeVarUint(reply, 0);
               syncProtocol.readSyncMessage(decoder, reply, shared!.doc, conn);
+              if (encoding.length(reply) > 1) {
+                conn.send(encoding.toUint8Array(reply));
+              }
             }
             // Type 1: Awareness update
             else if (type === 1) {
@@ -220,19 +229,17 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
             else if (type === 3) {
               const states = Array.from(shared!.awareness.getStates().keys());
               if (states.length > 0) {
+                const reply = encoding.createEncoder();
                 encoding.writeVarUint(reply, 1);
                 encoding.writeVarUint8Array(
                   reply,
                   awarenessProtocol.encodeAwarenessUpdate(shared!.awareness, states)
                 );
+                conn.send(encoding.toUint8Array(reply));
               }
             } else {
               break; // Unknown type, abort buffer parsing
             }
-          }
-
-          if (encoding.length(reply) > 0) {
-            conn.send(encoding.toUint8Array(reply));
           }
         } catch (err) {
           console.error('[Yjs WS] Message handling error:', err);

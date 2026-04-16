@@ -69,45 +69,45 @@ export default function CollaborationPanel({
   };
   
   return (
-    <div className="collaboration-panel">
-      <div className="collaboration-header">
-        <h3>Kolaborator</h3>
+    <div className="p-4 bg-write-bg2 rounded-lg min-w-[250px]">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="m-0 text-[14px] font-semibold text-write-text">Kolaborator</h3>
         {(isOwner || myRole === 'editor') && (
-          <button className="btn btn-sm btn-primary" onClick={onInviteClick}>
+          <button className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-bold bg-write-blue text-white hover:bg-write-blue2 transition-colors cursor-pointer" onClick={onInviteClick}>
             + Undang
           </button>
         )}
       </div>
       
       {/* Online Users */}
-      <div className="user-section">
-        <div className="section-title">
-          <span className="online-indicator" /> Sedang Online ({onlineUsers.length})
+      <div className="mb-4">
+        <div className="flex items-center gap-2 text-[12px] text-write-text2 mb-2">
+          <span className="w-2 h-2 bg-green-500 rounded-full" /> Sedang Online ({onlineUsers.length})
         </div>
         {onlineUsers.length === 0 ? (
-          <div className="empty-state">Tidak ada user online</div>
+          <div className="text-[12px] text-write-text3 text-center p-3">Tidak ada user online</div>
         ) : (
-          <div className="user-list">
+          <div className="flex flex-col gap-2">
             {onlineUsers.map((user) => (
-              <div key={user.id} className="user-item online">
+              <div key={user.id} className="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 hover:bg-write-bg3">
                 <div
-                  className="user-avatar"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[14px] font-semibold text-center"
                   style={{ backgroundColor: user.userColor || '#2563eb' }}
                 >
                   {user.userName?.charAt(0).toUpperCase() || '?'}
                 </div>
-                <div className="user-info">
-                  <div className="user-name">
+                <div className="flex-1 min-w-0 text-left">
+                  <div className="text-[13px] font-medium text-write-text flex items-center gap-1.5">
                     {user.userName}
-                    {user.role === 'owner' && <span className="owner-badge">Anda</span>}
+                    {user.role === 'owner' && <span className="text-[10px] px-1.5 py-0.5 bg-write-blue text-white rounded font-black">Anda</span>}
                   </div>
-                  <div className="user-role">
+                  <div className="text-[11px] text-write-text2 mt-0.5">
                     {getRoleIcon(user.role)} {getRoleLabel(user.role)}
                   </div>
                 </div>
                 {isOwner && user.role !== 'owner' && (
                   <button
-                    className="btn-icon"
+                    className="w-6 h-6 flex items-center justify-center border-none bg-transparent text-write-text3 cursor-pointer rounded transition-colors hover:bg-write-bg3 hover:text-red-500"
                     onClick={() => onRemoveCollaborator(user.id)}
                     title="Hapus kolaborator"
                   >
@@ -122,30 +122,30 @@ export default function CollaborationPanel({
       
       {/* Offline Users */}
       {offlineUsers.length > 0 && (
-        <div className="user-section">
+        <div className="mb-4">
           <button
-            className="section-toggle"
+            className="flex items-center gap-2 text-[12px] text-write-text2 bg-transparent border-none cursor-pointer py-1"
             onClick={() => setShowOffline(!showOffline)}
           >
-            <span className={`arrow ${showOffline ? 'open' : ''}`}>▶</span>
+            <span className={`transition-transform duration-200 text-[8px] ${showOffline ? 'rotate-90' : ''}`}>▶</span>
             Offline ({offlineUsers.length})
           </button>
           {showOffline && (
-            <div className="user-list">
+            <div className="flex flex-col gap-2 mt-2">
               {offlineUsers.map((user) => (
-                <div key={user.id} className="user-item offline">
-                  <div className="user-avatar gray">
+                <div key={user.id} className="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 hover:bg-write-bg3 opacity-70">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[14px] font-semibold bg-write-text3/50 text-center">
                     {user.userName?.charAt(0).toUpperCase() || '?'}
                   </div>
-                  <div className="user-info">
-                    <div className="user-name">{user.userName}</div>
-                    <div className="user-role">
+                  <div className="flex-1 min-w-0 text-left">
+                    <div className="text-[13px] font-medium text-write-text">{user.userName}</div>
+                    <div className="text-[11px] text-write-text2 mt-0.5">
                       {getRoleIcon(user.role)} {getRoleLabel(user.role)}
                     </div>
                   </div>
                   {isOwner && (
                     <button
-                      className="btn-icon"
+                      className="w-6 h-6 flex items-center justify-center border-none bg-transparent text-write-text3 cursor-pointer rounded transition-colors hover:bg-write-bg3 hover:text-red-500"
                       onClick={() => onRemoveCollaborator(user.id)}
                       title="Hapus kolaborator"
                     >
@@ -158,156 +158,6 @@ export default function CollaborationPanel({
           )}
         </div>
       )}
-      
-      <style jsx>{`
-        .collaboration-panel {
-          padding: 16px;
-          background: var(--bg2);
-          border-radius: 8px;
-          min-width: 250px;
-        }
-        
-        .collaboration-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-        
-        .collaboration-header h3 {
-          margin: 0;
-          font-size: 14px;
-          font-weight: 600;
-        }
-        
-        .user-section {
-          margin-bottom: 16px;
-        }
-        
-        .section-title {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 12px;
-          color: var(--text2);
-          margin-bottom: 8px;
-        }
-        
-        .online-indicator {
-          width: 8px;
-          height: 8px;
-          background: #22c55e;
-          border-radius: 50%;
-        }
-        
-        .section-toggle {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 12px;
-          color: var(--text2);
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 4px 0;
-        }
-        
-        .arrow {
-          transition: transform 0.2s;
-        }
-        
-        .arrow.open {
-          transform: rotate(90deg);
-        }
-        
-        .user-list {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        
-        .user-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 8px;
-          border-radius: 6px;
-          transition: background 0.2s;
-        }
-        
-        .user-item:hover {
-          background: var(--bg3);
-        }
-        
-        .user-avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 14px;
-          font-weight: 600;
-        }
-        
-        .user-avatar.gray {
-          background: var(--text3);
-          opacity: 0.5;
-        }
-        
-        .user-info {
-          flex: 1;
-          min-width: 0;
-        }
-        
-        .user-name {
-          font-size: 13px;
-          font-weight: 500;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        
-        .owner-badge {
-          font-size: 10px;
-          padding: 2px 6px;
-          background: var(--blue);
-          color: white;
-          border-radius: 4px;
-        }
-        
-        .user-role {
-          font-size: 11px;
-          color: var(--text2);
-          margin-top: 2px;
-        }
-        
-        .btn-icon {
-          width: 24px;
-          height: 24px;
-          border: none;
-          background: none;
-          color: var(--text3);
-          cursor: pointer;
-          border-radius: 4px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .btn-icon:hover {
-          background: var(--bg3);
-          color: var(--red);
-        }
-        
-        .empty-state {
-          font-size: 12px;
-          color: var(--text3);
-          text-align: center;
-          padding: 12px;
-        }
-      `}</style>
     </div>
   );
 }
