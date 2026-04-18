@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     const { userId, userType } = auth;
     
     const body = await req.json();
-    const { id, title, content, type, template, wordCount, charCount, pageSettings, analysisData, todos, chats, citations } = body;
+    const { id, title, content, type, template, wordCount, charCount, pageSettings, analysisData, todos, chats, citations, musicQueue } = body;
     
     let document;
     
@@ -160,6 +160,7 @@ export async function POST(req: NextRequest) {
       if (todos !== undefined) updatePayload.todos = todos;
       if (chats !== undefined) updatePayload.chats = chats;
       if (citations !== undefined) updatePayload.citations = citations;
+      if (musicQueue !== undefined) updatePayload.musicQueue = musicQueue;
 
       document = await Document.findByIdAndUpdate(
         id,
@@ -208,6 +209,7 @@ export async function POST(req: NextRequest) {
         todos: document.todos || [],
         chats: document.chats || [],
         citations: document.citations || [],
+        musicQueue: document.musicQueue || [],
         createdAt: document.createdAt,
         updatedAt: document.updatedAt,
         userId: document.userId

@@ -189,6 +189,7 @@ export async function GET(
         todos: doc.todos || [],
         chats: doc.chats || [],
         citations: doc.citations || [],
+        musicQueue: doc.musicQueue || [],
         createdAt: doc.createdAt,
         updatedAt: doc.updatedAt,
         userId: doc.userId

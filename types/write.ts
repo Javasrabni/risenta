@@ -74,6 +74,24 @@ export interface IChat {
   isDeleted?: boolean;
 }
 
+export interface IMusicQueueItem {
+  id: string;
+  videoId: string;
+  title: string;
+  channel: string;
+  thumbnail: string;
+  durationString: string;
+  addedBy: string;
+  addedById: string;
+}
+
+export interface IMusicState {
+  isPlaying: boolean;
+  currentVideoId: string;
+  startedAt: number; // Unix timestamp
+  currentIndex: number;
+}
+
 export interface Document {
   id: string;
   joinId?: string;
@@ -88,6 +106,7 @@ export interface Document {
   todos?: ITodo[];
   chats?: IChat[];
   citations?: Citation[];
+  musicQueue?: IMusicQueueItem[];
   createdAt: Date;
   updatedAt: Date;
   userId: string;
@@ -246,8 +265,10 @@ export interface PlagiarismDetection {
 export interface Citation {
   id: string;
   number: number;
-  text: string;
-  author: string;
+  text?: string;
+  author?: string;
+  title?: string;
+  authors?: string;
   year: number;
   source: string;
 }

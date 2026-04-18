@@ -29,6 +29,7 @@ import { calculateStats, debounce } from '@/lib/writeUtils';
 import { useComments } from '@/hooks/useComments';
 import CommentThread from './CommentThread';
 import WriteLeftPanel from './WriteLeftPanel';
+import VirtualSpeaker from './VirtualSpeaker';
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
@@ -141,6 +142,8 @@ export default function TiptapWriteEditor({
   const yTodos = useMemo(() => yDoc.getArray<ITodo>('todos'), [yDoc]);
   const yChats = useMemo(() => yDoc.getArray<IChat>('chats'), [yDoc]);
   const yCitations = useMemo(() => yDoc.getArray<Citation>('citations'), [yDoc]);
+  const yMusicQueue = useMemo(() => yDoc.getArray<any>('musicQueue'), [yDoc]);
+  const yMusicState = useMemo(() => yDoc.getMap<any>('musicState'), [yDoc]);
 
   const [localTodos, setLocalTodos] = useState<ITodo[]>([]);
   const [localChats, setLocalChats] = useState<IChat[]>([]);
@@ -174,10 +177,13 @@ export default function TiptapWriteEditor({
         if (yTodos.length === 0 && activeDoc.todos && activeDoc.todos.length > 0) yTodos.push(activeDoc.todos);
         if (yChats.length === 0 && activeDoc.chats && activeDoc.chats.length > 0) yChats.push(activeDoc.chats);
         if (yCitations.length === 0 && activeDoc.citations && activeDoc.citations.length > 0) yCitations.push(activeDoc.citations);
+        if (yMusicQueue.length === 0 && activeDoc.musicQueue && activeDoc.musicQueue.length > 0) {
+          yMusicQueue.push(activeDoc.musicQueue as any[]);
+        }
       }
     };
-    provider.on('synced', handleSync);
-    return () => provider.off('synced', handleSync);
+    provider.on('sync', handleSync);
+    return () => provider.off('sync', handleSync);
   }, [provider, activeDoc, yTodos, yChats, yCitations]);
 
   // Handlers for Panel
@@ -251,9 +257,10 @@ export default function TiptapWriteEditor({
           todos: yTodos.toArray(),
           chats: yChats.toArray(),
           citations: yCitations.toArray(),
+          musicQueue: yMusicQueue.toArray(),
         });
       }, 300),
-    [activeDoc, updateDocument, yTodos, yChats, yCitations]
+    [activeDoc, updateDocument, yTodos, yChats, yCitations, yMusicQueue]
   );
 
   const editor = useEditor({
@@ -376,7 +383,9 @@ export default function TiptapWriteEditor({
         }
       });
       
-      setRemoteCursors(cursors);
+      requestAnimationFrame(() => {
+        setRemoteCursors(cursors);
+      });
 
       // Call onActiveUsersChange if provided
       if (onActiveUsersChange) {
@@ -1034,6 +1043,13 @@ export default function TiptapWriteEditor({
         </div>
         </div>
       </div>
+
+      <VirtualSpeaker 
+        musicQueue={yMusicQueue}
+        musicState={yMusicState}
+        currentUserId={userId || 'guest'}
+        currentUserName={userName || 'Anonymous'}
+      />
     </div>
   );
 }

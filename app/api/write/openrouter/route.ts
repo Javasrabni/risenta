@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         );
       }
       isAdmin = true;
-    } else {
+    } else if (auth && auth.type === 'customer') {
       customerID = auth.customerID;
       // Check usage limits for customers
       const usageCheck = await checkAIUsage(customerID, actionType);

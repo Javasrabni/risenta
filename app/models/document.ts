@@ -24,6 +24,17 @@ export interface ICitation {
   url?: string;
 }
 
+export interface IMusicQueueItem {
+  id: string;
+  videoId: string;
+  title: string;
+  channel: string;
+  thumbnail: string;
+  durationString: string;
+  addedBy: string;
+  addedById: string;
+}
+
 export interface IPageSettings {
   size: 'a4' | 'a5' | 'letter' | 'legal' | 'custom';
   margins: {
@@ -63,6 +74,7 @@ export interface IDocument extends MongooseDocument {
   todos?: ITodo[];
   chats?: IChat[];
   citations?: ICitation[];
+  musicQueue?: IMusicQueueItem[];
   type: 'essay' | 'article' | 'journal' | 'thesis';
   template?: 'blank' | 'essay' | 'thesis' | 'article' | 'journal' | 'research' | 'report';
   wordCount: number;
@@ -216,6 +228,19 @@ const DocumentSchema = new Schema<IDocument>(
         year: String,
         source: String,
         url: String
+      }],
+      default: []
+    },
+    musicQueue: {
+      type: [{
+        id: String,
+        videoId: String,
+        title: String,
+        channel: String,
+        thumbnail: String,
+        durationString: String,
+        addedBy: String,
+        addedById: String
       }],
       default: []
     }
